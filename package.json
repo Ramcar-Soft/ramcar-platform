@@ -1,0 +1,23 @@
+{
+  "name": "ramcar-platform",
+  "private": true,
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "db:migrate": "supabase db push",
+    "db:new": "supabase migration new",
+    "db:types": "supabase gen types typescript --local > packages/db-types/src/types.ts",
+    "db:reset": "supabase db reset",
+    "db:start": "supabase start"
+  },
+  "devDependencies": {
+    "turbo": "^2.8.17"
+  }
+}
