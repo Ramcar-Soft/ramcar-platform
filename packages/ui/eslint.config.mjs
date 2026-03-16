@@ -1,11 +1,10 @@
 import baseConfig from "@ramcar/config/eslint";
 
 export default [
-  {
-    ignores: ["dist/**", "dist-electron/**", "release/**"],
-  },
   ...baseConfig,
   {
-    rules: {},
+    rules: {
+      // UI package specific overrides if needed
+    },
   },
 ];
