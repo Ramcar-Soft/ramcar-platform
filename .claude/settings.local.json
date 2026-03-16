@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(pnpm:*)",
+      "Bash(mkdir:*)",
+      "Bash(echo:*)",
+      "Bash(pnpx:*)",
+      "Bash(printf:*)",
+      "Bash(ls:*)",
+      "Bash(expect:*)",
+      "Bash(cat:*)",
+      "Bash(supabase:*)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Bash(done)"
+    ]
+  }
+}
