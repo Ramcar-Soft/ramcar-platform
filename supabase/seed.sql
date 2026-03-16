@@ -1,0 +1,3 @@
+-- Development seed data
+-- Run with: supabase db reset
+-- This file is executed after all migrations when resetting the local database.
