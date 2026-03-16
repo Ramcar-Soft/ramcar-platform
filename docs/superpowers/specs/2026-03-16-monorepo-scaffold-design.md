@@ -29,9 +29,10 @@
 | File | Purpose |
 |---|---|
 | `.nvmrc` | `22` — enforces Node 22 LTS |
+| `.npmrc` | `strict-peer-dependencies=true` — catches dependency issues early in pnpm |
 | `pnpm-workspace.yaml` | Declares `apps/*` and `packages/*` as workspaces |
-| `package.json` | Root: `name: "ramcar-platform"`, `private: true`, `engines: { node: ">=22" }`. Scripts: turbo commands (`dev`, `build`, `lint`, `typecheck`, `test`) + Supabase DB scripts (`db:migrate`, `db:new`, `db:types`, `db:reset`, `db:start`) |
-| `turbo.json` | Pipeline: `build` (dependsOn `^build`, outputs `.next/**`, `dist/**`, `out/**`), `dev` (persistent, no cache), `lint`, `typecheck` (dependsOn `^build`), `test` (dependsOn `^build`, outputs `coverage/**`) |
+| `package.json` | Root: `name: "ramcar-platform"`, `private: true`, `"packageManager": "pnpm@9.x.x"` (exact version, for Corepack enforcement), `engines: { node: ">=22" }`. Scripts: turbo commands (`dev`, `build`, `lint`, `typecheck`, `test`) + Supabase DB scripts (`db:migrate`, `db:new`, `db:types`, `db:reset`, `db:start`) |
+| `turbo.json` | Pipeline: `build` (dependsOn `^build`, outputs `.next/**`, `dist/**`, `out/**`), `dev` (persistent, no cache), `lint`, `typecheck` (dependsOn `^build`), `test` (dependsOn `^build`, outputs `coverage/**`). Include `globalEnv` for `NEXT_PUBLIC_*` and `SUPABASE_*` to ensure cache invalidation when env vars change. |
 | `.gitignore` | Comprehensive monorepo gitignore: `node_modules`, `.next`, `dist`, `out`, `.turbo`, `.env*`, `.DS_Store`, `*.tsbuildinfo`, `.vercel`, Electron build outputs, Supabase local files |
 
 The existing `.gitignore` is replaced entirely (current one is Next.js-only and too narrow for the monorepo).
@@ -42,15 +43,38 @@ The existing `.gitignore` is replaced entirely (current one is Next.js-only and 
 
 `@ramcar/config` — private package, no build step.
 
+**`package.json` must include an `exports` map** so that paths like `@ramcar/config/tsconfig.base.json` resolve correctly under pnpm strict mode:
+
+```json
+{
+  "name": "@ramcar/config",
+  "private": true,
+  "exports": {
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.react.json": "./tsconfig.react.json",
+    "./tsconfig.node.json": "./tsconfig.node.json",
+    "./eslint": "./eslint.config.mjs",
+    "./prettier": "./prettier.config.mjs"
+  }
+}
+```
+
 | File | Purpose |
 |---|---|
 | `tsconfig.base.json` | Base TS config: `strict: true`, `target: "ES2022"`, `module: "ESNext"`, `moduleResolution: "bundler"` |
-| `tsconfig.react.json` | Extends base, adds `jsx: "react-jsx"` — for web, www, desktop renderer, ui |
+| `tsconfig.react.json` | Extends base, adds `jsx: "react-jsx"` — for desktop renderer, packages/ui, packages/store. **Note:** Next.js apps (web, www) must override to `jsx: "preserve"` in their local tsconfig since Next.js handles JSX transformation itself. |
 | `tsconfig.node.json` | Extends base, adds Node-specific settings — for api, desktop main |
 | `eslint.config.mjs` | Shared flat config: typescript-eslint, prettier plugin, import rules |
 | `prettier.config.mjs` | Shared Prettier config — single source of truth |
 
 Each app/package creates its own `eslint.config.mjs` that imports and extends the shared config. Prettier is referenced via package.json or local `.prettierrc.mjs` re-export.
+
+### Tailwind Shared Preset
+
+A shared Tailwind preset lives in `packages/config/tailwind.preset.ts` (or in `packages/ui/tailwind.preset.ts`). It defines the product's color tokens, typography, and theme extensions. Each Tailwind consumer (`apps/web`, `apps/www`, `apps/desktop` renderer, `packages/ui`) creates its own `tailwind.config.ts` that:
+
+1. Imports the shared preset
+2. Sets `content` paths to include **both** local source files and `../../packages/ui/src/**/*.{ts,tsx}` — this prevents Tailwind from purging UI component styles
 
 ---
 
@@ -58,40 +82,46 @@ Each app/package creates its own `eslint.config.mjs` that imports and extends th
 
 ### 3.1 `apps/web` — Authenticated Web Portal
 
-- **Scaffold:** `pnpx create-next-app@latest apps/web --typescript --tailwind --app --src-dir --eslint`
+- **Scaffold:** `pnpx create-next-app@latest apps/web --typescript --tailwind --app --src-dir --no-eslint --no-git`
+  - `--no-git` prevents nested `.git` repo
+  - `--no-eslint` avoids generating legacy `.eslintrc.json` (we set up flat config manually)
 - **Adapt:**
-  - `tsconfig.json` extends `@ramcar/config/tsconfig.react.json`
-  - ESLint flat config imports `@ramcar/config`
+  - `tsconfig.json` extends `@ramcar/config/tsconfig.react.json`, overrides `jsx: "preserve"` for Next.js
+  - ESLint flat config imports `@ramcar/config`, includes `eslint-config-next` rules
+  - `tailwind.config.ts` imports shared preset + includes `packages/ui` content paths
   - Workspace deps: `@ramcar/ui`, `@ramcar/shared`, `@ramcar/store`
   - Clean boilerplate page content (keep `app/layout.tsx`, `app/page.tsx` minimal)
   - Create empty `src/features/` and `src/shared/` directories with `.gitkeep`
 
 ### 3.2 `apps/www` — Public Landing Page
 
-- **Scaffold:** `pnpx create-next-app@latest apps/www --typescript --tailwind --app --src-dir --eslint`
+- **Scaffold:** `pnpx create-next-app@latest apps/www --typescript --tailwind --app --src-dir --no-eslint --no-git`
 - **Adapt:**
-  - Same tsconfig/eslint adaptation as web
-  - Workspace deps: `@ramcar/ui`, `@ramcar/shared` (no store or minimal)
+  - Same tsconfig/eslint/tailwind adaptation as web (including `jsx: "preserve"` override)
+  - Workspace deps: `@ramcar/ui`, `@ramcar/shared` (no `@ramcar/store` — not needed for a public site)
   - Clean boilerplate, create empty `src/features/` and `src/shared/` with `.gitkeep`
 
 ### 3.3 `apps/api` — NestJS Backend
 
-- **Scaffold:** `pnpx @nestjs/cli new apps/api --package-manager pnpm --strict`
+- **Scaffold:** `cd apps && pnpx @nestjs/cli new api --package-manager pnpm --strict --skip-git`
+  - Run from `apps/` directory so NestJS CLI creates `apps/api/` (not `apps/api/api/`)
+  - `--skip-git` prevents nested `.git` repo
 - **Adapt:**
-  - `tsconfig.json` extends `@ramcar/config/tsconfig.node.json`
+  - `tsconfig.json` extends `@ramcar/config/tsconfig.node.json` (keep NestJS `tsconfig.build.json` for its build step)
   - Replace NestJS default `.eslintrc.js` with flat config importing `@ramcar/config`
   - Workspace deps: `@ramcar/shared`, `@ramcar/db-types`
   - Create empty `src/common/`, `src/modules/`, `src/infrastructure/` directories with `.gitkeep`
   - Keep generated `app.module.ts`, `app.controller.ts`, `app.service.ts`, `main.ts`
+  - `typecheck` script: `tsc --noEmit` (using the main `tsconfig.json`, not `tsconfig.build.json`)
 
 ### 3.4 `apps/desktop` — Electron + Vite + React
 
-- **Scaffold:** `pnpx create-electron-vite apps/desktop` (React + TypeScript template)
+- **Scaffold:** `pnpx create-electron-vite apps/desktop` — select **React + TypeScript** when prompted (or use `--template react-ts` if supported non-interactively)
 - **Adapt:**
   - Main process tsconfig extends `@ramcar/config/tsconfig.node.json`
   - Renderer tsconfig extends `@ramcar/config/tsconfig.react.json`
   - ESLint flat config importing `@ramcar/config`
-  - Add Tailwind CSS to renderer
+  - Add Tailwind CSS to renderer with `tailwind.config.ts` importing shared preset + `packages/ui` content paths
   - Workspace deps: `@ramcar/ui`, `@ramcar/shared`, `@ramcar/store`
   - Create empty `src/main/services/`, `src/main/repositories/`, `src/main/ipc/` with `.gitkeep`
   - Create empty `src/renderer/features/`, `src/renderer/shared/` with `.gitkeep`
@@ -105,7 +135,7 @@ Each app/package creates its own `eslint.config.mjs` that imports and extends th
 
 - `@ramcar/ui`, main entry `src/index.ts`
 - tsconfig extends `@ramcar/config/tsconfig.react.json`
-- Tailwind CSS with shared theme tokens (colors, typography)
+- `tailwind.config.ts` with shared preset and local content paths
 - shadcn/ui initialized: `components.json` pointing to `src/components/`
 - Base components added via shadcn CLI: **Button**, **Card**, **Input**
 - `src/index.ts` re-exports all components
@@ -153,7 +183,7 @@ After scaffold is complete:
 1. `pnpm install` — all workspace dependencies resolve
 2. `pnpm turbo build` — all apps and packages build without errors
 3. `pnpm turbo lint` — ESLint passes across all workspaces
-4. `pnpm turbo typecheck` — TypeScript compiles cleanly
+4. `pnpm turbo typecheck` — TypeScript compiles cleanly (`tsc --noEmit` per workspace)
 5. Smoke test: `apps/web` imports and renders `<Button />` from `@ramcar/ui`
 
 ---
@@ -163,6 +193,7 @@ After scaffold is complete:
 ```
 /
 ├── .nvmrc
+├── .npmrc
 ├── .gitignore
 ├── package.json
 ├── pnpm-workspace.yaml
@@ -173,7 +204,7 @@ After scaffold is complete:
 │   ├── desktop/      # Electron+Vite+React (create-electron-vite, adapted)
 │   └── api/          # NestJS (nest new, adapted)
 ├── packages/
-│   ├── config/       # tsconfigs, eslint, prettier
+│   ├── config/       # tsconfigs, eslint, prettier, tailwind preset
 │   ├── ui/           # shadcn/ui with Button, Card, Input
 │   ├── shared/       # Zod, types, utils (empty dirs)
 │   ├── store/        # Zustand factory + provider skeleton
