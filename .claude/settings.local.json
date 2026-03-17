@@ -16,8 +16,12 @@
       "Bash(done)",
       "Bash(gh auth:*)",
       "Bash(curl:*)",
-      "Bash(find:*)"
-    ]
+      "Bash(find:*)",
+      "Bash(.specify/scripts/bash/check-prerequisites.sh --json --paths-only)",
+      "Bash(.specify/scripts/bash/setup-plan.sh --json)",
+      "Bash(.specify/scripts/bash/update-agent-context.sh claude:*)"
+    ],
+    "defaultMode": "bypassPermissions"
   },
   "hooks": {
     "PostToolUse": [

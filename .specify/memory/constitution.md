@@ -21,7 +21,7 @@
   Follow-up TODOs: None
 -->
 
-# Ramcar Platform Constitution
+# RamcarSoftPlatform Constitution
 
 ## Core Principles
 
@@ -102,7 +102,7 @@
 
 ## Governance
 
-- This constitution is the highest-authority document for architectural and coding decisions in the Ramcar Platform. It supersedes informal conventions or ad-hoc practices.
+- This constitution is the highest-authority document for architectural and coding decisions in the RamcarSoftPlatform. It supersedes informal conventions or ad-hoc practices.
 - Amendments require: (1) a written proposal describing the change and rationale, (2) updating this file with the new version, and (3) verifying that dependent templates (plan, spec, tasks) remain consistent.
 - Versioning follows SemVer: MAJOR for principle removals or redefinitions, MINOR for new principles or material expansions, PATCH for clarifications and wording fixes.
 - All code reviews MUST verify compliance with these principles. Non-compliance MUST be flagged and resolved before merge.

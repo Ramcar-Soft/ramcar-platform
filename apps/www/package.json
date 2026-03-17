@@ -12,7 +12,9 @@
   "dependencies": {
     "@ramcar/shared": "workspace:*",
     "@ramcar/ui": "workspace:*",
+    "lucide-react": "^0.460.0",
     "next": "16.1.6",
+    "next-intl": "^4.8.3",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },

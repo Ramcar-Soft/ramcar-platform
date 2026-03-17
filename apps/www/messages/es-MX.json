@@ -1,0 +1,326 @@
+{
+  "nav": {
+    "logo": "RamcarSoft",
+    "links": {
+      "features": "Funcionalidades",
+      "pricing": "Precios",
+      "faq": "Preguntas frecuentes"
+    },
+    "cta": "Solicitar una Demo"
+  },
+  "hero": {
+    "headline": "La plataforma de seguridad residencial que tu fraccionamiento necesita",
+    "subheadline": "Simplifica la seguridad de tu fraccionamiento con bitácoras digitales, alertas en tiempo real y control de acceso — todo en una sola plataforma.",
+    "cta": "Solicita una Demo Gratis",
+    "secondary": "Ver cómo funciona"
+  },
+  "problem": {
+    "headline": "¿Te suena familiar?",
+    "items": [
+      {
+        "title": "Bitácoras en papel",
+        "description": "Los registros en papel se pierden, se mojan o simplemente no se llenan. No hay forma de buscar ni generar reportes."
+      },
+      {
+        "title": "Sin alertas en tiempo real",
+        "description": "Cuando ocurre un incidente, te enteras horas o días después. No hay manera de notificar a los residentes al instante."
+      },
+      {
+        "title": "Cambios de turno sin continuidad",
+        "description": "Cada cambio de guardia es empezar de cero. No hay historial compartido ni seguimiento de pendientes entre turnos."
+      },
+      {
+        "title": "Los residentes se sienten inseguros",
+        "description": "Sin visibilidad de quién entra y sale, los residentes pierden confianza en la seguridad de su fraccionamiento."
+      },
+      {
+        "title": "La administración no tiene visibilidad",
+        "description": "Los administradores no tienen datos para tomar decisiones. No saben si la seguridad funciona o solo aparenta funcionar."
+      }
+    ]
+  },
+  "howItWorks": {
+    "headline": "Cómo funciona Ramcar",
+    "steps": [
+      {
+        "step": 1,
+        "title": "Registra tu fraccionamiento",
+        "description": "Crea tu cuenta y configura la información básica de tu comunidad en minutos."
+      },
+      {
+        "step": 2,
+        "title": "Configura la caseta",
+        "description": "Instala la app de escritorio en la caseta de vigilancia. Funciona incluso sin conexión a internet."
+      },
+      {
+        "step": 3,
+        "title": "Invita a los residentes",
+        "description": "Los residentes descargan la app móvil para pre-autorizar visitantes y recibir notificaciones."
+      },
+      {
+        "step": 4,
+        "title": "Monitorea todo",
+        "description": "Accede al panel de administración para ver reportes, estadísticas y el historial completo de actividad."
+      }
+    ]
+  },
+  "features": {
+    "headline": "Todo lo que necesitas para asegurar tu fraccionamiento",
+    "tabs": {
+      "admin": {
+        "label": "Administrador",
+        "title": "Control",
+        "description": "Gestiona residentes, monitorea la actividad y toma decisiones basadas en datos reales.",
+        "items": [
+          {
+            "title": "Panel de análisis",
+            "description": "Visualiza métricas de seguridad, tendencias de acceso y reportes en tiempo real."
+          },
+          {
+            "title": "Gestión de residentes",
+            "description": "Administra altas, bajas y permisos de todos los residentes del fraccionamiento."
+          },
+          {
+            "title": "Control de lista negra",
+            "description": "Mantén un registro de personas no autorizadas y recibe alertas si intentan ingresar."
+          },
+          {
+            "title": "Historial de visitantes",
+            "description": "Consulta el historial completo de entradas y salidas con filtros avanzados."
+          },
+          {
+            "title": "Reserva de amenidades",
+            "description": "Administra la reservación de áreas comunes como salón de eventos, alberca y canchas."
+          }
+        ]
+      },
+      "guard": {
+        "label": "Guardia",
+        "title": "Herramientas",
+        "description": "Todo lo que el guardia necesita para registrar, verificar y comunicar desde la caseta.",
+        "items": [
+          {
+            "title": "Bitácora digital",
+            "description": "Registra entradas, salidas e incidentes de forma rápida y organizada desde la caseta."
+          },
+          {
+            "title": "Alertas instantáneas",
+            "description": "Envía y recibe alertas de seguridad en tiempo real a residentes y administradores."
+          },
+          {
+            "title": "Verificación de lista negra",
+            "description": "Verifica automáticamente si un visitante está en la lista negra antes de permitir el acceso."
+          },
+          {
+            "title": "Cambio de turno",
+            "description": "Transfiere pendientes y novedades al siguiente turno con un solo clic."
+          },
+          {
+            "title": "Modo sin conexión",
+            "description": "Sigue trabajando sin internet. Los datos se sincronizan automáticamente cuando se restablece la conexión."
+          }
+        ]
+      },
+      "resident": {
+        "label": "Residente",
+        "title": "Seguridad",
+        "description": "Controla quién visita tu hogar y mantente informado de lo que pasa en tu fraccionamiento.",
+        "items": [
+          {
+            "title": "Pre-autorizar visitantes",
+            "description": "Genera códigos de acceso para tus visitantes y recibe confirmación cuando lleguen."
+          },
+          {
+            "title": "Notificaciones en tiempo real",
+            "description": "Recibe alertas instantáneas cuando un visitante llega o cuando hay un incidente de seguridad."
+          },
+          {
+            "title": "Solicitar asistencia",
+            "description": "Envía solicitudes de ayuda directamente a la caseta de vigilancia desde tu celular."
+          },
+          {
+            "title": "Reservas de amenidades",
+            "description": "Reserva áreas comunes como el salón de eventos, la alberca o las canchas deportivas."
+          }
+        ]
+      }
+    }
+  },
+  "whyUs": {
+    "headline": "¿Por qué elegir Ramcar?",
+    "items": [
+      {
+        "title": "Hecho para México",
+        "description": "Diseñado específicamente para fraccionamientos y condominios mexicanos, con flujos que se adaptan a la realidad local."
+      },
+      {
+        "title": "Funciona sin internet",
+        "description": "La app de caseta funciona sin conexión. Los datos se sincronizan automáticamente cuando regresa el internet."
+      },
+      {
+        "title": "Configuración fácil",
+        "description": "Pon tu fraccionamiento en marcha en minutos, no en semanas. Sin hardware especial ni instalaciones complicadas."
+      },
+      {
+        "title": "Precio accesible",
+        "description": "Planes diseñados para fraccionamientos de todos los tamaños, sin contratos de largo plazo ni costos ocultos."
+      },
+      {
+        "title": "Alertas en tiempo real",
+        "description": "Notificaciones instantáneas para residentes, guardias y administradores cuando algo importante sucede."
+      },
+      {
+        "title": "Enfocado en privacidad",
+        "description": "Tus datos están protegidos con encriptación de extremo a extremo y cumplimiento de normativas de privacidad."
+      }
+    ]
+  },
+  "socialProof": {
+    "headline": "Diseñado para fraccionamientos mexicanos",
+    "story": "RamcarSoftnació de una necesidad real: mejorar la seguridad en fraccionamientos mexicanos donde las bitácoras en papel y la falta de comunicación dejaban vulnerables a las familias. Nuestra plataforma combina tecnología moderna con un profundo entendimiento de cómo funcionan las comunidades residenciales en México.",
+    "stats": [
+      {
+        "value": "15",
+        "label": "Fraccionamientos activos"
+      },
+      {
+        "value": "1502",
+        "label": "Residentes protegidos"
+      },
+      {
+        "value": "120",
+        "label": "Interacciones de guardia"
+      }
+    ]
+  },
+  "pricing": {
+    "headline": "Precios simples y transparentes",
+    "subtitle": "Elige el plan que mejor se adapte a tu fraccionamiento. Sin costos ocultos ni sorpresas.",
+    "tiers": [
+      {
+        "name": "Básico",
+        "price": "$X",
+        "currency": "USD",
+        "period": "/mes",
+        "badge": null,
+        "features": [
+          "1 fraccionamiento",
+          "Hasta 50 residentes",
+          "2 cuentas de guardia",
+          "Sin reserva de amenidades",
+          "Historial de 30 días",
+          "Soporte por correo"
+        ],
+        "cta": "Comenzar prueba gratis"
+      },
+      {
+        "name": "Estándar",
+        "price": "$X",
+        "currency": "USD",
+        "period": "/mes",
+        "badge": "Más popular",
+        "features": [
+          "Hasta 3 fraccionamientos",
+          "Hasta 150 residentes",
+          "5 cuentas de guardia",
+          "Reserva de amenidades",
+          "Historial de 90 días",
+          "Soporte prioritario"
+        ],
+        "cta": "Comenzar prueba gratis"
+      },
+      {
+        "name": "Premium",
+        "price": "$X",
+        "currency": "USD",
+        "period": "/mes",
+        "badge": null,
+        "features": [
+          "Fraccionamientos ilimitados",
+          "Residentes ilimitados",
+          "Cuentas de guardia ilimitadas",
+          "Reserva de amenidades",
+          "Historial ilimitado",
+          "Soporte dedicado"
+        ],
+        "cta": "Comenzar prueba gratis"
+      }
+    ],
+    "trialNote": "Todos los planes incluyen 14 días de prueba gratis.",
+    "customPlan": "¿Necesitas un plan personalizado?",
+    "customPlanLink": "Contáctanos"
+  },
+  "faq": {
+    "headline": "Preguntas frecuentes",
+    "items": [
+      {
+        "question": "¿Qué hardware necesito para usar Ramcar?",
+        "answer": "Solo necesitas una computadora o tablet en la caseta de vigilancia y un celular para los residentes. No se requiere hardware especial."
+      },
+      {
+        "question": "¿RamcarSoftfunciona sin conexión a internet?",
+        "answer": "Sí. La aplicación de escritorio para la caseta funciona completamente sin internet. Los registros se guardan localmente y se sincronizan automáticamente cuando se restablece la conexión."
+      },
+      {
+        "question": "¿Cómo protegen mis datos y los de mis residentes?",
+        "answer": "Utilizamos encriptación de extremo a extremo, servidores seguros y cumplimos con las normativas de protección de datos personales."
+      },
+      {
+        "question": "¿Hay un contrato de permanencia?",
+        "answer": "No. Todos nuestros planes son mensuales y puedes cancelar en cualquier momento sin penalizaciones."
+      },
+      {
+        "question": "¿Cuánto tiempo toma configurar Ramcar?",
+        "answer": "La mayoría de los fraccionamientos están funcionando en menos de 24 horas."
+      },
+      {
+        "question": "¿Puedo importar mi lista de residentes existente?",
+        "answer": "Sí, soportamos importación masiva mediante archivos CSV."
+      },
+      {
+        "question": "¿Ofrecen soporte en español?",
+        "answer": "Sí, nuestra plataforma y equipo de soporte son completamente bilingües (español e inglés)."
+      }
+    ]
+  },
+  "cta": {
+    "headline": "¿Listo para asegurar tu fraccionamiento?",
+    "subtitle": "Comienza en minutos. Sin tarjeta de crédito, sin compromiso a largo plazo.",
+    "form": {
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "communityName": "Nombre del fraccionamiento",
+      "residentCount": "Número de residentes",
+      "residentCountPlaceholder": "Seleccionar rango",
+      "residentCountOptions": [
+        "1–50",
+        "51–150",
+        "151–300",
+        "301–500",
+        "500+"
+      ],
+      "submit": "Solicitar una Demo"
+    },
+    "success": "¡Gracias! Nos pondremos en contacto contigo en las próximas 24 horas.",
+    "contact": {
+      "headline": "O contáctanos directamente",
+      "email": "info@ramcarsoft.com"
+    }
+  },
+  "footer": {
+    "tagline": "Seguridad residencial, simplificada.",
+    "links": {
+      "privacy": "Política de Privacidad",
+      "terms": "Términos de Servicio",
+      "contact": "Contacto"
+    },
+    "languageSwitcher": "Idioma",
+    "copyright": "© 2026 RamcarSoft. Todos los derechos reservados."
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "minLength": "Debe tener al menos {min} caracteres.",
+    "email": "Por favor ingresa un correo electrónico válido.",
+    "select": "Por favor selecciona una opción."
+  }
+}

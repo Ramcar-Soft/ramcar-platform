@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Project Overview
 
-Ramcar Platform — a multi-tenant residential security platform. This Turborepo monorepo contains the web portal, landing page, Electron desktop app for guard booths, and NestJS backend API. The mobile app lives in a separate repository (`ramcar-mobile`).
+RamcarSoftPlatform — a multi-tenant residential security platform. This Turborepo monorepo contains the web portal, landing page, Electron desktop app for guard booths, and NestJS backend API. The mobile app lives in a separate repository (`ramcar-mobile`).
 
 ## Tech Stack
 

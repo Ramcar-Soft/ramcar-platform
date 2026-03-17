@@ -1,2 +1,3 @@
-// Barrel export — add types, validators, and utils as they are created
-export {};
+// Validators
+export { demoRequestLeadSchema, residentCountOptions } from "./validators/demo-request";
+export type { DemoRequestLead } from "./validators/demo-request";

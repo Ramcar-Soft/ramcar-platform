@@ -1,0 +1,326 @@
+{
+  "nav": {
+    "logo": "RamcarSoft",
+    "links": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "faq": "FAQ"
+    },
+    "cta": "Request a Demo"
+  },
+  "hero": {
+    "headline": "The residential security platform your community deserves",
+    "subheadline": "Simplify visitor management, guard operations, and resident communication — all in one platform built for modern communities.",
+    "cta": "Request a Free Demo",
+    "secondary": "See how it works"
+  },
+  "problem": {
+    "headline": "Sound familiar?",
+    "items": [
+      {
+        "title": "Visitor logs on paper",
+        "description": "Handwritten logs get lost, are illegible, and impossible to search when you need them most."
+      },
+      {
+        "title": "No real-time alerts",
+        "description": "Residents find out about visitors only when the guard calls — or worse, when a stranger is already at their door."
+      },
+      {
+        "title": "Guard shift handoff gaps",
+        "description": "Critical information gets lost between shifts, leaving security gaps during transitions."
+      },
+      {
+        "title": "Residents feel unsafe",
+        "description": "Without visibility into who enters and exits, residents lose trust in their community's security."
+      },
+      {
+        "title": "HOA lacks visibility",
+        "description": "Administrators have no data, no reports, and no way to measure whether security is actually working."
+      }
+    ]
+  },
+  "howItWorks": {
+    "headline": "How RamcarSoft works",
+    "steps": [
+      {
+        "step": 1,
+        "title": "Register your community",
+        "description": "Create your community profile and configure your security rules in minutes."
+      },
+      {
+        "step": 2,
+        "title": "Set up the guard booth",
+        "description": "Install the guard booth app on a tablet or computer — no special hardware required."
+      },
+      {
+        "step": 3,
+        "title": "Invite your residents",
+        "description": "Residents download the app and start pre-authorizing visitors immediately."
+      },
+      {
+        "step": 4,
+        "title": "Monitor everything",
+        "description": "Track entries, exits, incidents, and guard activity from a real-time dashboard."
+      }
+    ]
+  },
+  "features": {
+    "headline": "Everything you need to secure your community",
+    "tabs": {
+      "admin": {
+        "label": "Admin",
+        "title": "Complete control",
+        "description": "Manage your community's security operations with powerful tools designed for property managers and HOA administrators.",
+        "items": [
+          {
+            "title": "Dashboard analytics",
+            "description": "Real-time metrics on visitor traffic, guard activity, and community security trends."
+          },
+          {
+            "title": "Resident management",
+            "description": "Add, remove, and manage residents and their units with bulk import support."
+          },
+          {
+            "title": "Blacklist control",
+            "description": "Maintain a shared blacklist of denied individuals across all entry points."
+          },
+          {
+            "title": "Visitor history",
+            "description": "Searchable log of every visitor entry and exit with timestamps and guard notes."
+          },
+          {
+            "title": "Amenity booking",
+            "description": "Let residents reserve common areas and amenities through the platform."
+          }
+        ]
+      },
+      "guard": {
+        "label": "Guard",
+        "title": "Tools",
+        "description": "Give your guards the tools they need to work faster, smarter, and safer — even without internet.",
+        "items": [
+          {
+            "title": "Digital visitor log",
+            "description": "Replace paper logs with a fast, searchable digital registry for every visitor."
+          },
+          {
+            "title": "Instant alerts",
+            "description": "Notify residents the moment a visitor arrives — no phone calls needed."
+          },
+          {
+            "title": "Blacklist checking",
+            "description": "Automatically flag denied individuals before they reach the gate."
+          },
+          {
+            "title": "Shift handoff",
+            "description": "Digital shift reports ensure nothing gets lost between guard transitions."
+          },
+          {
+            "title": "Offline mode",
+            "description": "The guard booth app works without internet and syncs automatically when connectivity returns."
+          }
+        ]
+      },
+      "resident": {
+        "label": "Resident",
+        "title": "Security",
+        "description": "Residents stay informed and in control of who visits their home — from anywhere.",
+        "items": [
+          {
+            "title": "Pre-authorize visitors",
+            "description": "Send a visitor pass in advance so your guests breeze through the gate."
+          },
+          {
+            "title": "Real-time notifications",
+            "description": "Get notified instantly when a visitor arrives, is approved, or is denied entry."
+          },
+          {
+            "title": "Request guard assistance",
+            "description": "Send a help request directly to the guard booth with one tap."
+          },
+          {
+            "title": "Amenity reservations",
+            "description": "Book common areas, sports courts, and event spaces from the app."
+          }
+        ]
+      }
+    }
+  },
+  "whyUs": {
+    "headline": "Why choose RamcarSoft",
+    "items": [
+      {
+        "title": "Built for Mexico",
+        "description": "Designed specifically for the needs and workflows of Mexican residential communities."
+      },
+      {
+        "title": "Offline-first",
+        "description": "The guard booth app works without internet and syncs when connectivity returns."
+      },
+      {
+        "title": "Easy setup",
+        "description": "Get your community up and running in under 24 hours — no IT team required."
+      },
+      {
+        "title": "Affordable",
+        "description": "Transparent pricing that fits communities of every size, with no hidden fees."
+      },
+      {
+        "title": "Real-time alerts",
+        "description": "Residents and admins are notified instantly about visitor activity and security events."
+      },
+      {
+        "title": "Privacy focused",
+        "description": "Your data is encrypted, securely stored, and never shared with third parties."
+      }
+    ]
+  },
+  "socialProof": {
+    "headline": "Built for Mexican residential communities",
+    "story": "RamcarSoftwas born from a simple frustration: security in residential communities relied on paper logs, phone calls, and guesswork. We set out to build a platform that gives property managers real visibility, guards real tools, and residents real peace of mind — starting with the communities that need it most.",
+    "stats": [
+      {
+        "value": "15",
+        "label": "Communities protected"
+      },
+      {
+        "value": "1520",
+        "label": "Residents served"
+      },
+      {
+        "value": "102",
+        "label": "Guard interactions tracked"
+      }
+    ]
+  },
+  "pricing": {
+    "headline": "Simple, transparent pricing",
+    "subtitle": "Choose the plan that fits your community. No hidden fees, no surprises.",
+    "tiers": [
+      {
+        "name": "Basico",
+        "price": "$X",
+        "currency": "USD",
+        "period": "/mo",
+        "badge": null,
+        "features": [
+          "1 community",
+          "Up to 50 residents",
+          "2 guard accounts",
+          "No amenity booking",
+          "30-day history",
+          "Email support"
+        ],
+        "cta": "Get started"
+      },
+      {
+        "name": "Estandar",
+        "price": "$X",
+        "currency": "USD",
+        "period": "/mo",
+        "badge": "Most popular",
+        "features": [
+          "Up to 3 communities",
+          "Up to 150 residents",
+          "5 guard accounts",
+          "Amenity booking",
+          "90-day history",
+          "Priority support"
+        ],
+        "cta": "Get started"
+      },
+      {
+        "name": "Premium",
+        "price": "$X",
+        "currency": "USD",
+        "period": "/mo",
+        "badge": null,
+        "features": [
+          "Unlimited communities",
+          "Unlimited residents",
+          "Unlimited guard accounts",
+          "Amenity booking",
+          "Unlimited history",
+          "Dedicated support"
+        ],
+        "cta": "Get started"
+      }
+    ],
+    "trialNote": "All plans include a 14-day free trial.",
+    "customPlan": "Need a custom plan?",
+    "customPlanLink": "Contact us"
+  },
+  "faq": {
+    "headline": "Frequently asked questions",
+    "items": [
+      {
+        "question": "What hardware do we need?",
+        "answer": "Just a tablet or computer with internet for the guard booth. Residents use their phones."
+      },
+      {
+        "question": "Does it work offline?",
+        "answer": "Yes, the guard booth app works offline and syncs when connection is restored."
+      },
+      {
+        "question": "How is our data secured?",
+        "answer": "End-to-end encryption, data stored in secure cloud infrastructure, regular security audits."
+      },
+      {
+        "question": "Is there a contract or commitment?",
+        "answer": "No long-term contracts. Cancel anytime. All plans are month-to-month."
+      },
+      {
+        "question": "How long does setup take?",
+        "answer": "Most communities are up and running within 24 hours."
+      },
+      {
+        "question": "Can we import our existing resident list?",
+        "answer": "Yes, we support bulk import via CSV."
+      },
+      {
+        "question": "Do you offer support in Spanish?",
+        "answer": "Yes, our platform and support team are fully bilingual (Spanish and English)."
+      }
+    ]
+  },
+  "cta": {
+    "headline": "Ready to secure your community?",
+    "subtitle": "Get started in minutes. No credit card required, no long-term commitment.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "communityName": "Community name",
+      "residentCount": "Number of residents",
+      "residentCountPlaceholder": "Select range",
+      "residentCountOptions": [
+        "1–50",
+        "51–150",
+        "151–300",
+        "301–500",
+        "500+"
+      ],
+      "submit": "Request a Demo"
+    },
+    "success": "Thank you! We'll be in touch within 24 hours.",
+    "contact": {
+      "headline": "Or contact us directly",
+      "email": "info@ramcarsoft.com"
+    }
+  },
+  "footer": {
+    "tagline": "Residential security, simplified.",
+    "links": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact"
+    },
+    "languageSwitcher": "Language",
+    "copyright": "\u00a9 2026 RamcarSoft. All rights reserved."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "minLength": "Must be at least {min} characters.",
+    "email": "Please enter a valid email address.",
+    "select": "Please select an option."
+  }
+}

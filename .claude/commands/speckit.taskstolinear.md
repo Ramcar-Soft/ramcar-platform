@@ -14,19 +14,28 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 Before starting, verify:
 
-1. **LINEAR_API_KEY** — Run `echo $LINEAR_API_KEY` to confirm it is set. If empty, stop and tell the user:
-   > Set `LINEAR_API_KEY` in your shell environment. Generate one at **Linear → Settings → API → Personal API keys**.
+1. **LINEAR_API_KEY** — Run `dotenvx get LINEAR_API_KEY -f .env` to retrieve the decrypted value. If empty or the command fails, stop and tell the user:
+   > Set `LINEAR_API_KEY` in `.env` via `dotenvx set LINEAR_API_KEY <value> -f .env`. Generate one at **Linear → Settings → API → Personal API keys**.
 
-2. **LINEAR_TEAM_ID** — Run `echo $LINEAR_TEAM_ID` to confirm it is set. If empty, fetch teams and prompt the user to choose:
+2. **LINEAR_TEAM_ID** — Run `dotenvx get LINEAR_TEAM_ID -f .env` to retrieve the decrypted value. If empty or the command fails, fetch teams and prompt the user to choose:
 
 ```bash
-curl -s -X POST https://api.linear.app/graphql \
+dotenvx run -f .env -- bash -c 'curl -s -X POST https://api.linear.app/graphql \
   -H "Authorization: $LINEAR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"query": "{ teams { nodes { id name key } } }"}' | jq '.data.teams.nodes[] | "\(.key) — \(.name) (ID: \(.id))"'
+  -d '"'"'{"query": "{ teams { nodes { id name key } } }"}'"'"' | jq '"'"'.data.teams.nodes[] | "\(.key) — \(.name) (ID: \(.id))"'"'"''
 ```
 
 Show the list and ask the user to pick a team. Once chosen, use that team ID for all issues.
+
+> **Note:** All `curl` commands in this document that reference `$LINEAR_API_KEY` or `$LINEAR_TEAM_ID` must be run via `dotenvx run -f .env -- bash -c '...'` so the encrypted env vars are decrypted and available. Alternatively, capture the decrypted values once at the start:
+>
+> ```bash
+> export LINEAR_API_KEY=$(dotenvx get LINEAR_API_KEY -f .env)
+> export LINEAR_TEAM_ID=$(dotenvx get LINEAR_TEAM_ID -f .env)
+> ```
+>
+> Then use them directly in subsequent commands for the rest of the session.
 
 3. **tasks.md** — Run `.specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks` from repo root. Extract `FEATURE_DIR` and the path to **tasks.md**. If the script fails or tasks.md is missing, stop and tell the user to run `/speckit.tasks` first.
 
@@ -232,7 +241,7 @@ After all creates/updates, for any newly created issue with explicit dependencie
 curl -s -X POST https://api.linear.app/graphql \
   -H "Authorization: $LINEAR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"query": "mutation { issueRelationCreate(input: { issueId: \"DEPENDENT_ISSUE_ID\", relatedIssueId: \"DEPENDENCY_ISSUE_ID\", type: isBlockedBy }) { success } }"}'
+  -d '{"query": "mutation { issueRelationCreate(input: { issueId: \"BLOCKER_ISSUE_ID\", relatedIssueId: \"DEPENDENT_ISSUE_ID\", type: blocks }) { success } }"}'
 ```
 
 Skip if the relation already exists (Linear returns an error for duplicates — catch and ignore).

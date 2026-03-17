@@ -727,7 +727,7 @@ export default config;
 export default function Home() {
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-2xl font-bold">Ramcar Web Portal</h1>
+      <h1 className="text-2xl font-bold">RamcarSoftWeb Portal</h1>
     </main>
   );
 }
@@ -864,7 +864,7 @@ export default config;
 export default function Home() {
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-2xl font-bold">Ramcar — Residential Security Platform</h1>
+      <h1 className="text-2xl font-bold">RamcarSoft— Residential Security Platform</h1>
     </main>
   );
 }
@@ -1467,7 +1467,7 @@ import { Button } from "@ramcar/ui";
 export default function Home() {
   return (
     <main className="flex min-h-screen items-center justify-center gap-4">
-      <h1 className="text-2xl font-bold">Ramcar Web Portal</h1>
+      <h1 className="text-2xl font-bold">RamcarSoftWeb Portal</h1>
       <Button>Get Started</Button>
     </main>
   );
@@ -1581,7 +1581,7 @@ This file provides guidance to Claude Code when working with code in this reposi
 
 ## Project Overview
 
-Ramcar Platform — a multi-tenant residential security platform. This Turborepo monorepo contains the web portal, landing page, Electron desktop app for guard booths, and NestJS backend API. The mobile app lives in a separate repository (`ramcar-mobile`).
+RamcarSoftPlatform — a multi-tenant residential security platform. This Turborepo monorepo contains the web portal, landing page, Electron desktop app for guard booths, and NestJS backend API. The mobile app lives in a separate repository (`ramcar-mobile`).
 
 ## Tech Stack
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Integrate [dotenvx](https://dotenvx.com/) into the Ramcar Platform monorepo to encrypt environment variables and commit them safely to git. This replaces the current approach of gitignored plaintext `.env` files with encrypted files that are version-controlled, enabling reproducible environments and straightforward CI/CD key distribution.
+Integrate [dotenvx](https://dotenvx.com/) into the RamcarSoftPlatform monorepo to encrypt environment variables and commit them safely to git. This replaces the current approach of gitignored plaintext `.env` files with encrypted files that are version-controlled, enabling reproducible environments and straightforward CI/CD key distribution.
 
 ## Goals
 
