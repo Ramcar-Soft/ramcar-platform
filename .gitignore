@@ -1,3 +1,6 @@
+# Linear sync mapping (contains workspace-specific UUIDs)
+**/.linear-sync.json
+
 # dependencies
 node_modules/
 .pnp

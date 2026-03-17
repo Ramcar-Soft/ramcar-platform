@@ -55,6 +55,8 @@ pnpm typecheck    # TypeScript check across all workspaces
 pnpm test         # Run tests across all workspaces
 ```
 
+> More development details: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
+
 ### Database
 
 ```bash

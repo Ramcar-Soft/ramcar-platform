@@ -14,7 +14,23 @@
       "Bash(for f:*)",
       "Bash(do echo:*)",
       "Bash(done)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "Bash(curl:*)",
+      "Bash(find:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/notify-linear-sync.sh",
+            "statusMessage": "Checking for tasks.md changes..."
+          }
+        ]
+      }
     ]
   }
 }
