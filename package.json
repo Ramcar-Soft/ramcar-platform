@@ -6,16 +6,19 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
+    "dev": "dotenvx run -f .env.local -- turbo dev",
+    "dev:remote": "dotenvx run -f .env.development -- turbo dev",
+    "build": "dotenvx run -f .env.local -- turbo build",
+    "build:development": "dotenvx run -f .env.development -- turbo build",
+    "build:production": "dotenvx run -f .env -- turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
-    "test": "turbo test",
-    "db:migrate": "supabase db push",
+    "test": "dotenvx run -f .env.local -- turbo test",
+    "db:start": "dotenvx run -f .env.local -- supabase start",
+    "db:migrate": "dotenvx run -f .env.local -- supabase db push",
     "db:new": "supabase migration new",
-    "db:types": "supabase gen types typescript --local > packages/db-types/src/types.ts",
-    "db:reset": "supabase db reset",
-    "db:start": "supabase start"
+    "db:types": "dotenvx run -f .env.local -- supabase gen types typescript --local > packages/db-types/src/types.ts",
+    "db:reset": "dotenvx run -f .env.local -- supabase db reset"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.55.1",
