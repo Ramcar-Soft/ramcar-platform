@@ -2,7 +2,11 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
     "NEXT_PUBLIC_*",
-    "SUPABASE_*"
+    "SUPABASE_*",
+    "PORT",
+    "LINEAR_*",
+    "SENDGRID_*",
+    "OPENAI_*"
   ],
   "tasks": {
     "build": {
