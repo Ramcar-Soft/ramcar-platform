@@ -18,6 +18,7 @@
     "db:start": "supabase start"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "^1.55.1",
     "turbo": "^2.8.17"
   },
   "pnpm": {
