@@ -12,9 +12,8 @@ build/
 # turbo
 .turbo/
 
-# env
-.env
-.env*.local
+# dotenvx - keys are NEVER committed
+.env.keys
 
 # misc
 .DS_Store
