@@ -15,6 +15,7 @@
     "typecheck": "turbo typecheck",
     "test": "dotenvx run -f .env.local -- turbo test",
     "db:start": "dotenvx run -f .env.local -- supabase start",
+    "db:stop": "dotenvx run -f .env.local -- supabase stop",
     "db:migrate": "dotenvx run -f .env.local -- supabase db push",
     "db:new": "supabase migration new",
     "db:types": "dotenvx run -f .env.local -- supabase gen types typescript --local > packages/db-types/src/types.ts",
