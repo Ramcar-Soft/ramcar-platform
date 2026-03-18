@@ -2,6 +2,7 @@ import React from "react";
 
 import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
+import TheProblem from "@/components/TheProblem";
 
 export default function Home() {
   return (
@@ -9,6 +10,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <TheProblem />
       </main>
     </>
   );
