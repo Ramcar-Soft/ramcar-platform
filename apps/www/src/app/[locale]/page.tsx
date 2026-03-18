@@ -2,6 +2,7 @@ import React from "react";
 
 import FAQ from "@/components/FAQ";
 import Features from "@/components/Features";
+import FinalCTA from "@/components/FinalCTA";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import Navbar from "@/components/Navbar";
@@ -23,6 +24,7 @@ export default function Home() {
         <SocialProof />
         <Pricing />
         <FAQ />
+        <FinalCTA />
       </main>
     </>
   );
