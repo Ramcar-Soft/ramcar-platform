@@ -22,51 +22,7 @@ Read the relevant changed files to understand:
 
 ## 3. Output format
 
-Always output the PR description as **plain markdown** (no extra prose, no code fences wrapping the whole block) so it can be copied and pasted directly into GitHub.
-
-Use the following template:
-
-## 🎯 Summary
-
-<!-- Brief overview of what this PR does (1-2 sentences) -->
-
-## ✨ What's New / What Changed
-
-<!-- List key changes. Be specific about features/fixes. Mention breaking changes. -->
-
--
--
--
-
-## 🧪 Testing
-
-<!-- How to test this change. What scenarios were covered. Any edge cases to watch for. -->
-
--
--
--
-
-## 📝 Technical Details
-
-<!-- Optional: Implementation notes, design decisions, performance considerations -->
-
-## 🔗 Related
-
-- Linear: {RCP}-XXX
-
-## 📸 Screenshots / Videos
-
-<!-- Add screenshots or videos here for UI changes -->
-
----
-
-### ✅ Checklist
-
-- [ ] Ran `pnpm run lint:fix && pnpm run typecheck`
-- [ ] All tests pass (`pnpm test`)
-- [ ] PR title follows format: `type({WC|WA|WE}-XXX): description`
-- [ ] Added screenshots/videos for UI changes
-- [ ] Updated documentation if needed
+**Read** `.github/pull_request_template.md` — output must follow that structure and headings (emoji sections included).
 
 ## 4. Filling in each section
 
@@ -83,7 +39,8 @@ Use the following template:
 **Screenshots / Videos** — Leave as a placeholder comment; the author fills this in.
 
 
-## 5. Final formatting:
+## 5. Formatting:
 
-- Convert the output text to markdown format available to be copied and pasted to PR description field in github.
-
+- Single **markdown code block** (fenced) containing the **full** PR body so the user can copy one block into GitHub.
+- Replace every `<!-- ... -->` with real content; remove HTML comments from the final text inside the block.
+- Use `-` bullet lists under each section; no empty placeholder sections—write concrete bullets or write "N/A" with one line why.

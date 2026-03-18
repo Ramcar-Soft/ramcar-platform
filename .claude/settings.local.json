@@ -16,7 +16,9 @@
       "Bash(done)",
       "Bash(gh auth:*)",
       "Bash(curl:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(node:*)",
+      "Bash(python3:*)"
     ]
   }
 }
