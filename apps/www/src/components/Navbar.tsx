@@ -156,7 +156,7 @@ export default function Navbar() {
           <>
             {/* Backdrop */}
             <motion.div
-              className="fixed inset-0 bg-stone-950/50 z-40"
+              className="fixed inset-0 bg-stone-950/50 z-[60]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -167,7 +167,7 @@ export default function Navbar() {
 
             {/* Drawer */}
             <motion.div
-              className="fixed top-0 right-0 h-full w-72 bg-white z-50 shadow-xl flex flex-col"
+              className="fixed top-0 right-0 h-full w-72 bg-white z-[70] shadow-xl flex flex-col"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
