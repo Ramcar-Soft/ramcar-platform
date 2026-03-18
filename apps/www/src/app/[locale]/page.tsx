@@ -1,5 +1,6 @@
 import React from "react";
 
+import FAQ from "@/components/FAQ";
 import Features from "@/components/Features";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
@@ -21,6 +22,7 @@ export default function Home() {
         <WhyUs />
         <SocialProof />
         <Pricing />
+        <FAQ />
       </main>
     </>
   );
