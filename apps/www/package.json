@@ -10,9 +10,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@ramcar/shared": "workspace:*",
-    "@ramcar/ui": "workspace:*",
+    "framer-motion": "^11",
+    "lucide-react": "^0.460",
     "next": "16.1.6",
+    "next-intl": "^4",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
