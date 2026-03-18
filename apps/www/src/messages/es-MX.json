@@ -1,0 +1,263 @@
+{
+  "metadata": {
+    "title": "RamcarSoft — Control de acceso y seguridad residencial",
+    "description": "Plataforma de seguridad para fraccionamientos. Control de acceso, turnos de guardia y reservas de amenidades."
+  },
+  "nav": {
+    "features": "Funciones",
+    "pricing": "Precios",
+    "faq": "Preguntas frecuentes",
+    "signIn": "Iniciar sesión",
+    "requestDemo": "Solicitar demo"
+  },
+  "hero": {
+    "headline": "Control de acceso y seguridad para comunidades residenciales, desde cualquier dispositivo.",
+    "subheadline": "Gestiona la entrada de visitantes, turnos de guardia y reservas de amenidades — todo en una plataforma diseñada para fraccionamientos mexicanos.",
+    "primaryCta": "Solicita tu demo gratuita",
+    "secondaryCta": "Descubre cómo funciona ↓"
+  },
+  "problem": {
+    "headline": "¿Te suena familiar?",
+    "items": {
+      "1": {
+        "title": "Sin registro de visitantes",
+        "body": "Visitantes que entran sin registro previo ni verificación de identificación. Cualquiera puede pasar."
+      },
+      "2": {
+        "title": "Control de acceso por WhatsApp",
+        "body": "El acceso a la caseta se gestiona por grupos de WhatsApp. Sin registro de auditoría ni responsabilidad."
+      },
+      "3": {
+        "title": "Sin historial de incidentes",
+        "body": "No hay bitácora histórica cuando ocurre un incidente. Cuando algo pasa, no hay registro que revisar."
+      },
+      "4": {
+        "title": "Registros a mano",
+        "body": "Los guardias anotan las entradas a mano en una libreta. Ilegible, fácil de perder, imposible de buscar."
+      },
+      "5": {
+        "title": "Cero visibilidad para los residentes",
+        "body": "Los residentes no saben quién entra a su comunidad. Solo se enteran después del hecho — si es que se enteran."
+      }
+    }
+  },
+  "howItWorks": {
+    "headline": "Cómo funciona RamcarSoft",
+    "steps": {
+      "1": {
+        "title": "El residente pre-registra una visita",
+        "body": "Desde la app, antes de que llegue su invitado."
+      },
+      "2": {
+        "title": "El guardia confirma en la caseta",
+        "body": "Escanea el pre-registro o registra al visitante en el momento."
+      },
+      "3": {
+        "title": "El acceso se registra automáticamente",
+        "body": "Registro completo: nombre, hora, vehículo, fotos."
+      },
+      "4": {
+        "title": "El residente recibe una notificación",
+        "body": "Notificación push en el momento en que su visita entra."
+      }
+    }
+  },
+  "features": {
+    "headline": "Qué puedes hacer",
+    "tabs": {
+      "admin": {
+        "label": "Administrador",
+        "items": {
+          "1": "Gestionar todos los residentes y sus permisos de acceso",
+          "2": "Ver el historial completo de accesos con filtros y exportaciones",
+          "3": "Configurar turnos de guardia y rutas de patrullaje",
+          "4": "Administrar reservas de amenidades y disponibilidad",
+          "5": "Recibir alertas de visitantes o vehículos en lista negra",
+          "6": "Invitar y suspender usuarios"
+        }
+      },
+      "guard": {
+        "label": "Guardia",
+        "items": {
+          "1": "Registrar y verificar visitantes en la caseta (con o sin internet)",
+          "2": "Consultar pre-registros de visitantes en tiempo real",
+          "3": "Registrar incidentes con fotos y notas",
+          "4": "Realizar check-ins de patrullaje por punto de control",
+          "5": "Ver la lista negra de la comunidad antes de dar acceso"
+        }
+      },
+      "resident": {
+        "label": "Residente",
+        "items": {
+          "1": "Pre-registrar invitados y enviarles un pase de entrada QR",
+          "2": "Autorizar visitantes frecuentes (empleada doméstica, paseador de perros, mensajería)",
+          "3": "Reservar amenidades: alberca, gimnasio, salón de eventos",
+          "4": "Recibir notificaciones push en tiempo real en cada evento de acceso",
+          "5": "Reportar incidentes o problemas de mantenimiento"
+        }
+      }
+    }
+  },
+  "whyUs": {
+    "headline": "Por qué elegir RamcarSoft",
+    "items": {
+      "1": {
+        "title": "Funciona sin internet",
+        "body": "La app de la caseta sigue funcionando durante cortes de luz o fallas de conexión. Sin conectividad, sin problema."
+      },
+      "2": {
+        "title": "App móvil para residentes",
+        "body": "App para iOS y Android. No hay nada que instalar en la PC de la caseta más allá de nuestra app de escritorio."
+      },
+      "3": {
+        "title": "Auditoría completa",
+        "body": "Cada entrada, cada salida, cada incidente — buscable y exportable."
+      },
+      "4": {
+        "title": "Lista negra de visitantes",
+        "body": "Marca vehículos o personas en toda la comunidad. Los guardias reciben alertas automáticamente."
+      },
+      "5": {
+        "title": "Gestión de amenidades incluida",
+        "body": "No necesitas otra herramienta para las reservas de alberca o gimnasio."
+      },
+      "6": {
+        "title": "Diseñado para México",
+        "body": "Construido pensando en la regulación mexicana, verificación de INE y los flujos de trabajo de las comunidades locales."
+      }
+    }
+  },
+  "socialProof": {
+    "headline": "Diseñado para fraccionamientos mexicanos",
+    "body": "RamcarSoft fue diseñado desde cero para la forma en que operan los fraccionamientos — no adaptado de herramientas estadounidenses o europeas. Desde la verificación de INE hasta las casetas sin internet, cada función refleja un flujo de trabajo real de una comunidad mexicana.",
+    "stats": {
+      "1": { "value": "50", "suffix": "+", "label": "Comunidades" },
+      "2": { "value": "5000", "suffix": "+", "label": "Residentes" },
+      "3": { "value": "500000", "suffix": "+", "label": "Accesos registrados" }
+    }
+  },
+  "pricing": {
+    "headline": "Precios simples y transparentes",
+    "note": "Todos los planes incluyen 14 días de prueba gratuita. Sin tarjeta de crédito.",
+    "customPlan": "¿Necesitas un plan personalizado para comunidades grandes? Contáctanos →",
+    "mostPopular": "Más popular",
+    "perMonth": "/mes",
+    "tiers": {
+      "basic": {
+        "name": "Básico",
+        "price": "$X USD",
+        "features": {
+          "communities": { "label": "1 comunidad", "included": true },
+          "residents": { "label": "Hasta 100 residentes", "included": true },
+          "guards": { "label": "2 cuentas de guardia", "included": true },
+          "amenity": { "label": "Reserva de amenidades", "included": false },
+          "export": { "label": "Exportación de historial de accesos", "included": false },
+          "priority": { "label": "Soporte prioritario", "included": false }
+        },
+        "cta": "Comenzar"
+      },
+      "standard": {
+        "name": "Estándar",
+        "price": "$X USD",
+        "features": {
+          "communities": { "label": "1 comunidad", "included": true },
+          "residents": { "label": "Hasta 300 residentes", "included": true },
+          "guards": { "label": "5 cuentas de guardia", "included": true },
+          "amenity": { "label": "Reserva de amenidades", "included": true },
+          "export": { "label": "Exportación de historial de accesos", "included": true },
+          "priority": { "label": "Soporte prioritario", "included": false }
+        },
+        "cta": "Comenzar"
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "$X USD",
+        "features": {
+          "communities": { "label": "Hasta 3 comunidades", "included": true },
+          "residents": { "label": "Residentes ilimitados", "included": true },
+          "guards": { "label": "Cuentas de guardia ilimitadas", "included": true },
+          "amenity": { "label": "Reserva de amenidades", "included": true },
+          "export": { "label": "Exportación de historial de accesos", "included": true },
+          "priority": { "label": "Soporte prioritario", "included": true }
+        },
+        "cta": "Comenzar"
+      }
+    }
+  },
+  "faq": {
+    "headline": "Preguntas frecuentes",
+    "items": {
+      "1": {
+        "question": "¿Requiere hardware especial en la caseta?",
+        "answer": "No. El guardia usa nuestra app de escritorio en cualquier PC con Windows. No se requieren cámaras ni equipo especial en v1."
+      },
+      "2": {
+        "question": "¿Qué pasa si se va el internet en la caseta?",
+        "answer": "La app de escritorio funciona completamente sin conexión. Los registros de acceso se guardan localmente y se sincronizan automáticamente cuando se restablece la conectividad."
+      },
+      "3": {
+        "question": "¿Hay contrato anual?",
+        "answer": "No. Todos los planes son mes a mes. Puedes cancelar cuando quieras."
+      },
+      "4": {
+        "question": "¿Cuántos usuarios incluye?",
+        "answer": "Cada plan especifica el número de cuentas de residente y de guardia. Los administradores son ilimitados en todos los planes."
+      },
+      "5": {
+        "question": "¿Los datos personales de nuestros residentes están seguros?",
+        "answer": "Sí. Los datos están cifrados en reposo y en tránsito. Cumplimos con la LFPDPPP (Ley Federal de Protección de Datos Personales en Posesión de los Particulares)."
+      },
+      "6": {
+        "question": "¿Puedo administrar varias comunidades desde una sola cuenta?",
+        "answer": "Sí, el plan Premium soporta hasta 3 comunidades. Si necesitas más, contáctanos para un plan personalizado."
+      },
+      "7": {
+        "question": "¿Cuánto tarda la implementación?",
+        "answer": "La mayoría de las comunidades están operando en un día hábil. Brindamos soporte de configuración guiada."
+      }
+    }
+  },
+  "cta": {
+    "headline": "¿Listo para modernizar la seguridad de tu comunidad?",
+    "form": {
+      "name": "Nombre completo",
+      "namePlaceholder": "Tu nombre",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "tu@comunidad.com",
+      "community": "Nombre de la comunidad",
+      "communityPlaceholder": "ej. Residencial Los Pinos",
+      "residents": "Número de residentes",
+      "residentsPlaceholder": "Selecciona...",
+      "residentsOptions": {
+        "1": "Menos de 50",
+        "2": "50 – 150",
+        "3": "150 – 500",
+        "4": "500+"
+      },
+      "submit": "Solicitar mi demo gratuita",
+      "note": "Te contactamos en menos de 24 horas. Sin compromiso.",
+      "errors": {
+        "required": "Este campo es obligatorio",
+        "email": "Ingresa una dirección de correo válida"
+      }
+    },
+    "contact": {
+      "headline": "¿Prefieres hablar directamente?",
+      "body": "Escríbenos a",
+      "email": "info@ramcarsoft.com"
+    }
+  },
+  "footer": {
+    "tagline": "Seguridad residencial, simplificada.",
+    "links": {
+      "privacy": "Aviso de privacidad",
+      "terms": "Términos de servicio",
+      "contact": "Contacto"
+    },
+    "copyright": "© 2026 RamcarSoft. Todos los derechos reservados.",
+    "langSwitch": {
+      "es": "ES",
+      "en": "EN"
+    }
+  }
+}
