@@ -3,6 +3,7 @@ import React from "react";
 import FAQ from "@/components/FAQ";
 import Features from "@/components/Features";
 import FinalCTA from "@/components/FinalCTA";
+import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import Navbar from "@/components/Navbar";
@@ -26,6 +27,7 @@ export default function Home() {
         <FAQ />
         <FinalCTA />
       </main>
+      <Footer />
     </>
   );
 }
