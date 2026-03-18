@@ -18,19 +18,5 @@
       "Bash(curl:*)",
       "Bash(find:*)"
     ]
-  },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/notify-linear-sync.sh",
-            "statusMessage": "Checking for tasks.md changes..."
-          }
-        ]
-      }
-    ]
   }
 }
