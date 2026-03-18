@@ -11,7 +11,9 @@
 
 Single-page marketing landing page for RamcarSoft, a multi-tenant residential security platform targeting Mexican *fraccionamientos*. Primary audience: property managers and HOA administrators.
 
-The landing page is fully self-contained — it does not use `@ramcar/ui` or the shared Tailwind preset. All components, styles, and primitives live within `apps/www/`.
+The landing page is fully self-contained — it does not use `@ramcar/ui` components or the shared Tailwind preset. All components, styles, and primitives live within `apps/www/`.
+
+**Deviation from CLAUDE.md conventions:** CLAUDE.md prescribes a feature-based `src/features/[domain]/` layout for `apps/www`. Since this is a single-page marketing site with no domain logic, no auth, and no data fetching, the feature-based pattern adds unnecessary nesting. Instead, components live flat under `src/components/`. This is an intentional simplification for a static marketing page.
 
 ---
 
@@ -22,11 +24,23 @@ The landing page is fully self-contained — it does not use `@ramcar/ui` or the
 - **Tailwind CSS v4** (already installed)
 - **next-intl v4** (to be added to `apps/www/package.json`)
 - **Framer Motion** (to be added — ~30KB gzipped, tree-shakeable)
-- **Lucide React** (already available via `@ramcar/ui` peer dep — use for icons)
-- **Inter font** (via `next/font/google`)
-- **Geist Mono** (already loaded — for stats/numbers)
+- **Lucide React** (to be added directly to `apps/www/package.json`)
+- **Inter font** (via `next/font/google` — replaces current Geist Sans)
+- **Geist Mono** (kept from current setup — for stats/numbers)
 
-No other dependencies. No shadcn/ui from packages/ui.
+### Dependencies to Add
+- `next-intl` — i18n framework
+- `framer-motion` — animations
+- `lucide-react` — icons
+
+### Dependencies to Remove
+- `@ramcar/ui` (workspace:\*) — not used, landing page has its own components
+- `@ramcar/shared` (workspace:\*) — not used
+
+### Config Changes Required
+- **`tailwind.config.ts`** — Remove `@ramcar/config/tailwind` shared preset import and `packages/ui` content path. Define landing-page-only theme.
+- **`next.config.ts`** — Remove `transpilePackages` for `@ramcar/ui` and `@ramcar/shared`. Add `next-intl` plugin via `createNextIntlPlugin`.
+- **`package.json`** — Update dependencies as listed above.
 
 ---
 
@@ -52,7 +66,7 @@ No other dependencies. No shadcn/ui from packages/ui.
 |-------|-----|-------|
 | `stone-50` | `#FAFAF9` | Page background (warm white) |
 | `white` | `#FFFFFF` | Cards, elevated surfaces |
-| `stone-950` | `#1C1917` | Dark sections (Social Proof, CTA) |
+| `stone-950` | `#0C0A09` | Dark sections (Social Proof, CTA) |
 | `stone-900` | `#1C1917` | Footer |
 | `stone-600` | `#57534E` | Secondary text |
 | `stone-400` | `#A8A29E` | Muted text |
@@ -84,10 +98,11 @@ No other dependencies. No shadcn/ui from packages/ui.
 ```
 apps/www/src/
 ├── app/
-│   ├── [locale]/
-│   │   ├── layout.tsx        # IntlProvider, fonts, metadata
-│   │   └── page.tsx          # Assembles all sections
-│   └── globals.css           # Tailwind + custom landing page theme
+│   ├── layout.tsx            # Root layout (minimal: html + body tags, globals.css import)
+│   ├── globals.css           # Tailwind + custom landing page theme
+│   └── [locale]/
+│       ├── layout.tsx        # Locale layout: IntlProvider, fonts, metadata
+│       └── page.tsx          # Assembles all sections
 ├── components/
 │   ├── Navbar.tsx            # Sticky nav, scroll-aware, language switcher
 │   ├── Hero.tsx              # Full-vh, gradient mesh, animated headline
@@ -182,7 +197,7 @@ All user-facing strings come from translation files. Zero hardcoded strings.
 - **Left:** "RamcarSoft" text logo
 - **Center (desktop):** Anchor links — Features `#features`, Pricing `#pricing`, FAQ `#faq`
 - **Right:** Language toggle (`ES | EN`), "Sign in" link → `app.ramcarsoft.com/login`, "Request demo" amber button → scrolls to `#cta`
-- **Mobile:** Hamburger → slide-in drawer with same links
+- **Mobile (below `lg`):** Hamburger icon → drawer slides in from right with backdrop overlay (stone-950/50 opacity). Close via X button, click outside, or Escape key. Drawer animates with Framer Motion (slide + fade).
 
 ### Hero
 - `min-h-screen` with flex center
@@ -288,6 +303,7 @@ All user-facing strings come from translation files. Zero hardcoded strings.
   - Submit: amber gradient button, full width
   - Below: "We'll reach out within 24 hours. No commitment required."
   - Form submission: `console.log` stub (to be wired later)
+  - **Validation:** All fields required. Email validated with basic regex. On invalid submit, fields show red border + inline error message (translated). No submission until all fields valid.
 - **Right — Direct contact:**
   - "Prefer to talk?"
   - Email link: info@ramcarsoft.com
@@ -348,7 +364,7 @@ Mobile-first design. All sections stack vertically on mobile. Navbar collapses t
 | Nav "Pricing" | Smooth scroll to `#pricing` |
 | Nav "FAQ" | Smooth scroll to `#faq` |
 | Nav "Request demo" | Smooth scroll to `#cta` |
-| Nav "Sign in" | Navigate to `app.ramcarsoft.com/login` (prod) or `dev.ramcarsoft.com/login` (dev) |
+| Nav "Sign in" | Navigate to URL from env var `NEXT_PUBLIC_APP_URL` (defaults to `https://app.ramcarsoft.com`). Login path: `${NEXT_PUBLIC_APP_URL}/login` |
 | Hero primary CTA | Smooth scroll to `#cta` |
 | Hero secondary CTA | Smooth scroll to `#how-it-works` |
 | Pricing "Custom plan" | Smooth scroll to `#cta` |
@@ -356,7 +372,22 @@ Mobile-first design. All sections stack vertically on mobile. Navbar collapses t
 
 ---
 
-## 13. Out of Scope
+## 13. SEO & Metadata
+
+Per-locale metadata defined in `[locale]/layout.tsx`:
+
+| Field | es-MX | en-US |
+|-------|-------|-------|
+| `title` | "RamcarSoft — Control de acceso y seguridad residencial" | "RamcarSoft — Residential Access Control & Security" |
+| `description` | "Plataforma de seguridad para fraccionamientos. Control de acceso, turnos de guardia y reservas de amenidades." | "Security platform for gated communities. Access control, guard shifts, and amenity bookings." |
+| `og:title` | Same as title | Same as title |
+| `og:description` | Same as description | Same as description |
+| `og:type` | `website` | `website` |
+| `og:locale` | `es_MX` | `en_US` |
+
+---
+
+## 14. Out of Scope
 
 - No `/api/` routes — form submission is a `console.log` stub
 - No authentication
