@@ -1,9 +1,263 @@
 {
   "metadata": {
     "title": "RamcarSoft — Residential Access Control & Security",
-    "description": "Security platform for gated communities."
+    "description": "Security platform for gated communities. Access control, guard shifts, and amenity bookings."
+  },
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "signIn": "Sign in",
+    "requestDemo": "Request a Demo"
   },
   "hero": {
-    "headline": "Access control and security for residential communities, from any device."
+    "headline": "Access control and security for residential communities, from any device.",
+    "subheadline": "Manage visitor entry, guard shifts, and amenity bookings — all in one platform built for Mexican fraccionamientos.",
+    "primaryCta": "Request a Free Demo",
+    "secondaryCta": "See how it works ↓"
+  },
+  "problem": {
+    "headline": "Sound familiar?",
+    "items": {
+      "1": {
+        "title": "No visitor records",
+        "body": "Visitor arrivals with no prior record or ID check. Anyone can walk in."
+      },
+      "2": {
+        "title": "WhatsApp gate management",
+        "body": "Gate access managed through WhatsApp group chats. No audit trail, no accountability."
+      },
+      "3": {
+        "title": "No incident history",
+        "body": "No historical log when an incident occurs. When something happens, there's no record to review."
+      },
+      "4": {
+        "title": "Handwritten logs",
+        "body": "Guards writing entry records by hand in a notebook. Illegible, easily lost, impossible to search."
+      },
+      "5": {
+        "title": "Zero visibility for residents",
+        "body": "Residents have no visibility into who enters their community. They only find out after the fact — if at all."
+      }
+    }
+  },
+  "howItWorks": {
+    "headline": "How RamcarSoft works",
+    "steps": {
+      "1": {
+        "title": "Resident pre-registers a visit",
+        "body": "From the app, before the guest arrives."
+      },
+      "2": {
+        "title": "Guard confirms at the gate",
+        "body": "Scans the pre-registration or registers the visitor on-site."
+      },
+      "3": {
+        "title": "Access is logged automatically",
+        "body": "Full record: name, time, vehicle, photos."
+      },
+      "4": {
+        "title": "Resident gets notified",
+        "body": "Push notification the moment their guest enters."
+      }
+    }
+  },
+  "features": {
+    "headline": "What you can do",
+    "tabs": {
+      "admin": {
+        "label": "Admin",
+        "items": {
+          "1": "Manage all residents and their access permissions",
+          "2": "View full access history with filters and exports",
+          "3": "Configure guard shifts and patrol routes",
+          "4": "Manage amenity bookings and availability",
+          "5": "Receive alerts for blacklisted visitors or vehicles",
+          "6": "Invite and suspend users"
+        }
+      },
+      "guard": {
+        "label": "Guard",
+        "items": {
+          "1": "Register and verify visitors on-site (with or without internet)",
+          "2": "Check visitor pre-registrations in real time",
+          "3": "Log incidents with photos and notes",
+          "4": "Run patrol check-ins per checkpoint",
+          "5": "View the community blacklist before granting access"
+        }
+      },
+      "resident": {
+        "label": "Resident",
+        "items": {
+          "1": "Pre-register guests and send them a QR entry pass",
+          "2": "Authorize recurring visitors (housekeeper, dog walker, delivery)",
+          "3": "Book amenities: pool, gym, event hall",
+          "4": "Receive real-time push notifications on every access event",
+          "5": "Report incidents or maintenance issues"
+        }
+      }
+    }
+  },
+  "whyUs": {
+    "headline": "Why choose RamcarSoft",
+    "items": {
+      "1": {
+        "title": "Works without internet",
+        "body": "The guard booth app keeps working during outages. No connectivity, no problem."
+      },
+      "2": {
+        "title": "Mobile-friendly for residents",
+        "body": "iOS and Android app. Nothing to install on the guard PC beyond our desktop app."
+      },
+      "3": {
+        "title": "Complete audit trail",
+        "body": "Every entry, every exit, every incident — searchable and exportable."
+      },
+      "4": {
+        "title": "Visitor blacklist",
+        "body": "Flag vehicles or individuals community-wide. Guards are alerted automatically."
+      },
+      "5": {
+        "title": "Amenity management included",
+        "body": "No separate tool needed for pool or gym reservations."
+      },
+      "6": {
+        "title": "Designed for Mexico",
+        "body": "Built with Mexican regulations, INE verification, and local community workflows in mind."
+      }
+    }
+  },
+  "socialProof": {
+    "headline": "Built for Mexican residential communities",
+    "body": "RamcarSoft was designed from the ground up for how fraccionamientos actually operate — not adapted from US or European tools. From INE verification to offline guard booths, every feature reflects a real Mexican community workflow.",
+    "stats": {
+      "1": { "value": "50", "suffix": "+", "label": "Communities" },
+      "2": { "value": "5000", "suffix": "+", "label": "Residents" },
+      "3": { "value": "500000", "suffix": "+", "label": "Access events logged" }
+    }
+  },
+  "pricing": {
+    "headline": "Simple, transparent pricing",
+    "note": "All plans include a 14-day free trial. No credit card required.",
+    "customPlan": "Need a custom plan for large communities? Contact us →",
+    "mostPopular": "Most popular",
+    "perMonth": "/mo",
+    "tiers": {
+      "basic": {
+        "name": "Básico",
+        "price": "$X USD",
+        "features": {
+          "communities": { "label": "1 community", "included": true },
+          "residents": { "label": "Up to 100 residents", "included": true },
+          "guards": { "label": "2 guard accounts", "included": true },
+          "amenity": { "label": "Amenity booking", "included": false },
+          "export": { "label": "Access history export", "included": false },
+          "priority": { "label": "Priority support", "included": false }
+        },
+        "cta": "Get started"
+      },
+      "standard": {
+        "name": "Estándar",
+        "price": "$X USD",
+        "features": {
+          "communities": { "label": "1 community", "included": true },
+          "residents": { "label": "Up to 300 residents", "included": true },
+          "guards": { "label": "5 guard accounts", "included": true },
+          "amenity": { "label": "Amenity booking", "included": true },
+          "export": { "label": "Access history export", "included": true },
+          "priority": { "label": "Priority support", "included": false }
+        },
+        "cta": "Get started"
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "$X USD",
+        "features": {
+          "communities": { "label": "Up to 3 communities", "included": true },
+          "residents": { "label": "Unlimited residents", "included": true },
+          "guards": { "label": "Unlimited guard accounts", "included": true },
+          "amenity": { "label": "Amenity booking", "included": true },
+          "export": { "label": "Access history export", "included": true },
+          "priority": { "label": "Priority support", "included": true }
+        },
+        "cta": "Get started"
+      }
+    }
+  },
+  "faq": {
+    "headline": "Frequently asked questions",
+    "items": {
+      "1": {
+        "question": "Does it require special hardware at the gate?",
+        "answer": "No. The guard uses our desktop app on any Windows PC. No cameras or special equipment required for v1."
+      },
+      "2": {
+        "question": "What happens if the internet goes down at the gatehouse?",
+        "answer": "The desktop app works fully offline. Access logs are stored locally and synced automatically when connectivity is restored."
+      },
+      "3": {
+        "question": "Is there an annual contract?",
+        "answer": "No. All plans are month-to-month. You can cancel anytime."
+      },
+      "4": {
+        "question": "How many users are included?",
+        "answer": "Each plan specifies the number of resident accounts and guard accounts. Admins are unlimited on all plans."
+      },
+      "5": {
+        "question": "Is our residents' personal data secure?",
+        "answer": "Yes. Data is encrypted at rest and in transit. We comply with Mexico's LFPDPPP (Ley Federal de Protección de Datos Personales)."
+      },
+      "6": {
+        "question": "Can I manage multiple communities from one account?",
+        "answer": "Yes, the Premium plan supports up to 3 communities. For more, contact us for a custom plan."
+      },
+      "7": {
+        "question": "How long does onboarding take?",
+        "answer": "Most communities are up and running within one business day. We provide guided setup support."
+      }
+    }
+  },
+  "cta": {
+    "headline": "Ready to modernize your community's security?",
+    "form": {
+      "name": "Full name",
+      "namePlaceholder": "Your name",
+      "email": "Email address",
+      "emailPlaceholder": "you@community.com",
+      "community": "Community name",
+      "communityPlaceholder": "e.g. Residencial Los Pinos",
+      "residents": "Number of residents",
+      "residentsPlaceholder": "Select...",
+      "residentsOptions": {
+        "1": "Less than 50",
+        "2": "50 – 150",
+        "3": "150 – 500",
+        "4": "500+"
+      },
+      "submit": "Request My Free Demo",
+      "note": "We'll reach out within 24 hours. No commitment required.",
+      "errors": {
+        "required": "This field is required",
+        "email": "Please enter a valid email address"
+      }
+    },
+    "contact": {
+      "headline": "Prefer to talk?",
+      "body": "Write to us at",
+      "email": "info@ramcarsoft.com"
+    }
+  },
+  "footer": {
+    "tagline": "Residential security, simplified.",
+    "links": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact"
+    },
+    "copyright": "© 2026 RamcarSoft. All rights reserved.",
+    "langSwitch": {
+      "es": "ES",
+      "en": "EN"
+    }
   }
 }
