@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -70,7 +71,7 @@ export default function Navbar() {
   const textColor = scrolled ? "text-stone-900" : "text-white";
   const logoColor = scrolled ? "text-teal-700" : "text-white";
 
-  return (
+  const navbar = (
     <nav
       className={[
         "fixed top-0 w-full z-50",
@@ -149,109 +150,119 @@ export default function Navbar() {
           <Menu size={24} />
         </button>
       </div>
+    </nav>
+  );
 
-      {/* Mobile drawer */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              className="fixed inset-0 bg-stone-950/50 z-[60]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={closeMobile}
-              aria-hidden="true"
-            />
+  /* Mobile drawer — rendered via portal to escape nav stacking context */
+  const drawer = typeof document !== "undefined" ? createPortal(
+    <AnimatePresence>
+      {mobileOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            className="fixed inset-0 bg-stone-950/50 z-[60]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={closeMobile}
+            aria-hidden="true"
+          />
 
-            {/* Drawer */}
-            <motion.div
-              className="fixed top-0 right-0 h-full w-72 bg-white z-[70] shadow-xl flex flex-col"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              {/* Close button */}
-              <div className="flex justify-end p-4">
-                <button
+          {/* Drawer */}
+          <motion.div
+            className="fixed top-0 right-0 h-full w-72 bg-white z-[70] shadow-xl flex flex-col"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            {/* Close button */}
+            <div className="flex justify-end p-4">
+              <button
+                onClick={closeMobile}
+                aria-label="Close menu"
+                className="text-stone-900 cursor-pointer"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Nav links */}
+            <div className="flex flex-col gap-2 px-6">
+              {NAV_LINKS.map(({ key, href }) => (
+                <a
+                  key={key}
+                  href={href}
                   onClick={closeMobile}
-                  aria-label="Close menu"
-                  className="text-stone-900 cursor-pointer"
+                  className="text-stone-900 text-base font-medium py-2 hover:text-teal-600 transition-colors duration-200"
                 >
-                  <X size={24} />
+                  {t(key)}
+                </a>
+              ))}
+            </div>
+
+            <hr className="mx-6 my-4 border-stone-200" />
+
+            {/* Sign in */}
+            <div className="px-6">
+              <a
+                href={SIGN_IN_URL}
+                onClick={closeMobile}
+                className="text-stone-900 text-base font-medium py-2 block hover:text-teal-600 transition-colors duration-200"
+              >
+                {t("signIn")}
+              </a>
+            </div>
+
+            {/* Request demo */}
+            <div className="px-6 mt-4">
+              <Button href="#cta" className="w-full text-sm" onClick={closeMobile}>
+                {t("requestDemo")}
+              </Button>
+            </div>
+
+            {/* Language switcher at bottom */}
+            <div className="mt-auto px-6 pb-8" aria-live="polite">
+              <div className="flex items-center gap-2 text-sm">
+                <button
+                  onClick={() => {
+                    switchLocale("es-MX");
+                    closeMobile();
+                  }}
+                  className={[
+                    "text-stone-900 transition-colors duration-200 cursor-pointer",
+                    locale === "es-MX" ? "font-semibold" : "opacity-60",
+                  ].join(" ")}
+                >
+                  {tFooter("langSwitch.es")}
+                </button>
+                <span className="text-stone-400">|</span>
+                <button
+                  onClick={() => {
+                    switchLocale("en-US");
+                    closeMobile();
+                  }}
+                  className={[
+                    "text-stone-900 transition-colors duration-200 cursor-pointer",
+                    locale === "en-US" ? "font-semibold" : "opacity-60",
+                  ].join(" ")}
+                >
+                  {tFooter("langSwitch.en")}
                 </button>
               </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>,
+    document.body,
+  ) : null;
 
-              {/* Nav links */}
-              <div className="flex flex-col gap-2 px-6">
-                {NAV_LINKS.map(({ key, href }) => (
-                  <a
-                    key={key}
-                    href={href}
-                    onClick={closeMobile}
-                    className="text-stone-900 text-base font-medium py-2 hover:text-teal-600 transition-colors duration-200"
-                  >
-                    {t(key)}
-                  </a>
-                ))}
-              </div>
-
-              <hr className="mx-6 my-4 border-stone-200" />
-
-              {/* Sign in */}
-              <div className="px-6">
-                <a
-                  href={SIGN_IN_URL}
-                  onClick={closeMobile}
-                  className="text-stone-900 text-base font-medium py-2 block hover:text-teal-600 transition-colors duration-200"
-                >
-                  {t("signIn")}
-                </a>
-              </div>
-
-              {/* Request demo */}
-              <div className="px-6 mt-4">
-                <Button href="#cta" className="w-full text-sm" onClick={closeMobile}>
-                  {t("requestDemo")}
-                </Button>
-              </div>
-
-              {/* Language switcher at bottom */}
-              <div className="mt-auto px-6 pb-8" aria-live="polite">
-                <div className="flex items-center gap-2 text-sm">
-                  <button
-                    onClick={() => {
-                      switchLocale("es-MX");
-                      closeMobile();
-                    }}
-                    className={[
-                      "text-stone-900 transition-colors duration-200 cursor-pointer",
-                      locale === "es-MX" ? "font-semibold" : "opacity-60",
-                    ].join(" ")}
-                  >
-                    {tFooter("langSwitch.es")}
-                  </button>
-                  <span className="text-stone-400">|</span>
-                  <button
-                    onClick={() => {
-                      switchLocale("en-US");
-                      closeMobile();
-                    }}
-                    className={[
-                      "text-stone-900 transition-colors duration-200 cursor-pointer",
-                      locale === "en-US" ? "font-semibold" : "opacity-60",
-                    ].join(" ")}
-                  >
-                    {tFooter("langSwitch.en")}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </nav>
+  return (
+    <>
+      {navbar}
+      {drawer}
+    </>
   );
 }
