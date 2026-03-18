@@ -98,10 +98,9 @@ export function Accordion({ items }: AccordionProps): React.JSX.Element {
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {(<p className="pb-4 text-stone-600 leading-relaxed">
+                  <p className="pb-4 text-stone-600 leading-relaxed">
                     {item.content}
-                  </p>) as any}
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>

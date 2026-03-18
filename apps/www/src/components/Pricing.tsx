@@ -80,7 +80,6 @@ export default function Pricing(): React.JSX.Element {
       >
         {TIER_KEYS.map((tier) => {
           const isStandard = tier === "standard";
-          const isBasic = tier === "basic";
 
           return (
             <motion.div
