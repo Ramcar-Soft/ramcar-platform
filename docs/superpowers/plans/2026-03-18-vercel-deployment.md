@@ -34,7 +34,7 @@
 
 ---
 
-### Task 2: Create and Configure `ramcar-www` Vercel Project
+### Task 2: Create and Configure `ramcarsoft-www` Vercel Project
 
 **Context:** This creates the Vercel project for the landing page app with the correct monorepo build settings.
 
@@ -44,7 +44,7 @@
 
 - [ ] **Step 2: Set project name**
 
-  Set the project name to `ramcar-www`.
+  Set the project name to `ramcarsoft-www`.
 
 - [ ] **Step 3: Set Framework Preset**
 
@@ -101,7 +101,7 @@
 
 - [ ] **Step 1: Open project settings**
 
-  In the Vercel dashboard, go to the `ramcar-www` project > Settings > Git.
+  In the Vercel dashboard, go to the `ramcarsoft-www` project > Settings > Git.
 
 - [ ] **Step 2: Set Ignored Build Step**
 
@@ -115,7 +115,7 @@
 
 - [ ] **Step 3: Save and verify**
 
-  Save the setting. To verify it works, push a commit that only changes a file in `apps/api/` or `apps/web/` — the `ramcar-www` build should be skipped. You'll see "Build skipped" in the Vercel deployment log.
+  Save the setting. To verify it works, push a commit that only changes a file in `apps/api/` or `apps/web/` — the `ramcarsoft-www` build should be skipped. You'll see "Build skipped" in the Vercel deployment log.
 
 ---
 
@@ -157,7 +157,7 @@
   |------|-----------|-------|-----|
   | CNAME | `app` | `cname.vercel-dns.com` | Default/Auto |
 
-  This can also be done later when you create the `ramcar-web` Vercel project.
+  This can also be done later when you create the `ramcarsoft-web` Vercel project.
 
 - [ ] **Step 6: Verify existing records are untouched**
 
@@ -171,11 +171,11 @@
 
 ### Task 5: Assign Custom Domain in Vercel
 
-**Context:** After DNS records are pointing to Vercel, assign the domain to the `ramcar-www` project so Vercel knows which project to serve.
+**Context:** After DNS records are pointing to Vercel, assign the domain to the `ramcarsoft-www` project so Vercel knows which project to serve.
 
 - [ ] **Step 1: Open domain settings**
 
-  In the Vercel dashboard, go to `ramcar-www` project > Settings > Domains.
+  In the Vercel dashboard, go to `ramcarsoft-www` project > Settings > Domains.
 
 - [ ] **Step 2: Add `ramcarsoft.com`**
 
@@ -219,12 +219,12 @@
 - [ ] **Step 2: Test build filtering**
 
   Open a **separate PR** that only changes a file outside `apps/www` (e.g., `apps/api/` or `README.md`). Using a separate PR ensures `turbo-ignore` gets a clean comparison. Verify:
-  - The `ramcar-www` build is skipped ("Build skipped" in Vercel)
+  - The `ramcarsoft-www` build is skipped ("Build skipped" in Vercel)
 
 - [ ] **Step 3: Test production deployment**
 
   Merge the PR into `main`. Verify:
-  - Vercel triggers a production build for `ramcar-www`
+  - Vercel triggers a production build for `ramcarsoft-www`
   - The production site at `ramcarsoft.com` updates with the change
 
 - [ ] **Step 4: Verify email still works**
@@ -237,7 +237,7 @@
 
 This task is deferred. When ready, follow the same pattern:
 
-1. Create a new Vercel project `ramcar-web` from the same GitHub repo
+1. Create a new Vercel project `ramcarsoft-web` from the same GitHub repo
 2. Set Root Directory to `apps/web`
 3. Set Build Command to `cd ../.. && pnpm turbo build --filter=@ramcar/web`
 4. Set Ignored Build Step to `npx turbo-ignore @ramcar/web`

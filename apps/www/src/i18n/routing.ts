@@ -4,6 +4,7 @@ import { defineRouting } from "next-intl/routing";
 export const routing = defineRouting({
   locales: ["es-MX", "en-US"],
   defaultLocale: "es-MX",
+  localePrefix: "as-needed",
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
