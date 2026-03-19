@@ -37,20 +37,22 @@ Per-project settings in the Vercel dashboard:
 **`ramcar-www`:**
 - Build Command: `cd ../.. && pnpm turbo build --filter=@ramcar/www`
 - Output Directory: `.next` (auto-detected)
-- Install Command: `pnpm install`
+- Install Command: (leave blank — Vercel auto-detects pnpm and runs `pnpm install` at the repo root)
 - Node.js Version: 22.x
 - Environment Variables: None (purely static site)
 
 **`ramcar-web`:**
 - Build Command: `cd ../.. && pnpm turbo build --filter=@ramcar/web`
 - Output Directory: `.next` (auto-detected)
-- Install Command: `pnpm install`
+- Install Command: (leave blank — same as above)
 - Node.js Version: 22.x
 - Environment Variables (set when ready to deploy):
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-Vercel auto-detects pnpm from the `packageManager` field in the root `package.json`. Setting Root Directory to `apps/www` or `apps/web` scopes the build context, but the full monorepo is accessible. The `cd ../..` navigates to the repo root so Turborepo can resolve workspace dependencies.
+Vercel auto-detects pnpm from the `packageManager` field in the root `package.json` and runs `pnpm install` at the repo root automatically. Setting Root Directory to `apps/www` or `apps/web` scopes the build context, but the full monorepo is accessible. The `cd ../..` in the Build Command navigates to the repo root so Turborepo can resolve workspace dependencies.
+
+**Important:** The Build Command calls `pnpm turbo build` directly rather than the root `pnpm build` script. The root script wraps turbo with `dotenvx` (for local encrypted env files), which is not needed in Vercel builds — Vercel injects env vars natively.
 
 ### Build Filtering (Ignored Build Step)
 
@@ -66,7 +68,7 @@ npx turbo-ignore @ramcar/www
 npx turbo-ignore @ramcar/web
 ```
 
-`turbo-ignore` inspects the Turborepo dependency graph and compares against the last successful deploy. It returns exit code 0 (skip) if nothing relevant changed, or 1 (build).
+`turbo-ignore` inspects the Turborepo dependency graph and compares against the last successful deploy. It returns exit code 0 (skip) if nothing relevant changed, or 1 (build). Note: this is the opposite of typical Unix conventions — Vercel's Ignored Build Step treats exit 0 as "skip this build" and exit 1 as "proceed with build".
 
 Examples:
 - Change only `apps/www/` → only `ramcar-www` builds
@@ -119,6 +121,7 @@ Vercel will verify domain ownership and provision SSL certificates automatically
 
 ## Implementation Order
 
+0. Connect GitHub repo to Vercel (install Vercel GitHub App, grant access to `ramcar-platform` repo)
 1. Create `ramcar-www` Vercel project, configure build settings
 2. Add DNS records in Squarespace for `ramcarsoft.com` and `www.ramcarsoft.com`
 3. Assign domain in Vercel, verify, and deploy
