@@ -27,21 +27,21 @@ Both projects connect to the same `ramcar-platform` GitHub repo.
 
 | Project | Package Name | Root Directory | Domain | Framework |
 |---------|-------------|---------------|--------|-----------|
-| `ramcar-www` | `@ramcar/www` | `apps/www` | `ramcarsoft.com` | Next.js |
-| `ramcar-web` | `@ramcar/web` | `apps/web` | `app.ramcarsoft.com` | Next.js |
+| `ramcarsoft-www` | `@ramcar/www` | `apps/www` | `ramcarsoft.com` | Next.js |
+| `ramcarsoft-web` | `@ramcar/web` | `apps/web` | `app.ramcarsoft.com` | Next.js |
 
 ### Build Configuration
 
 Per-project settings in the Vercel dashboard:
 
-**`ramcar-www`:**
+**`ramcarsoft-www`:**
 - Build Command: `cd ../.. && pnpm turbo build --filter=@ramcar/www`
 - Output Directory: `.next` (auto-detected)
 - Install Command: (leave blank — Vercel auto-detects pnpm and runs `pnpm install` at the repo root)
 - Node.js Version: 22.x
 - Environment Variables: None (purely static site)
 
-**`ramcar-web`:**
+**`ramcarsoft-web`:**
 - Build Command: `cd ../.. && pnpm turbo build --filter=@ramcar/web`
 - Output Directory: `.next` (auto-detected)
 - Install Command: (leave blank — same as above)
@@ -58,12 +58,12 @@ Vercel auto-detects pnpm from the `packageManager` field in the root `package.js
 
 Since both projects share the same repo, every push triggers both. To avoid unnecessary builds, each project uses Vercel's Ignored Build Step setting:
 
-**`ramcar-www`:**
+**`ramcarsoft-www`:**
 ```bash
 npx turbo-ignore @ramcar/www
 ```
 
-**`ramcar-web`:**
+**`ramcarsoft-web`:**
 ```bash
 npx turbo-ignore @ramcar/web
 ```
@@ -71,7 +71,7 @@ npx turbo-ignore @ramcar/web
 `turbo-ignore` inspects the Turborepo dependency graph and compares against the last successful deploy. It returns exit code 0 (skip) if nothing relevant changed, or 1 (build). Note: this is the opposite of typical Unix conventions — Vercel's Ignored Build Step treats exit 0 as "skip this build" and exit 1 as "proceed with build".
 
 Examples:
-- Change only `apps/www/` → only `ramcar-www` builds
+- Change only `apps/www/` → only `ramcarsoft-www` builds
 - Change `packages/config/` → both build (shared dependency)
 - Change `apps/api/` → neither builds
 
@@ -116,16 +116,16 @@ Vercel will verify domain ownership and provision SSL certificates automatically
 1. GitHub webhook notifies both Vercel projects
 2. Each project runs `turbo-ignore`
 3. Relevant project(s) build and deploy to production
-4. `ramcar-www` serves at `ramcarsoft.com`
-5. `ramcar-web` serves at `app.ramcarsoft.com`
+4. `ramcarsoft-www` serves at `ramcarsoft.com`
+5. `ramcarsoft-web` serves at `app.ramcarsoft.com`
 
 ## Implementation Order
 
 0. Connect GitHub repo to Vercel (install Vercel GitHub App, grant access to `ramcar-platform` repo)
-1. Create `ramcar-www` Vercel project, configure build settings
+1. Create `ramcarsoft-www` Vercel project, configure build settings
 2. Add DNS records in Squarespace for `ramcarsoft.com` and `www.ramcarsoft.com`
 3. Assign domain in Vercel, verify, and deploy
-4. (Future) Create `ramcar-web` Vercel project, configure build settings and env vars
+4. (Future) Create `ramcarsoft-web` Vercel project, configure build settings and env vars
 5. (Future) Add `app` CNAME in Squarespace, assign domain in Vercel
 
 ## No Code Changes Required
