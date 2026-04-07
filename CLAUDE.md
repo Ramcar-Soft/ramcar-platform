@@ -125,6 +125,10 @@ Two-process architecture communicating ONLY via IPC.
 - **@ramcar/ui** — shadcn/ui components copied (not installed as dep). Built on Radix + Tailwind.
 - **@ramcar/db-types** — Auto-generated from Supabase schema. Never edit manually.
 
+## Git Rules
+
+- Do NOT commit or push unless explicitly asked by the user
+
 ## Coding Conventions
 
 - All workspace packages use `@ramcar/` scope
