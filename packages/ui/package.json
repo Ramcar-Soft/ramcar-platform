@@ -6,17 +6,18 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./globals.css": "./src/globals.css"
+    "./globals.css": "./src/globals.css",
+    "./theme.css": "./src/theme.css"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
   "dependencies": {
-    "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "lucide-react": "^0.460.0",
+    "radix-ui": "^1.4.3",
     "tailwind-merge": "^2.6.0"
   },
   "peerDependencies": {
@@ -25,15 +26,16 @@
   },
   "devDependencies": {
     "@ramcar/config": "workspace:*",
+    "@tailwindcss/postcss": "^4",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^10.0.0",
+    "postcss": "^8.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^3.4.0",
-    "postcss": "^8.0.0",
-    "autoprefixer": "^10.0.0",
+    "shadcn": "^4.2.0",
+    "tailwindcss": "^4",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.0.0"
   }

@@ -18,7 +18,18 @@
       "Bash(curl:*)",
       "Bash(find:*)",
       "Bash(node:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "Bash(.specify/scripts/bash/create-new-feature.sh:*)",
+      "Bash(/Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/.specify/scripts/bash/check-prerequisites.sh:*)",
+      "Bash(/Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/.specify/scripts/bash/setup-plan.sh:*)",
+      "Bash(/Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/.specify/scripts/bash/update-agent-context.sh claude:*)",
+      "Bash(npx supabase:*)",
+      "Bash(docker exec:*)",
+      "Bash(tree:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:registry.npmjs.org)",
+      "WebFetch(domain:unpkg.com)"
     ]
   }
 }

@@ -15,6 +15,7 @@
     "@ramcar/shared": "workspace:*",
     "@ramcar/store": "workspace:*",
     "@ramcar/ui": "workspace:*",
+    "@supabase/supabase-js": "^2.102.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -31,10 +32,11 @@
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "typescript-eslint": "^8.0.0",
     "postcss": "^8.5.8",
+    "shadcn": "^4.2.0",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.2.2",
+    "typescript-eslint": "^8.0.0",
     "vite": "^5.1.6",
     "vite-plugin-electron": "^0.28.6",
     "vite-plugin-electron-renderer": "^0.14.5"

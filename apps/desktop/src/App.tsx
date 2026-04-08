@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/electron-vite.animate.svg'
-import './App.css'
+import { useEffect, useCallback } from "react";
+import { useAppStore } from "@ramcar/store";
+import type { UserProfile, Role } from "@ramcar/shared";
+import { supabase } from "./shared/lib/supabase";
+import { LoginPage } from "./features/auth/pages/login-page";
+import { HomePage } from "./features/auth/pages/home-page";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://electron-vite.github.io" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+function extractUserProfile(user: { id: string; email?: string; app_metadata: Record<string, unknown> }): UserProfile {
+  const meta = user.app_metadata;
+  return {
+    id: (meta.profile_id as string) ?? user.id,
+    userId: user.id,
+    tenantId: (meta.tenant_id as string) ?? "",
+    email: user.email ?? "",
+    fullName: (meta.full_name as string) ?? "",
+    role: (meta.role as Role) ?? "resident",
+  };
 }
 
-export default App
+function App() {
+  const isLoading = useAppStore((s) => s.isLoading);
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const setUser = useAppStore((s) => s.setUser);
+  const setLoading = useAppStore((s) => s.setLoading);
+  const clearAuth = useAppStore((s) => s.clearAuth);
+
+  useEffect(() => {
+    const initialize = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) {
+        setUser(extractUserProfile(data.session.user));
+      } else {
+        clearAuth();
+      }
+    };
+
+    initialize();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(extractUserProfile(session.user));
+      } else {
+        clearAuth();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [setUser, setLoading, clearAuth]);
+
+  const handleLogin = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    await supabase.auth.signOut();
+    clearAuth();
+  }, [clearAuth]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-emerald-600 to-emerald-100">
+        <p className="text-white/80">Loading...</p>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <HomePage onLogout={handleLogout} />;
+  }
+
+  return <LoginPage onLogin={handleLogin} />;
+}
+
+export default App;
