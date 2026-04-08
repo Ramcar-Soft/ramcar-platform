@@ -1,15 +1,17 @@
 "use client";
 
 import { createContext, useContext, useRef, type ReactNode } from "react";
-import { createStore as createZustandStore, type StoreApi } from "zustand";
+import { createStore as createZustandStore, useStore, type StoreApi } from "zustand";
+import { createAuthSlice, type AuthSlice } from "./slices/auth-slice";
 
-// Minimal store shape — slices will be added as features are built
-export interface AppState {
-  // placeholder
-}
+export type { AuthSlice } from "./slices/auth-slice";
+
+export interface AppState extends AuthSlice {}
 
 export const createStore = () => {
-  return createZustandStore<AppState>()(() => ({}));
+  return createZustandStore<AppState>()((...args) => ({
+    ...createAuthSlice(...args),
+  }));
 };
 
 type AppStore = StoreApi<AppState>;
@@ -24,10 +26,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   return <StoreContext.Provider value={storeRef.current}>{children}</StoreContext.Provider>;
 }
 
-export function useAppStore() {
+export function useAppStore<T>(selector: (state: AppState) => T): T {
   const store = useContext(StoreContext);
   if (!store) {
     throw new Error("useAppStore must be used within a StoreProvider");
   }
-  return store;
+  return useStore(store, selector);
 }

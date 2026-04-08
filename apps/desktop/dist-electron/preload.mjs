@@ -1,1 +1,6 @@
-"use strict";const e=require("electron"),i={ping:()=>e.ipcRenderer.invoke("ping")};e.contextBridge.exposeInMainWorld("api",i);
+"use strict";
+const electron = require("electron");
+const api = {
+  ping: () => electron.ipcRenderer.invoke("ping")
+};
+electron.contextBridge.exposeInMainWorld("api", api);

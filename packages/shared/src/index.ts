@@ -1,2 +1,2 @@
-// Barrel export — add types, validators, and utils as they are created
-export {};
+export type { Role, UserProfile, AuthSession } from "./types/auth";
+export { loginSchema, type LoginInput } from "./validators/auth";

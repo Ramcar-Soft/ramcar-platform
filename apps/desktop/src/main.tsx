@@ -1,12 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { StoreProvider } from '@ramcar/store'
 import App from './App.tsx'
 import '@ramcar/ui/globals.css'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <StoreProvider>
+      <App />
+    </StoreProvider>
   </React.StrictMode>,
 )
 

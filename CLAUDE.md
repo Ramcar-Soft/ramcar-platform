@@ -146,3 +146,10 @@ Two-process architecture communicating ONLY via IPC.
 4. **Shared types/validators:** Add to `packages/shared/src/types/` or `packages/shared/src/validators/`.
 5. **UI components:** `cd packages/ui && pnpx shadcn@latest add [component]`, then re-export from `src/index.ts`.
 6. **Database migrations:** `pnpm db:new [name]`, write SQL, `pnpm db:migrate`, `pnpm db:types`.
+
+## Active Technologies
+- TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr (001-auth-login)
+- PostgreSQL via Supabase (local dev on port 54322), localStorage (desktop session) (001-auth-login)
+
+## Recent Changes
+- 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr
