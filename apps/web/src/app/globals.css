@@ -1,1 +1,5 @@
 @import "tailwindcss";
+@import "shadcn/tailwind.css";
+@import "@ramcar/ui/theme.css";
+
+@source "../../../../packages/ui/src";

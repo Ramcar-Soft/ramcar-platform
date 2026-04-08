@@ -6,7 +6,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>): React.JSX.Element {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-muted p-4">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-linear-to-br from-emerald-600 to-emerald-100 ">
       {children}
     </main>
   );

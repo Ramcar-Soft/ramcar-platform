@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import React from "react";
 import { Geist, Inter } from "next/font/google";
 import "./globals.css";
-import "@ramcar/ui/globals.css";
 
 const geistSans = Geist({
   variable: "--font-heading",
@@ -27,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${inter.variable} font-body antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${inter.variable} font-body antialiased`}
       >
         {children}
       </body>
