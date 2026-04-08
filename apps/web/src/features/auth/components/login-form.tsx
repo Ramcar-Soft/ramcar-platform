@@ -20,7 +20,7 @@ export function LoginForm(): React.JSX.Element {
   );
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm shadow-md">
       <CardHeader>
         <CardTitle className="text-2xl">Sign In</CardTitle>
         <CardDescription>
@@ -60,7 +60,7 @@ export function LoginForm(): React.JSX.Element {
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" className="w-full" disabled={isPending} variant="outline">
+          <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "Signing in..." : "Sign In"}
           </Button>
         </CardFooter>
