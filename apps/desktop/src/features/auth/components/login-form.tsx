@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Button } from "@ramcar/ui";
-import { Input } from "@ramcar/ui";
+import { Button, CardContent, CardFooter, Input } from "@ramcar/ui";
 import { loginSchema } from "@ramcar/shared";
 
 interface LoginFormProps {
@@ -34,39 +33,45 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <label htmlFor="email" className="text-sm font-medium">
-          Email
-        </label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="guard@ramcar.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={isSubmitting}
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <label htmlFor="password" className="text-sm font-medium">
-          Password
-        </label>
-        <Input
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isSubmitting}
-        />
-      </div>
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
-      <Button type="submit" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? "Signing in..." : "Sign in"}
-      </Button>
+    <form onSubmit={handleSubmit}>
+      <CardContent className="flex flex-col gap-4">
+        {error && (
+          <p className="text-sm text-destructive">{error}</p>
+        )}
+        <div className="flex flex-col gap-2">
+          <label htmlFor="email" className="text-sm font-medium">
+            Email
+          </label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isSubmitting}
+            autoComplete="email"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="password" className="text-sm font-medium">
+            Password
+          </label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isSubmitting}
+            autoComplete="current-password"
+          />
+        </div>
+      </CardContent>
+      <CardFooter className="pt-12">
+        <Button type="submit" className="w-full" disabled={isSubmitting} variant="default">
+          {isSubmitting ? "Signing in..." : "Sign In"}
+        </Button>
+      </CardFooter>
     </form>
   );
 }

@@ -59,8 +59,8 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <p className="text-muted-foreground">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-emerald-600 to-emerald-100">
+        <p className="text-white/80">Loading...</p>
       </div>
     );
   }

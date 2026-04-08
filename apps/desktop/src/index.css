@@ -2,7 +2,7 @@
 @import "shadcn/tailwind.css";
 @import "@ramcar/ui/theme.css";
 
-@source "../../../../packages/ui/src";
+@source "../../../packages/ui/src";
 
 body {
   margin: 0;
