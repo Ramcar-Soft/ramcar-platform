@@ -12,12 +12,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ramcar/i18n": "workspace:*",
     "@ramcar/shared": "workspace:*",
     "@ramcar/store": "workspace:*",
     "@ramcar/ui": "workspace:*",
     "@supabase/supabase-js": "^2.102.1",
+    "i18next": "^26.0.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-i18next": "^17.0.2"
   },
   "devDependencies": {
     "@ramcar/config": "workspace:*",

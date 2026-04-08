@@ -150,6 +150,8 @@ Two-process architecture communicating ONLY via IPC.
 ## Active Technologies
 - TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr (001-auth-login)
 - PostgreSQL via Supabase (local dev on port 54322), localStorage (desktop session) (001-auth-login)
+- TypeScript 5.x (strict mode), Node.js 22 LTS + next-intl v4 (web — aligns with existing apps/www), react-i18next + i18next (desktop — lightweight, works with Vite/React without Next.js), shared JSON message files (002-app-translations)
+- localStorage (desktop language preference), URL path segment (web language context) (002-app-translations)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr

@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "title": "Ramcar Web",
+    "description": "Ramcar Web Portal"
+  },
+  "common": {
+    "appName": "RamcarSoft",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  },
+  "auth": {
+    "login": {
+      "title": "RamcarSoft",
+      "description": "Enter your credentials to access the platform.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Sign In",
+      "submittingButton": "Signing in..."
+    },
+    "logout": {
+      "button": "Sign Out"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome, {name}",
+    "signedInMessage": "You are signed in to the Ramcar Platform.",
+    "emailLabel": "Email",
+    "roleLabel": "Role"
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English"
+  }
+}

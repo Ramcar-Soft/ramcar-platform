@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, CardContent, CardFooter, Input } from "@ramcar/ui";
 import { loginSchema } from "@ramcar/shared";
 
@@ -7,6 +8,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSubmit }: LoginFormProps) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +28,9 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
     try {
       await onSubmit(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(
+        err instanceof Error ? err.message : t("common.error"),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -40,12 +44,12 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         )}
         <div className="flex flex-col gap-2">
           <label htmlFor="email" className="text-sm font-medium">
-            Email
+            {t("auth.login.emailLabel")}
           </label>
           <Input
             id="email"
             type="email"
-            placeholder="you@example.com"
+            placeholder={t("auth.login.emailPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isSubmitting}
@@ -54,12 +58,12 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="password" className="text-sm font-medium">
-            Password
+            {t("auth.login.passwordLabel")}
           </label>
           <Input
             id="password"
             type="password"
-            placeholder="••••••••"
+            placeholder={t("auth.login.passwordPlaceholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isSubmitting}
@@ -68,8 +72,15 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         </div>
       </CardContent>
       <CardFooter className="pt-12">
-        <Button type="submit" className="w-full" disabled={isSubmitting} variant="default">
-          {isSubmitting ? "Signing in..." : "Sign In"}
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting}
+          variant="default"
+        >
+          {isSubmitting
+            ? t("auth.login.submittingButton")
+            : t("auth.login.submitButton")}
         </Button>
       </CardFooter>
     </form>

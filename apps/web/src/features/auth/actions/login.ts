@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { loginSchema } from "@ramcar/shared";
 import { createClient } from "@/shared/lib/supabase/server";
+import { redirect } from "@/i18n/routing";
+import type { Locale } from "@ramcar/i18n";
 
 export type LoginState = {
   error: string;
@@ -30,6 +32,7 @@ export async function login(
     return { error: error.message };
   }
 
+  const locale = (await getLocale()) as Locale;
   revalidatePath("/", "layout");
-  redirect("/");
+  return redirect({ href: "/", locale });
 }
