@@ -1,6 +1,51 @@
-import { app, BrowserWindow } from "electron";
+import { app, ipcMain, BrowserWindow } from "electron";
 import { fileURLToPath } from "node:url";
-import path from "node:path";
+import path, { join } from "node:path";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+const SETTINGS_FILE = "settings.json";
+const VALID_LOCALES = ["es", "en"];
+const DEFAULT_LOCALE = "es";
+function getSettingsPath() {
+  return join(app.getPath("userData"), SETTINGS_FILE);
+}
+function readSettings() {
+  const path2 = getSettingsPath();
+  if (!existsSync(path2)) {
+    return { language: DEFAULT_LOCALE };
+  }
+  try {
+    const data = readFileSync(path2, "utf-8");
+    const parsed = JSON.parse(data);
+    if (!VALID_LOCALES.includes(parsed.language)) {
+      return { language: DEFAULT_LOCALE };
+    }
+    return parsed;
+  } catch {
+    return { language: DEFAULT_LOCALE };
+  }
+}
+function writeSettings(settings) {
+  const path2 = getSettingsPath();
+  try {
+    writeFileSync(path2, JSON.stringify(settings, null, 2), "utf-8");
+  } catch {
+  }
+}
+function getLanguage() {
+  return readSettings().language;
+}
+function setLanguage(locale) {
+  if (!VALID_LOCALES.includes(locale)) return;
+  writeSettings({ language: locale });
+}
+function registerSettingsHandlers() {
+  ipcMain.handle("get-language", () => {
+    return getLanguage();
+  });
+  ipcMain.handle("set-language", (_event, locale) => {
+    setLanguage(locale);
+  });
+}
 const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
@@ -35,7 +80,10 @@ app.on("activate", () => {
     createWindow();
   }
 });
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  registerSettingsHandlers();
+  createWindow();
+});
 export {
   MAIN_DIST,
   RENDERER_DIST,

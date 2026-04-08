@@ -29,7 +29,14 @@
       "Bash(tree:*)",
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:registry.npmjs.org)",
-      "WebFetch(domain:unpkg.com)"
+      "WebFetch(domain:unpkg.com)",
+      "Bash(.specify/scripts/bash/setup-plan.sh:*)",
+      "Bash(mkdir -p /Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/apps/web/src/app/\\\\[locale\\\\])",
+      "Bash(mv /Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/apps/web/src/app/\\\\\\(auth\\\\\\) /Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/apps/web/src/app/\\\\[locale\\\\]/\\\\\\(auth\\\\\\))",
+      "Bash(mv /Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/apps/web/src/app/\\\\\\(protected\\\\\\) /Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/apps/web/src/app/\\\\[locale\\\\]/\\\\\\(protected\\\\\\))",
+      "Bash(grep -r \"export.*redirect\" /Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/node_modules/.pnpm/next-intl*/node_modules/next-intl/dist/esm/navigation/react-client/index.d.mts)",
+      "Bash(grep -n \"updateSession\\\\|try\\\\|catch\" /Users/ivaneusebio/Documents/Development/ProyectoSeguridad/ramcar-platform/apps/web/.next/dev/server/edge/chunks/\\\\[root-of-the-server\\\\]__*.js)",
+      "Bash(pkill -f \"next dev\")"
     ]
   }
 }
