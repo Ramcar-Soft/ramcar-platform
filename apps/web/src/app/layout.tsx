@@ -1,6 +1,7 @@
 import React from "react";
 import { Geist, Inter } from "next/font/google";
 import { getLocale } from "next-intl/server";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,11 +22,13 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${inter.variable} font-body antialiased`}
       >
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

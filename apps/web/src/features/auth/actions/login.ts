@@ -34,5 +34,5 @@ export async function login(
 
   const locale = (await getLocale()) as Locale;
   revalidatePath("/", "layout");
-  return redirect({ href: "/", locale });
+  return redirect({ href: "/dashboard", locale });
 }

@@ -2,10 +2,10 @@ import React from "react";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/shared/lib/supabase/server";
 import { redirect } from "@/i18n/routing";
-import { LanguageSwitcher } from "@/shared/components/language-switcher";
 import type { Locale } from "@ramcar/i18n";
+import { DashboardShell } from "./dashboard-shell";
 
-export default async function ProtectedLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -20,12 +20,5 @@ export default async function ProtectedLayout({
     return redirect({ href: "/login", locale });
   }
 
-  return (
-    <div className="relative">
-      <div className="absolute top-4 right-4">
-        <LanguageSwitcher />
-      </div>
-      {children}
-    </div>
-  );
+  return <DashboardShell>{children}</DashboardShell>;
 }

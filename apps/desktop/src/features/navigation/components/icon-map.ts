@@ -1,0 +1,36 @@
+import {
+  LayoutDashboard,
+  BookOpen,
+  ClipboardList,
+  Users,
+  FolderKanban,
+  Wifi,
+  MessageSquare,
+  Route,
+  CalendarDays,
+  Megaphone,
+  Search,
+  History,
+  ShieldAlert,
+  DoorOpen,
+  Eye,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+export const iconMap: Record<string, LucideIcon> = {
+  LayoutDashboard,
+  BookOpen,
+  ClipboardList,
+  Users,
+  FolderKanban,
+  Wifi,
+  MessageSquare,
+  Route,
+  CalendarDays,
+  Megaphone,
+  Search,
+  History,
+  ShieldAlert,
+  DoorOpen,
+  Eye,
+};

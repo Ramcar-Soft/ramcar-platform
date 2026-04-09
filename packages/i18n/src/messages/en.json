@@ -33,5 +33,34 @@
     "label": "Language",
     "es": "Español",
     "en": "English"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "catalogs": "Catalogs",
+    "logbook": "Logbook",
+    "logbook_visitors": "Visitors",
+    "logbook_providers": "Providers",
+    "logbook_residents": "Residents",
+    "visits-and-residents": "Visits & Residents",
+    "projects": "Projects",
+    "wifi": "Wi-Fi Networks",
+    "complaints": "Complaints & Suggestions",
+    "patrols": "Patrols",
+    "amenities": "Amenities",
+    "announcements": "Announcements",
+    "lost-and-found": "Lost & Found",
+    "history": "History",
+    "blacklist": "Blacklist",
+    "access-log": "Access Log",
+    "access-log_visitors": "Visitors",
+    "access-log_providers": "Providers",
+    "access-log_residents": "Residents",
+    "my-visits": "My Visits",
+    "account": "Account",
+    "logout": "Log out"
+  },
+  "topbar": {
+    "toggleTheme": "Toggle theme",
+    "toggleSidebar": "Toggle sidebar"
   }
 }

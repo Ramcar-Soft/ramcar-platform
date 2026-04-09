@@ -3,14 +3,20 @@
 import { createContext, useContext, useRef, type ReactNode } from "react";
 import { createStore as createZustandStore, useStore, type StoreApi } from "zustand";
 import { createAuthSlice, type AuthSlice } from "./slices/auth-slice";
+import { createSidebarSlice, type SidebarSlice } from "./slices/sidebar-slice";
+import { createThemeSlice, type ThemeSlice } from "./slices/theme-slice";
 
 export type { AuthSlice } from "./slices/auth-slice";
+export type { SidebarSlice } from "./slices/sidebar-slice";
+export type { ThemeSlice, Theme } from "./slices/theme-slice";
 
-export interface AppState extends AuthSlice {}
+export interface AppState extends AuthSlice, SidebarSlice, ThemeSlice {}
 
 export const createStore = () => {
   return createZustandStore<AppState>()((...args) => ({
     ...createAuthSlice(...args),
+    ...createSidebarSlice(...args),
+    ...createThemeSlice(...args),
   }));
 };
 

@@ -3,7 +3,7 @@ import { useAppStore } from "@ramcar/store";
 import type { UserProfile, Role } from "@ramcar/shared";
 import { supabase } from "./shared/lib/supabase";
 import { LoginPage } from "./features/auth/pages/login-page";
-import { HomePage } from "./features/auth/pages/home-page";
+import { PageRouter } from "./shared/components/page-router";
 
 function extractUserProfile(user: { id: string; email?: string; app_metadata: Record<string, unknown> }): UserProfile {
   const meta = user.app_metadata;
@@ -66,7 +66,7 @@ function App() {
   }
 
   if (isAuthenticated) {
-    return <HomePage onLogout={handleLogout} />;
+    return <PageRouter onLogout={handleLogout} />;
   }
 
   return <LoginPage onLogin={handleLogin} />;
