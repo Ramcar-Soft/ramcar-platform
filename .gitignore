@@ -53,5 +53,10 @@ supabase/.temp
 # coverage
 coverage/
 
+# playwright
+playwright-report/
+test-results/
+blob-report/
+
 # git worktrees
 .worktrees/

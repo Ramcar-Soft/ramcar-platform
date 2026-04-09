@@ -14,15 +14,26 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "dotenvx run -f .env.local -- turbo test",
+    "test:cov": "dotenvx run -f .env.local -- turbo test:cov",
+    "test:e2e": "dotenvx run -f .env.local -- turbo test:e2e",
     "db:start": "dotenvx run -f .env.local -- supabase start",
     "db:stop": "dotenvx run -f .env.local -- supabase stop",
     "db:migrate": "dotenvx run -f .env.local -- supabase db push",
     "db:new": "supabase migration new",
     "db:types": "dotenvx run -f .env.local -- supabase gen types typescript --local > packages/db-types/src/types.ts",
-    "db:reset": "dotenvx run -f .env.local -- supabase db reset"
+    "db:reset": "dotenvx run -f .env.local -- supabase db reset",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --max-warnings 0"
+    ]
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.55.1",
+    "eslint": "^10.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "turbo": "^2.8.17"
   },
   "pnpm": {

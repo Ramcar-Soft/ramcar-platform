@@ -41,7 +41,9 @@ pnpm dev          # Start all apps in development
 pnpm build        # Build all apps and packages
 pnpm lint         # ESLint across all workspaces
 pnpm typecheck    # TypeScript check across all workspaces
-pnpm test         # Run tests across all workspaces
+pnpm test         # Run unit tests across all workspaces
+pnpm test:cov     # Run tests with coverage reports
+pnpm test:e2e     # Run Playwright E2E tests (apps/web)
 
 # Database (run from repo root)
 pnpm db:start     # Start local Supabase
@@ -160,6 +162,8 @@ Two-process architecture communicating ONLY via IPC.
 - PostgreSQL via Supabase (auth metadata only — no schema changes) (005-role-based-navigation)
 - TypeScript 5.x (strict mode) + React 18.3.1 → 19.2.3 (upgrade), radix-ui 1.4.3, Electron 30, Vite 5, Tailwind CSS 4.2.1 (006-fix-desktop-dropdown)
 - N/A (no data changes) (006-fix-desktop-dropdown)
+- TypeScript 5.x (strict mode), Node.js 22 LTS + Vitest (frontend + packages), Jest + ts-jest (api), Playwright, Husky v9, lint-staged (007-testing-coverage-husky)
+- N/A (no data persistence — development tooling only) (007-testing-coverage-husky)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr
