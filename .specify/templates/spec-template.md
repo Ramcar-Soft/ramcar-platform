@@ -100,6 +100,23 @@
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
 
+### Data Access Architecture *(mandatory for features involving data)*
+
+<!--
+  GATE: Every feature that reads or writes data MUST define its data access path.
+  Constitution Principle VIII (API-First Data Access) requires all database operations
+  go through the NestJS API. Frontend apps must never query Supabase directly.
+  
+  Fill out the following for each data operation in this feature:
+-->
+
+| Operation | API Endpoint | HTTP Method | Request DTO | Response DTO |
+|-----------|-------------|-------------|-------------|--------------|
+| [e.g., List users] | [e.g., GET /api/users] | [GET/POST/PATCH/DELETE] | [Zod schema name] | [Response type] |
+
+**Frontend data flow**: TanStack Query → NestJS API → Repository → Supabase/Postgres  
+**Allowed frontend Supabase usage**: Auth (`supabase.auth.*`) and Realtime (`supabase.channel()`) only
+
 ## Success Criteria *(mandatory)*
 
 <!--

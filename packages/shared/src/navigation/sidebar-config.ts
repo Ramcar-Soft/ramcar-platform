@@ -28,6 +28,7 @@ export const sidebarItems: SidebarItem[] = [
     key: "catalogs",
     icon: "BookOpen",
     route: "/catalogs",
+    subItems: [{ key: "users", route: "/catalogs/users" }],
     roles: ["super_admin", "admin"],
     platforms: ["web"],
   },

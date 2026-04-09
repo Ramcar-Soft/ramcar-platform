@@ -1,11 +1,8 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/routing";
+import type { Locale } from "@ramcar/i18n";
 
 export default async function CatalogsPage() {
-  const t = await getTranslations("sidebar");
-
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-semibold text-foreground">{t("catalogs")}</h1>
-    </main>
-  );
+  const locale = (await getLocale()) as Locale;
+  return redirect({ href: "/catalogs/users", locale });
 }

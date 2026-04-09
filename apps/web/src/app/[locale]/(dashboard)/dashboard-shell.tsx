@@ -6,6 +6,7 @@ import { StoreProvider, useAppStore } from "@ramcar/store";
 import type { UserProfile } from "@ramcar/shared";
 import { AppSidebar } from "@/features/navigation";
 import { TopBar } from "@/features/navigation/components/top-bar";
+import { QueryProvider } from "@/shared/lib/query-provider";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -15,17 +16,19 @@ interface DashboardShellProps {
 export function DashboardShell({ children, userProfile }: DashboardShellProps) {
   return (
     <StoreProvider>
-      <AuthGate userProfile={userProfile}>
-        <TooltipProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <TopBar />
-              <div className="flex-1 p-4">{children}</div>
-            </SidebarInset>
-          </SidebarProvider>
-        </TooltipProvider>
-      </AuthGate>
+      <QueryProvider>
+        <AuthGate userProfile={userProfile}>
+          <TooltipProvider>
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <TopBar />
+                <div className="flex-1 p-4">{children}</div>
+              </SidebarInset>
+            </SidebarProvider>
+          </TooltipProvider>
+        </AuthGate>
+      </QueryProvider>
     </StoreProvider>
   );
 }

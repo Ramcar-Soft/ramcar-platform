@@ -47,7 +47,8 @@ pnpm test:e2e     # Run Playwright E2E tests (apps/web)
 
 # Database (run from repo root)
 pnpm db:start     # Start local Supabase
-pnpm db:migrate   # Push migrations to remote
+pnpm db:migrate:dev   # Push migrations to remote dev
+pnpm db:migrate:prod  # Push migrations to remote production
 pnpm db:new       # Create new migration file
 pnpm db:types     # Regenerate TypeScript types from schema
 pnpm db:reset     # Reset local database with seed data
@@ -74,6 +75,14 @@ shared/ ✗ features/             (shared NEVER imports from features)
 - Zustand (from @ramcar/store) owns client/UI state (toasts, modals, sidebar)
 - React Query keys always include tenantId: `[resource, tenantId, modifier, filters]`
 - No overlap between React Query and Zustand
+
+**Data access (NON-NEGOTIABLE):**
+- All database operations (`supabase.from()`, `.rpc()`, `.storage`) go through the NestJS API — never called directly from frontend code
+- Allowed frontend Supabase usage: Authentication (`supabase.auth.*`) and Realtime (`supabase.channel()`, `.on()`) only
+- No Server Actions (`"use server"`) for data queries or mutations — use `fetch`/TanStack Query to call NestJS REST endpoints
+- Frontend Supabase client files must include: `// AUTH & REALTIME ONLY — no .from(), .rpc(), .storage`
+- Data fetching: TanStack Query v5 calls NestJS API endpoints — never direct Supabase DB queries
+- Desktop sync: Supabase Realtime for receiving live updates; all writes through NestJS API
 
 `apps/www` is the same architecture but simpler — no auth, no store.
 
@@ -142,12 +151,12 @@ Two-process architecture communicating ONLY via IPC.
 
 ## Adding New Features
 
-1. **Frontend (web/www):** Create `src/features/[domain]/` with components, hooks, types. Wire into `src/app/` routes.
+1. **Frontend (web/www):** Create `src/features/[domain]/` with components, hooks, types. Data fetching via TanStack Query against NestJS API endpoints — no direct Supabase DB access. Wire into `src/app/` routes.
 2. **Backend (api):** Create `src/modules/[domain]/` with module, controller, service, repository, dto/. Register in AppModule.
 3. **Desktop:** Main process: `electron/` (service + repository + IPC handler). Renderer: `src/features/[domain]/`. Bridge: add to `electron/preload.ts`.
 4. **Shared types/validators:** Add to `packages/shared/src/types/` or `packages/shared/src/validators/`.
 5. **UI components:** `cd packages/ui && pnpx shadcn@latest add [component]`, then re-export from `src/index.ts`.
-6. **Database migrations:** `pnpm db:new [name]`, write SQL, `pnpm db:migrate`, `pnpm db:types`.
+6. **Database migrations:** `pnpm db:new [name]`, write SQL, `pnpm db:migrate:dev`, `pnpm db:types`.
 
 ## Active Technologies
 - TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr (001-auth-login)
@@ -164,6 +173,10 @@ Two-process architecture communicating ONLY via IPC.
 - N/A (no data changes) (006-fix-desktop-dropdown)
 - TypeScript 5.x (strict mode), Node.js 22 LTS + Vitest (frontend + packages), Jest + ts-jest (api), Playwright, Husky v9, lint-staged (007-testing-coverage-husky)
 - N/A (no data persistence — development tooling only) (007-testing-coverage-husky)
+- TypeScript 5.x (strict mode), Node.js 22 LTS + Next.js 16 (App Router), NestJS v11, Supabase JS v2, @supabase/ssr, shadcn/ui, TanStack Query v5, Zustand, next-intl v4, Zod (008-catalog-users)
+- PostgreSQL via Supabase (profiles table extension, new user_groups table) (008-catalog-users)
+- TypeScript 5.x (strict mode), Node.js 22 LTS + Next.js 16 (App Router), NestJS v11, TanStack Query v5.97.0, Supabase JS v2, @supabase/ssr, shadcn/ui, Zod, Zustand, next-intl v4 (009-refactor-users-api-first)
+- PostgreSQL via Supabase (no schema changes — migration from 008 retained) (009-refactor-users-api-first)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr

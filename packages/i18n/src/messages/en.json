@@ -37,6 +37,7 @@
   "sidebar": {
     "dashboard": "Dashboard",
     "catalogs": "Catalogs",
+    "catalogs_users": "Users",
     "logbook": "Logbook",
     "logbook_visitors": "Visitors",
     "logbook_providers": "Providers",
@@ -67,5 +68,99 @@
     "title": "Access Restricted",
     "message": "Your account does not have access to this section. Please contact your administrator.",
     "logout": "Sign Out"
+  },
+  "users": {
+    "title": "Users",
+    "createUser": "Create User",
+    "editUser": "Edit User",
+    "searchPlaceholder": "Search users...",
+    "filterByTenant": "Filter by tenant",
+    "filterByStatus": "Filter by status",
+    "allTenants": "All tenants",
+    "allStatuses": "All statuses",
+    "columns": {
+      "fullName": "Full Name",
+      "email": "Email",
+      "role": "Role",
+      "tenant": "Tenant",
+      "phone": "Phone",
+      "status": "Status",
+      "userGroups": "Groups",
+      "actions": "Actions"
+    },
+    "form": {
+      "fullName": "Full Name",
+      "email": "Email",
+      "role": "Role",
+      "tenant": "Tenant",
+      "address": "Address",
+      "username": "Username",
+      "phone": "Phone",
+      "phoneType": "Phone Type",
+      "userGroups": "User Groups",
+      "observations": "Observations",
+      "selectRole": "Select a role",
+      "selectTenant": "Select a tenant",
+      "selectPhoneType": "Select phone type",
+      "selectUserGroups": "Select user groups",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "passwordResetInfo": "A password reset link will be sent to the user's email",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "create": "Create User",
+      "creating": "Creating..."
+    },
+    "phoneTypes": {
+      "house": "House",
+      "cellphone": "Cellphone",
+      "work": "Work",
+      "primary": "Primary"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "roles": {
+      "super_admin": "Super Admin",
+      "admin": "Admin",
+      "guard": "Guard",
+      "resident": "Resident"
+    },
+    "actions": {
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate"
+    },
+    "confirmDeactivate": {
+      "title": "Deactivate User",
+      "message": "Are you sure you want to deactivate this user? They will no longer be able to log in.",
+      "confirm": "Deactivate",
+      "cancel": "Cancel"
+    },
+    "confirmReactivate": {
+      "title": "Reactivate User",
+      "message": "Are you sure you want to reactivate this user? They will be able to log in again.",
+      "confirm": "Reactivate",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "created": "User created successfully",
+      "updated": "User updated successfully",
+      "deactivated": "User deactivated successfully",
+      "reactivated": "User reactivated successfully",
+      "errorCreating": "Error creating user",
+      "errorUpdating": "Error updating user",
+      "errorDeactivating": "Error changing user status"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "showing": "Showing {from} to {to} of {total}",
+      "page": "Page {page} of {totalPages}"
+    },
+    "empty": "No users found",
+    "errorLoading": "Failed to load users. Please try again."
   }
 }

@@ -1,3 +1,7 @@
+// AUTH & REALTIME ONLY — Do not use .from(), .rpc(), or .storage on this client.
+// All database operations must go through NestJS API endpoints.
+// See Constitution Principle VIII and CLAUDE.md Data Access Rules.
+
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
