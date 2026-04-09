@@ -65,6 +65,8 @@ export {
 } from "./components/ui/sidebar";
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./components/ui/tooltip";
 
+export { LoadingScreen } from "./components/ui/loading-screen";
+
 // Hooks
 export { useIsMobile } from "./hooks/use-mobile";
 

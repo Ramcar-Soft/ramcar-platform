@@ -156,6 +156,10 @@ Two-process architecture communicating ONLY via IPC.
 - localStorage (sidebar collapse preference — web & desktop), localStorage (theme preference — desktop) (003-app-navigation-shell)
 - TypeScript 5.x (strict mode) + Next.js 16 (App Router), next-intl v4, shadcn/ui, Zustand, Supabase Auth (004-fix-web-nav-layout)
 - PostgreSQL via Supabase (auth only — no schema changes needed) (004-fix-web-nav-layout)
+- TypeScript 5.x (strict mode) + Next.js 16 (App Router), Electron 30 + Vite + React 18, Zustand, @supabase/ssr, @supabase/supabase-js, next-intl v4, Tailwind CSS (005-role-based-navigation)
+- PostgreSQL via Supabase (auth metadata only — no schema changes) (005-role-based-navigation)
+- TypeScript 5.x (strict mode) + React 18.3.1 → 19.2.3 (upgrade), radix-ui 1.4.3, Electron 30, Vite 5, Tailwind CSS 4.2.1 (006-fix-desktop-dropdown)
+- N/A (no data changes) (006-fix-desktop-dropdown)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr

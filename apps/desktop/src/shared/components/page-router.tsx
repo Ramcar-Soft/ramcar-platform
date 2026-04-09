@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useAppStore } from "@ramcar/store";
+import { isRouteAllowedForRole } from "@ramcar/shared";
 import { SidebarProvider, SidebarInset, TooltipProvider } from "@ramcar/ui";
 import { AppSidebar } from "../../features/navigation";
 import { TopBar } from "../../features/navigation/components/top-bar";
@@ -26,6 +27,7 @@ interface PageRouterProps {
 export function PageRouter({ onLogout }: PageRouterProps) {
   const currentPath = useAppStore((s) => s.currentPath);
   const navigate = useAppStore((s) => s.navigate);
+  const user = useAppStore((s) => s.user);
 
   // Redirect /access-log to /access-log/visitors
   useEffect(() => {
@@ -34,7 +36,15 @@ export function PageRouter({ onLogout }: PageRouterProps) {
     }
   }, [currentPath, navigate]);
 
-  const Page = routes[currentPath] ?? DashboardPage;
+  // Role-based route guard
+  useEffect(() => {
+    if (user && !isRouteAllowedForRole(currentPath, user.role, "desktop")) {
+      navigate("/dashboard");
+    }
+  }, [currentPath, user, navigate]);
+
+  const isAllowed = user ? isRouteAllowedForRole(currentPath, user.role, "desktop") : true;
+  const Page = isAllowed ? (routes[currentPath] ?? DashboardPage) : DashboardPage;
 
   return (
     <TooltipProvider>

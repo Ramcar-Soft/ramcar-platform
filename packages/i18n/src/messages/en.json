@@ -62,5 +62,10 @@
   "topbar": {
     "toggleTheme": "Toggle theme",
     "toggleSidebar": "Toggle sidebar"
+  },
+  "unauthorized": {
+    "title": "Access Restricted",
+    "message": "Your account does not have access to this section. Please contact your administrator.",
+    "logout": "Sign Out"
   }
 }

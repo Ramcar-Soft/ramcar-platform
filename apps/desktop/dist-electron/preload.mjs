@@ -1,1 +1,8 @@
-"use strict";const e=require("electron"),i={ping:()=>e.ipcRenderer.invoke("ping"),getLanguage:()=>e.ipcRenderer.invoke("get-language"),setLanguage:n=>e.ipcRenderer.invoke("set-language",n)};e.contextBridge.exposeInMainWorld("api",i);
+"use strict";
+const electron = require("electron");
+const api = {
+  ping: () => electron.ipcRenderer.invoke("ping"),
+  getLanguage: () => electron.ipcRenderer.invoke("get-language"),
+  setLanguage: (locale) => electron.ipcRenderer.invoke("set-language", locale)
+};
+electron.contextBridge.exposeInMainWorld("api", api);

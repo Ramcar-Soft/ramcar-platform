@@ -32,15 +32,16 @@ import {
 } from "@ramcar/ui";
 import { ChevronRight, ChevronsUpDown, LogOut, User } from "lucide-react";
 import { logout } from "@/features/auth/actions/logout";
-import { getItemsForPlatform } from "@ramcar/shared";
+import { getItemsForRole } from "@ramcar/shared";
 import type { SidebarItem } from "@ramcar/shared";
+import { useAppStore } from "@ramcar/store";
 import { iconMap } from "./icon-map";
-
-const items = getItemsForPlatform("web");
 
 export function AppSidebar() {
   const pathname = usePathname();
   const t = useTranslations("sidebar");
+  const user = useAppStore((s) => s.user);
+  const items = user ? getItemsForRole(user.role, "web") : [];
 
   // Strip locale prefix from pathname for matching (e.g., /es/dashboard → /dashboard)
   const normalizedPath = pathname.replace(/^\/(en|es)/, "") || "/";
@@ -96,11 +97,13 @@ export function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg">A</AvatarFallback>
+                    <AvatarFallback className="rounded-lg">
+                      {user?.fullName?.[0]?.toUpperCase() ?? "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Admin</span>
-                    <span className="truncate text-xs text-muted-foreground">admin@ramcar.com</span>
+                    <span className="truncate font-semibold">{user?.fullName ?? ""}</span>
+                    <span className="truncate text-xs text-muted-foreground">{user?.email ?? ""}</span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                 </SidebarMenuButton>

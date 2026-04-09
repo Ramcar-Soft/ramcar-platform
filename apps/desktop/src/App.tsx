@@ -1,21 +1,10 @@
 import { useEffect, useCallback } from "react";
 import { useAppStore } from "@ramcar/store";
-import type { UserProfile, Role } from "@ramcar/shared";
+import { extractUserProfile } from "@ramcar/shared";
+import { LoadingScreen } from "@ramcar/ui";
 import { supabase } from "./shared/lib/supabase";
 import { LoginPage } from "./features/auth/pages/login-page";
 import { PageRouter } from "./shared/components/page-router";
-
-function extractUserProfile(user: { id: string; email?: string; app_metadata: Record<string, unknown> }): UserProfile {
-  const meta = user.app_metadata;
-  return {
-    id: (meta.profile_id as string) ?? user.id,
-    userId: user.id,
-    tenantId: (meta.tenant_id as string) ?? "",
-    email: user.email ?? "",
-    fullName: (meta.full_name as string) ?? "",
-    role: (meta.role as Role) ?? "resident",
-  };
-}
 
 function App() {
   const isLoading = useAppStore((s) => s.isLoading);
@@ -57,12 +46,17 @@ function App() {
     clearAuth();
   }, [clearAuth]);
 
+  const retrySession = useCallback(async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.user) {
+      setUser(extractUserProfile(data.session.user));
+    } else {
+      clearAuth();
+    }
+  }, [setUser, clearAuth]);
+
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-emerald-600 to-emerald-100">
-        <p className="text-white/80">Loading...</p>
-      </div>
-    );
+    return <LoadingScreen onRetry={retrySession} />;
   }
 
   if (isAuthenticated) {

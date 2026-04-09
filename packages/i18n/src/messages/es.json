@@ -62,5 +62,10 @@
   "topbar": {
     "toggleTheme": "Cambiar tema",
     "toggleSidebar": "Alternar barra lateral"
+  },
+  "unauthorized": {
+    "title": "Acceso Restringido",
+    "message": "Tu cuenta no tiene acceso a esta sección. Por favor contacta a tu administrador.",
+    "logout": "Cerrar sesión"
   }
 }

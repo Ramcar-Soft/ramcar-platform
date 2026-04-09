@@ -123,7 +123,7 @@ export const sidebarItems: SidebarItem[] = [
       { key: "residents", route: "/access-log/residents" },
     ],
     roles: ["guard"],
-    platforms: ["desktop"],
+    platforms: ["desktop", "web"],
   },
   {
     key: "my-visits",
@@ -146,4 +146,39 @@ export function getItemsForRole(
     (item) =>
       item.roles.includes(role) && item.platforms.includes(platform),
   );
+}
+
+export const UNIVERSAL_ROUTES: readonly string[] = [
+  "/dashboard",
+  "/account",
+  "/unauthorized",
+];
+
+export function getAllowedRoutes(
+  role: Role,
+  platform: Platform,
+): string[] {
+  return getItemsForRole(role, platform).map((item) => item.route);
+}
+
+export function isRouteAllowedForRole(
+  pathname: string,
+  role: Role,
+  platform: Platform,
+): boolean {
+  if (UNIVERSAL_ROUTES.some((route) => pathname.startsWith(route))) {
+    return true;
+  }
+
+  const platformItems = sidebarItems.filter((item) =>
+    item.platforms.includes(platform),
+  );
+
+  for (const item of platformItems) {
+    if (pathname.startsWith(item.route)) {
+      return item.roles.includes(role);
+    }
+  }
+
+  return true;
 }

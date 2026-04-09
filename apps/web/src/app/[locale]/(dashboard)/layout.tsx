@@ -3,6 +3,7 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/shared/lib/supabase/server";
 import { redirect } from "@/i18n/routing";
 import type { Locale } from "@ramcar/i18n";
+import { extractUserProfile } from "@ramcar/shared";
 import { DashboardShell } from "./dashboard-shell";
 
 export default async function DashboardLayout({
@@ -20,5 +21,9 @@ export default async function DashboardLayout({
     return redirect({ href: "/login", locale });
   }
 
-  return <DashboardShell>{children}</DashboardShell>;
+  const userProfile = extractUserProfile(user);
+
+  return (
+    <DashboardShell userProfile={userProfile}>{children}</DashboardShell>
+  );
 }
