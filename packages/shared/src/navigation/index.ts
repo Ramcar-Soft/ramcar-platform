@@ -7,4 +7,7 @@ export {
   sidebarItems,
   getItemsForPlatform,
   getItemsForRole,
+  UNIVERSAL_ROUTES,
+  getAllowedRoutes,
+  isRouteAllowedForRole,
 } from "./sidebar-config";

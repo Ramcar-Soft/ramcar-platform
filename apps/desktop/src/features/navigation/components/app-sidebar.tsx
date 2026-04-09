@@ -35,11 +35,9 @@ const Collapsible = CollapsiblePrimitive.Root;
 const CollapsibleTrigger = CollapsiblePrimitive.CollapsibleTrigger;
 const CollapsibleContent = CollapsiblePrimitive.CollapsibleContent;
 import { ChevronRight, ChevronsUpDown, LogOut, User } from "lucide-react";
-import { getItemsForPlatform } from "@ramcar/shared";
+import { getItemsForRole } from "@ramcar/shared";
 import type { SidebarItem } from "@ramcar/shared";
 import { iconMap } from "./icon-map";
-
-const items = getItemsForPlatform("desktop");
 
 interface AppSidebarProps {
   onLogout: () => void;
@@ -50,6 +48,7 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
   const currentPath = useAppStore((s) => s.currentPath);
   const navigate = useAppStore((s) => s.navigate);
   const user = useAppStore((s) => s.user);
+  const items = user ? getItemsForRole(user.role, "desktop") : [];
 
   return (
     <Sidebar collapsible="icon">

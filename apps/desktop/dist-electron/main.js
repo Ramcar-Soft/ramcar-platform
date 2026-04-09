@@ -1,66 +1,91 @@
-import { app as s, ipcMain as c, BrowserWindow as l } from "electron";
-import { fileURLToPath as _ } from "node:url";
-import t, { join as E } from "node:path";
-import { existsSync as m, readFileSync as S, writeFileSync as L } from "node:fs";
-const R = "settings.json", g = ["es", "en"], i = "es";
-function u() {
-  return E(s.getPath("userData"), R);
+import { app, ipcMain, BrowserWindow } from "electron";
+import { fileURLToPath } from "node:url";
+import path, { join } from "node:path";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+const SETTINGS_FILE = "settings.json";
+const VALID_LOCALES = ["es", "en"];
+const DEFAULT_LOCALE = "es";
+function getSettingsPath() {
+  return join(app.getPath("userData"), SETTINGS_FILE);
 }
-function h() {
-  const e = u();
-  if (!m(e))
-    return { language: i };
+function readSettings() {
+  const path2 = getSettingsPath();
+  if (!existsSync(path2)) {
+    return { language: DEFAULT_LOCALE };
+  }
   try {
-    const o = S(e, "utf-8"), a = JSON.parse(o);
-    return g.includes(a.language) ? a : { language: i };
+    const data = readFileSync(path2, "utf-8");
+    const parsed = JSON.parse(data);
+    if (!VALID_LOCALES.includes(parsed.language)) {
+      return { language: DEFAULT_LOCALE };
+    }
+    return parsed;
   } catch {
-    return { language: i };
+    return { language: DEFAULT_LOCALE };
   }
 }
-function w(e) {
-  const o = u();
+function writeSettings(settings) {
+  const path2 = getSettingsPath();
   try {
-    L(o, JSON.stringify(e, null, 2), "utf-8");
+    writeFileSync(path2, JSON.stringify(settings, null, 2), "utf-8");
   } catch {
   }
 }
-function P() {
-  return h().language;
+function getLanguage() {
+  return readSettings().language;
 }
-function T(e) {
-  g.includes(e) && w({ language: e });
+function setLanguage(locale) {
+  if (!VALID_LOCALES.includes(locale)) return;
+  writeSettings({ language: locale });
 }
-function I() {
-  c.handle("get-language", () => P()), c.handle("set-language", (e, o) => {
-    T(o);
+function registerSettingsHandlers() {
+  ipcMain.handle("get-language", () => {
+    return getLanguage();
+  });
+  ipcMain.handle("set-language", (_event, locale) => {
+    setLanguage(locale);
   });
 }
-const d = t.dirname(_(import.meta.url));
-process.env.APP_ROOT = t.join(d, "..");
-const r = process.env.VITE_DEV_SERVER_URL, D = t.join(process.env.APP_ROOT, "dist-electron"), p = t.join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = r ? t.join(process.env.APP_ROOT, "public") : p;
-let n;
-function f() {
-  n = new l({
-    icon: t.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
+process.env.APP_ROOT = path.join(__dirname$1, "..");
+const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
+const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
+const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist");
+process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
+let win;
+function createWindow() {
+  win = new BrowserWindow({
+    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
-      preload: t.join(d, "preload.mjs")
+      preload: path.join(__dirname$1, "preload.mjs")
     }
-  }), n.webContents.on("did-finish-load", () => {
-    n == null || n.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  }), r ? n.loadURL(r) : n.loadFile(t.join(p, "index.html"));
+  });
+  win.webContents.on("did-finish-load", () => {
+    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  });
+  if (VITE_DEV_SERVER_URL) {
+    win.loadURL(VITE_DEV_SERVER_URL);
+  } else {
+    win.loadFile(path.join(RENDERER_DIST, "index.html"));
+  }
 }
-s.on("window-all-closed", () => {
-  process.platform !== "darwin" && (s.quit(), n = null);
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+    win = null;
+  }
 });
-s.on("activate", () => {
-  l.getAllWindows().length === 0 && f();
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
 });
-s.whenReady().then(() => {
-  I(), f();
+app.whenReady().then(() => {
+  registerSettingsHandlers();
+  createWindow();
 });
 export {
-  D as MAIN_DIST,
-  p as RENDERER_DIST,
-  r as VITE_DEV_SERVER_URL
+  MAIN_DIST,
+  RENDERER_DIST,
+  VITE_DEV_SERVER_URL
 };

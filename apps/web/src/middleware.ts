@@ -2,6 +2,8 @@ import createIntlMiddleware from "next-intl/middleware";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
+import { isRouteAllowedForRole } from "@ramcar/shared";
+import type { Role } from "@ramcar/shared";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -69,7 +71,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 3. No redirect needed — run intl middleware last so its rewrite
+  // 3. Role-based route protection
+  if (user) {
+    const role = user.app_metadata?.role as Role | undefined;
+
+    if (!role && !path.startsWith("/unauthorized")) {
+      const url = request.nextUrl.clone();
+      url.pathname = `${prefix}/unauthorized`;
+      return NextResponse.redirect(url);
+    }
+
+    if (role && !isRouteAllowedForRole(path, role, "web")) {
+      const url = request.nextUrl.clone();
+      url.pathname = `${prefix}/dashboard`;
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // 4. No redirect needed — run intl middleware last so its rewrite
   //    response (e.g. /login → /es/login) is returned unmodified.
   const response = intlMiddleware(request);
 
