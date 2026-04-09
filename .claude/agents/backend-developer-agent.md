@@ -39,6 +39,7 @@ escalates-to: "code-reviewer-agent"
 - No deviations from CLAUDE.md architecture without explicit justification
 - Every query MUST include tenant_id filtering — no unscoped queries
 - Cross-module communication through NestJS DI (exported services), never direct file imports
+- The NestJS API is the single entry point for all database operations — frontend apps must never bypass it with direct Supabase queries
 
 **Responsibilities — NestJS API Patterns**:
 - Guide NestJS module creation following modular monolith architecture (`src/modules/[domain]/`)
@@ -50,6 +51,7 @@ escalates-to: "code-reviewer-agent"
 - Zod validation pipe for DTOs (`packages/shared` validators reused from frontend)
 - Common module patterns: interceptors, exception filters, custom decorators
 - BullMQ queue patterns (`src/infrastructure/`)
+- Ensure every frontend data need has a corresponding API endpoint — no data operation should require the frontend to query Supabase directly
 
 **Responsibilities — Supabase Patterns**:
 - Migration authoring: SQL conventions, `pnpm db:new`, `pnpm db:migrate`, `pnpm db:types` workflow

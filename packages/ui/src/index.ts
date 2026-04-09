@@ -66,6 +66,44 @@ export {
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./components/ui/tooltip";
 
 export { LoadingScreen } from "./components/ui/loading-screen";
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+} from "./components/ui/table";
+export { Badge, badgeVariants } from "./components/ui/badge";
+export {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
+} from "./components/ui/select";
+export {
+  Dialog,
+  DialogPortal,
+  DialogOverlay,
+  DialogClose,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "./components/ui/dialog";
+export { Label } from "./components/ui/label";
+export { Textarea } from "./components/ui/textarea";
+export { Checkbox } from "./components/ui/checkbox";
 
 // Hooks
 export { useIsMobile } from "./hooks/use-mobile";

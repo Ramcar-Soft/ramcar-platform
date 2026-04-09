@@ -1,3 +1,7 @@
+// AUTH ONLY — session refresh for Next.js middleware.
+// Do not use .from(), .rpc(), or .storage on this client.
+// See Constitution Principle VIII and CLAUDE.md Data Access Rules.
+
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 

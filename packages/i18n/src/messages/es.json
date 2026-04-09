@@ -37,6 +37,7 @@
   "sidebar": {
     "dashboard": "Panel",
     "catalogs": "Catálogos",
+    "catalogs_users": "Usuarios",
     "logbook": "Bitácora",
     "logbook_visitors": "Visitantes",
     "logbook_providers": "Proveedores",
@@ -67,5 +68,99 @@
     "title": "Acceso Restringido",
     "message": "Tu cuenta no tiene acceso a esta sección. Por favor contacta a tu administrador.",
     "logout": "Cerrar sesión"
+  },
+  "users": {
+    "title": "Usuarios",
+    "createUser": "Crear Usuario",
+    "editUser": "Editar Usuario",
+    "searchPlaceholder": "Buscar usuarios...",
+    "filterByTenant": "Filtrar por condominio",
+    "filterByStatus": "Filtrar por estado",
+    "allTenants": "Todos los condominios",
+    "allStatuses": "Todos los estados",
+    "columns": {
+      "fullName": "Nombre Completo",
+      "email": "Correo Electrónico",
+      "role": "Rol",
+      "tenant": "Condominio",
+      "phone": "Teléfono",
+      "status": "Estado",
+      "userGroups": "Grupos",
+      "actions": "Acciones"
+    },
+    "form": {
+      "fullName": "Nombre Completo",
+      "email": "Correo Electrónico",
+      "role": "Rol",
+      "tenant": "Condominio",
+      "address": "Dirección",
+      "username": "Nombre de Usuario",
+      "phone": "Teléfono",
+      "phoneType": "Tipo de Teléfono",
+      "userGroups": "Grupos de Usuario",
+      "observations": "Observaciones",
+      "selectRole": "Seleccionar rol",
+      "selectTenant": "Seleccionar condominio",
+      "selectPhoneType": "Seleccionar tipo de teléfono",
+      "selectUserGroups": "Seleccionar grupos",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "passwordResetInfo": "Se enviará un enlace de restablecimiento de contraseña al correo del usuario",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "create": "Crear Usuario",
+      "creating": "Creando..."
+    },
+    "phoneTypes": {
+      "house": "Casa",
+      "cellphone": "Celular",
+      "work": "Trabajo",
+      "primary": "Principal"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "roles": {
+      "super_admin": "Super Admin",
+      "admin": "Administrador",
+      "guard": "Guardia",
+      "resident": "Residente"
+    },
+    "actions": {
+      "edit": "Editar",
+      "deactivate": "Desactivar",
+      "reactivate": "Reactivar"
+    },
+    "confirmDeactivate": {
+      "title": "Desactivar Usuario",
+      "message": "¿Estás seguro de que deseas desactivar este usuario? Ya no podrá iniciar sesión.",
+      "confirm": "Desactivar",
+      "cancel": "Cancelar"
+    },
+    "confirmReactivate": {
+      "title": "Reactivar Usuario",
+      "message": "¿Estás seguro de que deseas reactivar este usuario? Podrá iniciar sesión nuevamente.",
+      "confirm": "Reactivar",
+      "cancel": "Cancelar"
+    },
+    "messages": {
+      "created": "Usuario creado exitosamente",
+      "updated": "Usuario actualizado exitosamente",
+      "deactivated": "Usuario desactivado exitosamente",
+      "reactivated": "Usuario reactivado exitosamente",
+      "errorCreating": "Error al crear usuario",
+      "errorUpdating": "Error al actualizar usuario",
+      "errorDeactivating": "Error al cambiar estado del usuario"
+    },
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "showing": "Mostrando {from} a {to} de {total}",
+      "page": "Página {page} de {totalPages}"
+    },
+    "empty": "No se encontraron usuarios",
+    "errorLoading": "Error al cargar usuarios. Por favor, intenta de nuevo."
   }
 }

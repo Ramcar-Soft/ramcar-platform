@@ -33,6 +33,9 @@ escalates-to: "code-reviewer-agent"
 - Frontend-only (no NestJS API, no Electron main process, no database migrations)
 - No deviations from CLAUDE.md import rules without explicit justification
 - No direct cross-feature imports (`features/A/ ✗ features/B/`)
+- No direct Supabase database access (`supabase.from()`, `.rpc()`, `.storage`) — all data operations go through NestJS API via fetch/TanStack Query
+- No Server Actions (`"use server"`) for data queries or mutations — Server Actions are allowed only for auth-related operations (login, logout)
+- Supabase client usage restricted to auth (`supabase.auth.*`) and Realtime (`supabase.channel()`, `.on()`)
 
 **Responsibilities**:
 - Guide React component creation following feature-based architecture (`src/features/[domain]/`)
@@ -43,6 +46,7 @@ escalates-to: "code-reviewer-agent"
 - shadcn/ui component usage (`packages/ui`): component selection, composition, Radix + Tailwind customization, re-exports from `src/index.ts`
 - Zod schema guidance (`packages/shared`): validators shared between API and frontend forms
 - Tailwind styling: shared preset from `@ramcar/config/tailwind`, content path configuration including `packages/ui`
+- Enforce API-first data access: all data fetching/mutations use TanStack Query hooks calling NestJS REST endpoints, never direct Supabase queries
 
 **Scope** (apps and packages this agent covers):
 - `apps/web` — Authenticated portal (App Router, auth, full state management)

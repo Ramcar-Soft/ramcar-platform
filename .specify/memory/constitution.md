@@ -77,6 +77,15 @@
 - Auto-generated types (`@ramcar/db-types`) MUST NOT be manually edited; regenerate with `pnpm db:types`.
 - All workspace packages use the `@ramcar/` scope and extend shared tsconfigs from `@ramcar/config`.
 
+### VIII. API-First Data Access (NON-NEGOTIABLE)
+
+- All database operations (`supabase.from()`, `.rpc()`, `.storage`) MUST go through the NestJS API (`apps/api`). Frontend apps (`apps/web`, `apps/www`, `apps/desktop`) MUST NOT query or mutate database tables directly.
+- **Allowed frontend Supabase usage:** Authentication (`supabase.auth.*`) and Realtime subscriptions (`supabase.channel()`, `.on()`). Nothing else.
+- Next.js Server Actions (`"use server"`) MUST NOT contain database queries or mutations. Frontend data operations use `fetch` or TanStack Query to call NestJS REST endpoints.
+- The Supabase client in frontend apps MUST be restricted to auth and realtime. Client files MUST include a header comment: `// AUTH & REALTIME ONLY — no .from(), .rpc(), .storage`.
+- The NestJS API is the single source of truth for business logic, validation, tenant isolation, and RBAC enforcement. Duplicating these concerns in frontend code is prohibited.
+- Desktop app data sync: Supabase Realtime for receiving live updates; all write operations go through NestJS API endpoints.
+
 ## Technology Constraints
 
 - **Runtime:** Node.js 22 LTS (enforced via `.nvmrc` and `engines` field).
@@ -108,4 +117,4 @@
 - All code reviews MUST verify compliance with these principles. Non-compliance MUST be flagged and resolved before merge.
 - Use `CLAUDE.md` for runtime development guidance and day-to-day commands.
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-16 | **Last Amended**: 2026-03-16
+**Version**: 1.1.0 | **Ratified**: 2026-03-16 | **Last Amended**: 2026-04-09
