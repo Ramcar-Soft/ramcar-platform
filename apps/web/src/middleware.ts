@@ -59,7 +59,13 @@ export async function middleware(request: NextRequest) {
 
   if (user && path.startsWith("/login")) {
     const url = request.nextUrl.clone();
-    url.pathname = prefix || "/";
+    url.pathname = `${prefix}/dashboard`;
+    return NextResponse.redirect(url);
+  }
+
+  if (user && path === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = `${prefix}/dashboard`;
     return NextResponse.redirect(url);
   }
 

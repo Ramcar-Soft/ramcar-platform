@@ -33,5 +33,34 @@
     "label": "Idioma",
     "es": "Español",
     "en": "English"
+  },
+  "sidebar": {
+    "dashboard": "Panel",
+    "catalogs": "Catálogos",
+    "logbook": "Bitácora",
+    "logbook_visitors": "Visitantes",
+    "logbook_providers": "Proveedores",
+    "logbook_residents": "Residentes",
+    "visits-and-residents": "Visitas y Residentes",
+    "projects": "Proyectos",
+    "wifi": "Redes Wi-Fi",
+    "complaints": "Quejas y Sugerencias",
+    "patrols": "Rondines",
+    "amenities": "Amenidades",
+    "announcements": "Avisos",
+    "lost-and-found": "Extraviados",
+    "history": "Historial",
+    "blacklist": "Lista Negra",
+    "access-log": "Movimientos",
+    "access-log_visitors": "Visitantes",
+    "access-log_providers": "Proveedores",
+    "access-log_residents": "Residentes",
+    "my-visits": "Mis Visitas",
+    "account": "Cuenta",
+    "logout": "Cerrar sesión"
+  },
+  "topbar": {
+    "toggleTheme": "Cambiar tema",
+    "toggleSidebar": "Alternar barra lateral"
   }
 }
