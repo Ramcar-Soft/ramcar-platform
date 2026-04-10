@@ -62,6 +62,12 @@ export class UsersService {
     };
   }
 
+  async getProfileIdByAuthUserId(authUserId: string): Promise<string> {
+    const row = await this.repository.getByAuthUserId(authUserId);
+    if (!row) throw new NotFoundException("Profile not found");
+    return row.id as string;
+  }
+
   async getById(
     id: string,
     actorUser: AuthUser,

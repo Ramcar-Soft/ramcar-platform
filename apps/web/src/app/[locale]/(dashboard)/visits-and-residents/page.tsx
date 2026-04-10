@@ -1,11 +1,7 @@
-import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 
 export default async function VisitsAndResidentsPage() {
-  const t = await getTranslations("sidebar");
-
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-semibold text-foreground">{t("visits-and-residents")}</h1>
-    </main>
-  );
+  const locale = await getLocale();
+  redirect(`/${locale}/visits-and-residents/residents`);
 }

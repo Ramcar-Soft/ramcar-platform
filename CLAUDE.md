@@ -177,6 +177,8 @@ Two-process architecture communicating ONLY via IPC.
 - PostgreSQL via Supabase (profiles table extension, new user_groups table) (008-catalog-users)
 - TypeScript 5.x (strict mode), Node.js 22 LTS + Next.js 16 (App Router), NestJS v11, TanStack Query v5.97.0, Supabase JS v2, @supabase/ssr, shadcn/ui, Zod, Zustand, next-intl v4 (009-refactor-users-api-first)
 - PostgreSQL via Supabase (no schema changes — migration from 008 retained) (009-refactor-users-api-first)
+- TypeScript 5.x (strict mode), Node.js 22 LTS + Next.js 16 (App Router), NestJS v11, Electron 30 + Vite + React 18, shadcn/ui (Sheet, Table, Select, Button, Input, Badge, Skeleton), TanStack Query v5, Zustand, Supabase JS v2, @supabase/ssr, Zod, next-intl v4, react-i18next, lucide-reac (010-resident-access-log)
+- PostgreSQL via Supabase (`vehicles`, `access_events` tables — new), SQLite (desktop offline cache) (010-resident-access-log)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr

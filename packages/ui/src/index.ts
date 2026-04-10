@@ -104,6 +104,7 @@ export {
 export { Label } from "./components/ui/label";
 export { Textarea } from "./components/ui/textarea";
 export { Checkbox } from "./components/ui/checkbox";
+export { Toaster } from "./components/ui/sonner";
 
 // Hooks
 export { useIsMobile } from "./hooks/use-mobile";

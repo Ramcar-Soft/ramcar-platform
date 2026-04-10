@@ -43,6 +43,7 @@
     "logbook_providers": "Providers",
     "logbook_residents": "Residents",
     "visits-and-residents": "Visits & Residents",
+    "visits-and-residents_residents": "Residents",
     "projects": "Projects",
     "wifi": "Wi-Fi Networks",
     "complaints": "Complaints & Suggestions",
@@ -162,5 +163,102 @@
     },
     "empty": "No users found",
     "errorLoading": "Failed to load users. Please try again."
+  },
+  "residents": {
+    "title": "Residents",
+    "searchPlaceholder": "Search residents...",
+    "columns": {
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "status": "Status"
+    },
+    "empty": "No residents found",
+    "noResidents": "No residents registered in this community.",
+    "errorLoading": "Failed to load residents. Please try again."
+  },
+  "accessEvents": {
+    "title": "Access Event",
+    "direction": {
+      "label": "Direction",
+      "entry": "Entry",
+      "exit": "Exit"
+    },
+    "accessMode": {
+      "label": "Access Mode",
+      "vehicle": "Vehicle",
+      "pedestrian": "Pedestrian"
+    },
+    "lastEvent": {
+      "label": "Last Event",
+      "noEvents": "No previous entries",
+      "justNow": "just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "daysAgo": "{count}d ago"
+    },
+    "vehicleSelect": {
+      "label": "Vehicle",
+      "placeholder": "Select a vehicle",
+      "addVehicle": "Add Vehicle"
+    },
+    "notes": {
+      "label": "Notes",
+      "placeholder": "Optional observations..."
+    },
+    "form": {
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "created": "Access event logged successfully",
+      "errorCreating": "Error logging access event. Please try again."
+    }
+  },
+  "vehicles": {
+    "title": "Register Vehicle",
+    "vehicleType": {
+      "label": "Vehicle Type",
+      "placeholder": "Select type",
+      "car": "Car",
+      "motorcycle": "Motorcycle",
+      "pickup_truck": "Pickup Truck",
+      "truck": "Truck",
+      "bicycle": "Bicycle",
+      "scooter": "Scooter",
+      "other": "Other"
+    },
+    "brand": {
+      "label": "Brand",
+      "placeholder": "e.g., Toyota"
+    },
+    "model": {
+      "label": "Model",
+      "placeholder": "e.g., Corolla"
+    },
+    "plate": {
+      "label": "Plate",
+      "placeholder": "e.g., ABC-1234"
+    },
+    "color": {
+      "label": "Color",
+      "placeholder": "e.g., White"
+    },
+    "notes": {
+      "label": "Notes",
+      "placeholder": "Optional observations..."
+    },
+    "form": {
+      "save": "Save Vehicle",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "created": "Vehicle registered successfully",
+      "errorCreating": "Error registering vehicle"
+    },
+    "noVehicles": "No vehicles registered. Add one below."
   }
 }

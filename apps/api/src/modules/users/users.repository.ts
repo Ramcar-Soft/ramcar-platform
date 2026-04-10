@@ -22,6 +22,10 @@ export class UsersRepository {
       query = query.eq("tenant_id", effectiveTenantId);
     }
 
+    if (filters.role) {
+      query = query.eq("role", filters.role);
+    }
+
     if (status) {
       query = query.eq("status", status);
     }
@@ -43,6 +47,18 @@ export class UsersRepository {
     if (error) throw error;
 
     return { data: data ?? [], total: count ?? 0 };
+  }
+
+  async getByAuthUserId(authUserId: string) {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from("profiles")
+      .select("id")
+      .eq("user_id", authUserId)
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   async getById(id: string) {

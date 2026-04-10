@@ -26,6 +26,28 @@ export {
 } from "./validators/user";
 export { extractUserProfile } from "./utils/extract-user-profile";
 export type {
+  VehicleType,
+  Vehicle,
+} from "./types/vehicle";
+export { VEHICLE_TYPES } from "./types/vehicle";
+export type {
+  Direction,
+  AccessMode,
+  PersonType,
+  AccessEventSource,
+  AccessEvent,
+} from "./types/access-event";
+export {
+  createVehicleSchema,
+  type CreateVehicleInput,
+} from "./validators/vehicle";
+export {
+  createAccessEventSchema,
+  residentFiltersSchema,
+  type CreateAccessEventInput,
+  type ResidentFiltersInput,
+} from "./validators/access-event";
+export type {
   Platform,
   SidebarItem,
   SidebarSubItem,

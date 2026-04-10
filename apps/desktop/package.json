@@ -20,12 +20,14 @@
     "@ramcar/store": "workspace:*",
     "@ramcar/ui": "workspace:*",
     "@supabase/supabase-js": "^2.102.1",
+    "@tanstack/react-query": "^5.97.0",
     "i18next": "^26.0.4",
     "lucide-react": "^1.7.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-i18next": "^17.0.2"
+    "react-i18next": "^17.0.2",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@ramcar/config": "workspace:*",
