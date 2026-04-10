@@ -3,6 +3,13 @@ import { useAppStore } from "@ramcar/store";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@ramcar/ui";
 
+function resolveTheme(theme: string): "light" | "dark" {
+  if (theme === "system") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return theme === "dark" ? "dark" : "light";
+}
+
 export function ThemeToggle() {
   const { t } = useTranslation();
   const theme = useAppStore((s) => s.theme);
@@ -12,7 +19,7 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={() => setTheme(resolveTheme(theme) === "dark" ? "light" : "dark")}
       aria-label={t("topbar.toggleTheme")}
     >
       <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
