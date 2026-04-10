@@ -78,6 +78,7 @@ export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export const userFiltersSchema = z.object({
   search: z.string().optional(),
   tenantId: z.string().uuid().optional(),
+  role: roleEnum.optional(),
   status: userStatusEnum.optional(),
   sortBy: sortByEnum.default("full_name"),
   sortOrder: sortOrderEnum.default("asc"),

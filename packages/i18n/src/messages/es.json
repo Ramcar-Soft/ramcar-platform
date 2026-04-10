@@ -43,6 +43,7 @@
     "logbook_providers": "Proveedores",
     "logbook_residents": "Residentes",
     "visits-and-residents": "Visitas y Residentes",
+    "visits-and-residents_residents": "Residentes",
     "projects": "Proyectos",
     "wifi": "Redes Wi-Fi",
     "complaints": "Quejas y Sugerencias",
@@ -162,5 +163,102 @@
     },
     "empty": "No se encontraron usuarios",
     "errorLoading": "Error al cargar usuarios. Por favor, intenta de nuevo."
+  },
+  "residents": {
+    "title": "Residentes",
+    "searchPlaceholder": "Buscar residentes...",
+    "columns": {
+      "fullName": "Nombre Completo",
+      "email": "Correo Electrónico",
+      "phone": "Teléfono",
+      "address": "Dirección",
+      "status": "Estado"
+    },
+    "empty": "No se encontraron residentes",
+    "noResidents": "No hay residentes registrados en esta comunidad.",
+    "errorLoading": "Error al cargar residentes. Por favor, intenta de nuevo."
+  },
+  "accessEvents": {
+    "title": "Evento de Acceso",
+    "direction": {
+      "label": "Dirección",
+      "entry": "Entrada",
+      "exit": "Salida"
+    },
+    "accessMode": {
+      "label": "Modo de Acceso",
+      "vehicle": "Vehículo",
+      "pedestrian": "Peatón"
+    },
+    "lastEvent": {
+      "label": "Último Evento",
+      "noEvents": "Sin entradas previas",
+      "justNow": "justo ahora",
+      "minutesAgo": "hace {count}m",
+      "hoursAgo": "hace {count}h",
+      "daysAgo": "hace {count}d"
+    },
+    "vehicleSelect": {
+      "label": "Vehículo",
+      "placeholder": "Seleccionar vehículo",
+      "addVehicle": "Agregar Vehículo"
+    },
+    "notes": {
+      "label": "Notas",
+      "placeholder": "Observaciones opcionales..."
+    },
+    "form": {
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "cancel": "Cancelar"
+    },
+    "messages": {
+      "created": "Evento de acceso registrado exitosamente",
+      "errorCreating": "Error al registrar evento de acceso. Por favor, intenta de nuevo."
+    }
+  },
+  "vehicles": {
+    "title": "Registrar Vehículo",
+    "vehicleType": {
+      "label": "Tipo de Vehículo",
+      "placeholder": "Seleccionar tipo",
+      "car": "Automóvil",
+      "motorcycle": "Motocicleta",
+      "pickup_truck": "Camioneta",
+      "truck": "Camión",
+      "bicycle": "Bicicleta",
+      "scooter": "Patín",
+      "other": "Otro"
+    },
+    "brand": {
+      "label": "Marca",
+      "placeholder": "Ej: Toyota"
+    },
+    "model": {
+      "label": "Modelo",
+      "placeholder": "Ej: Corolla"
+    },
+    "plate": {
+      "label": "Placa",
+      "placeholder": "Ej: ABC-1234"
+    },
+    "color": {
+      "label": "Color",
+      "placeholder": "Ej: Blanco"
+    },
+    "notes": {
+      "label": "Notas",
+      "placeholder": "Observaciones opcionales..."
+    },
+    "form": {
+      "save": "Guardar Vehículo",
+      "saving": "Guardando...",
+      "cancel": "Cancelar"
+    },
+    "messages": {
+      "created": "Vehículo registrado exitosamente",
+      "errorCreating": "Error al registrar vehículo"
+    },
+    "noVehicles": "Sin vehículos registrados. Agrega uno abajo."
   }
 }

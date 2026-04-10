@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { SidebarProvider, SidebarInset, TooltipProvider, LoadingScreen } from "@ramcar/ui";
+import { SidebarProvider, SidebarInset, TooltipProvider, LoadingScreen, Toaster } from "@ramcar/ui";
 import { StoreProvider, useAppStore } from "@ramcar/store";
 import type { UserProfile } from "@ramcar/shared";
 import { AppSidebar } from "@/features/navigation";
@@ -28,6 +28,7 @@ export function DashboardShell({ children, userProfile }: DashboardShellProps) {
             </SidebarProvider>
           </TooltipProvider>
         </AuthGate>
+        <Toaster />
       </QueryProvider>
     </StoreProvider>
   );
