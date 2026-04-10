@@ -26,7 +26,7 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${inter.variable} font-body antialiased`}
       >
-        <ThemeProvider attribute="class" defaultTheme="white" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>
       </body>
