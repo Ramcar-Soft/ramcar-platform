@@ -30,7 +30,7 @@ interface AccessEventSidebarProps {
     accessMode: AccessMode;
     vehicleId?: string;
     notes: string;
-  }) => void;
+  }) => Promise<void>;
 }
 
 export function AccessEventSidebar({

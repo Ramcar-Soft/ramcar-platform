@@ -85,7 +85,7 @@ export function ResidentsPageClient() {
   }, []);
 
   const handleSave = useCallback(
-    (formData: {
+    async (formData: {
       direction: Direction;
       accessMode: AccessMode;
       vehicleId?: string;
@@ -93,26 +93,17 @@ export function ResidentsPageClient() {
     }) => {
       if (!selectedResident) return;
 
-      createAccessEvent.mutate(
-        {
-          personType: "resident",
-          userId: selectedResident.id,
-          direction: formData.direction,
-          accessMode: formData.accessMode,
-          vehicleId: formData.vehicleId,
-          notes: formData.notes || undefined,
-          source: "web",
-        },
-        {
-          onSuccess: () => {
-            toast.success(t("messages.created"));
-            handleCloseSidebar();
-          },
-          onError: () => {
-            toast.error(t("messages.errorCreating"));
-          },
-        },
-      );
+      await createAccessEvent.mutateAsync({
+        personType: "resident",
+        userId: selectedResident.id,
+        direction: formData.direction,
+        accessMode: formData.accessMode,
+        vehicleId: formData.vehicleId,
+        notes: formData.notes || undefined,
+        source: "web",
+      });
+      toast.success(t("messages.created"));
+      handleCloseSidebar();
     },
     [selectedResident, createAccessEvent, t, handleCloseSidebar],
   );

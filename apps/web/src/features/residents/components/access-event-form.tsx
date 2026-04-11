@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
+import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import {
   Button,
   Label,
@@ -24,7 +26,7 @@ interface AccessEventFormData {
 interface AccessEventFormProps {
   vehicles?: Vehicle[];
   isLoadingVehicles?: boolean;
-  onSave: (data: AccessEventFormData) => void;
+  onSave: (data: AccessEventFormData) => Promise<void>;
   onCancel: () => void;
   onAddVehicle?: () => void;
   isSaving: boolean;
@@ -53,6 +55,37 @@ export function AccessEventForm({
   const [vehicleId, setVehicleId] = useState<string>("");
   const [notes, setNotes] = useState("");
 
+  const tCommon = useTranslations("common");
+
+  const composedData = useMemo(
+    () => ({ direction, accessMode, vehicleId, notes }),
+    [direction, accessMode, vehicleId, notes],
+  );
+
+  const { wasRestored, discardDraft, clearDraft } = useFormPersistence(
+    "access-event-create",
+    composedData,
+    {
+      onRestore: (draft) => {
+        setDirection(draft.direction ?? "entry");
+        setAccessMode(draft.accessMode ?? "vehicle");
+        setVehicleId(draft.vehicleId ?? "");
+        setNotes(draft.notes ?? "");
+      },
+    },
+  );
+
+  useEffect(() => {
+    if (wasRestored) {
+      toast.info(tCommon("draftRestored", { time: "" }), {
+        action: {
+          label: tCommon("discardDraft"),
+          onClick: () => discardDraft(),
+        },
+      });
+    }
+  }, [wasRestored, tCommon, discardDraft]);
+
   // Auto-select first vehicle when none is selected
   useEffect(() => {
     if (accessMode === "vehicle" && vehicles?.length && !vehicleId) {
@@ -69,14 +102,19 @@ export function AccessEventForm({
 
   const canSave = accessMode === "pedestrian" || !!vehicleId;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      direction,
-      accessMode,
-      vehicleId: accessMode === "vehicle" ? vehicleId : undefined,
-      notes,
-    });
+    try {
+      await onSave({
+        direction,
+        accessMode,
+        vehicleId: accessMode === "vehicle" ? vehicleId : undefined,
+        notes,
+      });
+      clearDraft();
+    } catch {
+      // Save failed — keep draft for recovery
+    }
   };
 
   return (
@@ -190,7 +228,15 @@ export function AccessEventForm({
         <Button type="submit" disabled={isSaving || !canSave} className="flex-1">
           {isSaving ? t("form.saving") : t("form.save")}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            discardDraft();
+            onCancel();
+          }}
+          disabled={isSaving}
+        >
           {t("form.cancel")}
         </Button>
       </div>
