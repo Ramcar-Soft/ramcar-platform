@@ -27,6 +27,8 @@ export function useFormPersistence<T extends Record<string, unknown>>(
   const isFirstRender = useRef(true);
   const onRestoreRef = useRef(onRestore);
   onRestoreRef.current = onRestore;
+  const excludeFieldsRef = useRef(excludeFields);
+  excludeFieldsRef.current = excludeFields;
 
   // Restore on mount
   useEffect(() => {
@@ -54,9 +56,10 @@ export function useFormPersistence<T extends Record<string, unknown>>(
 
     timerRef.current = setTimeout(() => {
       const dataToSave = { ...formData };
+      const fields = excludeFieldsRef.current;
 
-      if (excludeFields) {
-        for (const field of excludeFields) {
+      if (fields) {
+        for (const field of fields) {
           delete dataToSave[field];
         }
       }
@@ -73,7 +76,7 @@ export function useFormPersistence<T extends Record<string, unknown>>(
         clearTimeout(timerRef.current);
       }
     };
-  }, [formData, storageKey, debounceMs, excludeFields]);
+  }, [formData, storageKey, debounceMs]);
 
   const clearDraft = useCallback(() => {
     if (typeof window === "undefined") return;

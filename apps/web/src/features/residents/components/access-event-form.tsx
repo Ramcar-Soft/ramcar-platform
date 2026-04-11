@@ -113,7 +113,7 @@ export function AccessEventForm({
       });
       clearDraft();
     } catch {
-      // Save failed — keep draft for recovery
+      toast.error(t("messages.errorCreating"));
     }
   };
 
