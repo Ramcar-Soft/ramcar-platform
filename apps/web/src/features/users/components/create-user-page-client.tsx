@@ -22,12 +22,8 @@ export function CreateUserPageClient({ locale }: CreateUserPageClientProps) {
   const isLoading = tenantsLoading || groupsLoading;
 
   const handleSubmit = async (data: UserFormData) => {
-    try {
-      await createMutation.mutateAsync(data as CreateUserInput);
-      router.push(`/${locale}/catalogs/users`);
-    } catch {
-      // Error is available via createMutation.error
-    }
+    await createMutation.mutateAsync(data as CreateUserInput);
+    router.push(`/${locale}/catalogs/users`);
   };
 
   if (isLoading) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   Input,
@@ -14,6 +14,8 @@ import {
   Checkbox,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import { useAppStore } from "@ramcar/store";
 import { getAssignableRoles } from "@ramcar/shared";
 import type { Role } from "@ramcar/shared";
@@ -25,7 +27,7 @@ interface UserFormProps {
   tenants: { id: string; name: string }[];
   userGroups: UserGroup[];
   isPending: boolean;
-  onSubmit: (data: UserFormData) => void;
+  onSubmit: (data: UserFormData) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -79,6 +81,33 @@ export function UserForm({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const persistenceKey = isEdit
+    ? `user-edit-${initialData?.id}`
+    : "user-create";
+
+  const { wasRestored, discardDraft, clearDraft } = useFormPersistence(
+    persistenceKey,
+    formData as unknown as Record<string, unknown>,
+    {
+      onRestore: (draft) =>
+        setFormData((prev) => ({ ...prev, ...(draft as Partial<UserFormData>) })),
+      excludeFields: ["password", "confirmPassword"],
+    },
+  );
+
+  const tCommon = useTranslations("common");
+
+  useEffect(() => {
+    if (wasRestored) {
+      toast.info(tCommon("draftRestored", { time: "" }), {
+        action: {
+          label: tCommon("discardDraft"),
+          onClick: () => discardDraft(),
+        },
+      });
+    }
+  }, [wasRestored, tCommon, discardDraft]);
+
   const updateField = <K extends keyof UserFormData>(
     key: K,
     value: UserFormData[K],
@@ -117,7 +146,7 @@ export function UserForm({
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
     const submitData = { ...formData };
@@ -125,7 +154,12 @@ export function UserForm({
       delete submitData.password;
       delete submitData.confirmPassword;
     }
-    onSubmit(submitData);
+    try {
+      await onSubmit(submitData);
+      clearDraft();
+    } catch {
+      // Submission failed — keep draft for recovery
+    }
   };
 
   const toggleUserGroup = (groupId: string) => {
@@ -357,7 +391,14 @@ export function UserForm({
               ? t("form.create")
               : t("form.save")}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            discardDraft();
+            onCancel();
+          }}
+        >
           {t("form.cancel")}
         </Button>
       </div>

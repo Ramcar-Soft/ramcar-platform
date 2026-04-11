@@ -28,12 +28,8 @@ export function EditUserPageClient({
   const isLoading = userLoading || tenantsLoading || groupsLoading;
 
   const handleSubmit = async (data: UserFormData) => {
-    try {
-      await updateMutation.mutateAsync(data as UpdateUserInput);
-      router.push(`/${locale}/catalogs/users`);
-    } catch {
-      // Error is available via updateMutation.error
-    }
+    await updateMutation.mutateAsync(data as UpdateUserInput);
+    router.push(`/${locale}/catalogs/users`);
   };
 
   if (isLoading) {
