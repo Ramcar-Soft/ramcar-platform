@@ -6,7 +6,9 @@
   "common": {
     "appName": "RamcarSoft",
     "loading": "Cargando...",
-    "error": "Ocurrió un error"
+    "error": "Ocurrió un error",
+    "draftRestored": "Borrador restaurado de {time}",
+    "discardDraft": "Descartar"
   },
   "auth": {
     "login": {

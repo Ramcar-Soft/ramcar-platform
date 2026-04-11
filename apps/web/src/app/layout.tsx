@@ -1,7 +1,7 @@
 import React from "react";
 import { Geist, Inter } from "next/font/google";
 import { getLocale } from "next-intl/server";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/shared/components/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({

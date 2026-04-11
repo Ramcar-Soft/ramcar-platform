@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import { Button, Input, Label, Textarea } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -25,6 +26,39 @@ export function VehicleForm({ userId, onSaved, onCancel }: VehicleFormProps) {
   const [color, setColor] = useState("");
   const [notes, setNotes] = useState("");
 
+  const tCommon = useTranslations("common");
+
+  const composedData = useMemo(
+    () => ({ vehicleType, brand, model, plate, color, notes }),
+    [vehicleType, brand, model, plate, color, notes],
+  );
+
+  const { wasRestored, discardDraft, clearDraft } = useFormPersistence(
+    "vehicle-create",
+    composedData,
+    {
+      onRestore: (draft) => {
+        setVehicleType(draft.vehicleType ?? "");
+        setBrand(draft.brand ?? "");
+        setModel(draft.model ?? "");
+        setPlate(draft.plate ?? "");
+        setColor(draft.color ?? "");
+        setNotes(draft.notes ?? "");
+      },
+    },
+  );
+
+  useEffect(() => {
+    if (wasRestored) {
+      toast.info(tCommon("draftRestored", { time: "" }), {
+        action: {
+          label: tCommon("discardDraft"),
+          onClick: () => discardDraft(),
+        },
+      });
+    }
+  }, [wasRestored, tCommon, discardDraft]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -42,6 +76,7 @@ export function VehicleForm({ userId, onSaved, onCancel }: VehicleFormProps) {
 
     createVehicle.mutate(result.data, {
       onSuccess: () => {
+        clearDraft();
         toast.success(t("messages.created"));
         onSaved();
       },
@@ -117,7 +152,10 @@ export function VehicleForm({ userId, onSaved, onCancel }: VehicleFormProps) {
         <Button
           type="button"
           variant="outline"
-          onClick={onCancel}
+          onClick={() => {
+            discardDraft();
+            onCancel();
+          }}
           disabled={createVehicle.isPending}
         >
           {t("form.cancel")}
