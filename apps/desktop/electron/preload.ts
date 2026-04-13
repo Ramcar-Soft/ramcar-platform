@@ -13,7 +13,7 @@ const api = {
     createVehicle: (data: Record<string, unknown>) => ipcRenderer.invoke("visit-persons:create-vehicle", data),
     recentEvents: (visitPersonId: string) => ipcRenderer.invoke("visit-persons:recent-events", visitPersonId),
     createEvent: (data: Record<string, unknown>) => ipcRenderer.invoke("visit-persons:create-event", data),
-    updateEvent: (id: string, data: Record<string, unknown>) => ipcRenderer.invoke("visit-persons:update-event", id, data),
+    update: (id: string, patch: Record<string, unknown>) => ipcRenderer.invoke("visit-persons:update", id, patch),
     images: (visitPersonId: string) => ipcRenderer.invoke("visit-persons:images", visitPersonId),
     uploadImage: (visitPersonId: string, imageType: string, imageData: Uint8Array) =>
       ipcRenderer.invoke("visit-persons:upload-image", visitPersonId, imageType, imageData),

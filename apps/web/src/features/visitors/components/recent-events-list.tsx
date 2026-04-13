@@ -7,10 +7,9 @@ import type { AccessEvent } from "../types";
 interface RecentEventsListProps {
   events: AccessEvent[] | undefined;
   isLoading: boolean;
-  onEdit?: (event: AccessEvent) => void;
 }
 
-export function RecentEventsList({ events, isLoading, onEdit }: RecentEventsListProps) {
+export function RecentEventsList({ events, isLoading }: RecentEventsListProps) {
   const t = useTranslations("accessEvents");
 
   function formatRelativeTime(dateStr: string): string {
@@ -60,15 +59,6 @@ export function RecentEventsList({ events, isLoading, onEdit }: RecentEventsList
             <span className="text-muted-foreground">
               {formatRelativeTime(event.createdAt)}
             </span>
-            {onEdit && (
-              <button
-                type="button"
-                className="text-xs text-primary hover:underline ml-auto"
-                onClick={() => onEdit(event)}
-              >
-                {t("form.edit")}
-              </button>
-            )}
           </div>
         );
       })}

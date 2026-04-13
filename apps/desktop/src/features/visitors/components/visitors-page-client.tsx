@@ -1,13 +1,22 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import type { VisitPerson, VisitPersonFiltersInput, VisitPersonStatus, Direction, AccessMode } from "../types";
+import type {
+  VisitPerson,
+  VisitPersonFiltersInput,
+  VisitPersonStatus,
+  Direction,
+  AccessMode,
+  UpdateVisitPersonInput,
+} from "../types";
 import { useVisitPersons } from "../hooks/use-visit-persons";
 import { useRecentVisitPersonEvents } from "../hooks/use-recent-visit-person-events";
 import { useCreateAccessEvent } from "../hooks/use-create-access-event";
 import { useCreateVisitPerson } from "../hooks/use-create-visit-person";
-import { useUpdateAccessEvent } from "../hooks/use-update-access-event";
+import { useUpdateVisitPerson } from "../hooks/use-update-visit-person";
 import { useVisitPersonVehicles } from "../hooks/use-visit-person-vehicles";
+import { useVisitPersonImages } from "../hooks/use-visit-person-images";
+import { useUploadVisitPersonImage } from "../hooks/use-upload-visit-person-image";
 import { useKeyboardNavigation } from "../hooks/use-keyboard-navigation";
 import { VisitorsTable } from "./visitors-table";
 import { VisitPersonSidebar } from "./visit-person-sidebar";
@@ -18,7 +27,7 @@ export function VisitorsPageClient() {
 
   const [selectedPerson, setSelectedPerson] = useState<VisitPerson | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarMode, setSidebarMode] = useState<"view" | "create">("view");
+  const [sidebarMode, setSidebarMode] = useState<"view" | "create" | "edit">("view");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -46,13 +55,24 @@ export function VisitorsPageClient() {
   const { data: vehicles, isLoading: isLoadingVehicles } =
     useVisitPersonVehicles(selectedPerson?.id ?? null);
 
+  const { data: images, isLoading: isLoadingImages } =
+    useVisitPersonImages(selectedPerson?.id ?? null);
+
   const createAccessEvent = useCreateAccessEvent();
   const createVisitPerson = useCreateVisitPerson();
-  const updateAccessEvent = useUpdateAccessEvent();
+  const updateVisitPerson = useUpdateVisitPerson();
+  const uploadImage = useUploadVisitPersonImage();
 
   const handleSelectPerson = useCallback((person: VisitPerson) => {
     setSelectedPerson(person);
     setSidebarMode("view");
+    setSidebarOpen(true);
+    setHighlightedIndex(-1);
+  }, []);
+
+  const handleOpenEdit = useCallback((person: VisitPerson) => {
+    setSelectedPerson(person);
+    setSidebarMode("edit");
     setSidebarOpen(true);
     setHighlightedIndex(-1);
   }, []);
@@ -117,18 +137,23 @@ export function VisitorsPageClient() {
     [selectedPerson, createAccessEvent, t, handleCloseSidebar],
   );
 
-  const handleUpdateEvent = useCallback(
-    async (eventId: string, formData: { direction: Direction; accessMode: AccessMode; vehicleId?: string; notes: string }) => {
-      await updateAccessEvent.mutateAsync({
-        id: eventId,
-        direction: formData.direction,
-        accessMode: formData.accessMode,
-        vehicleId: formData.vehicleId,
-        notes: formData.notes || undefined,
-      });
-      toast.success(t("accessEvents.messages.updated"));
+  const handleSaveEdit = useCallback(
+    (patch: UpdateVisitPersonInput) => {
+      if (!selectedPerson) return;
+      updateVisitPerson.mutate(
+        { id: selectedPerson.id, patch },
+        {
+          onSuccess: () => {
+            toast.success(t("visitPersons.messages.updated"));
+            handleCloseSidebar();
+          },
+          onError: () => {
+            toast.error(t("visitPersons.messages.errorUpdating"));
+          },
+        },
+      );
     },
-    [updateAccessEvent, t],
+    [selectedPerson, updateVisitPerson, t, handleCloseSidebar],
   );
 
   return (
@@ -142,6 +167,7 @@ export function VisitorsPageClient() {
         search={search}
         onSearchChange={handleSearchChange}
         onSelectPerson={handleSelectPerson}
+        onEditPerson={handleOpenEdit}
         onRegisterNew={handleRegisterNew}
       />
       <VisitPersonSidebar
@@ -152,12 +178,17 @@ export function VisitorsPageClient() {
         isLoadingRecentEvents={isLoadingRecentEvents}
         vehicles={vehicles}
         isLoadingVehicles={isLoadingVehicles}
-        isSaving={createAccessEvent.isPending || updateAccessEvent.isPending}
+        isSaving={createAccessEvent.isPending}
         isCreating={createVisitPerson.isPending}
+        isSavingEdit={updateVisitPerson.isPending}
+        images={images}
+        isLoadingImages={isLoadingImages}
+        onUploadImage={uploadImage.mutate}
+        isUploadingImage={uploadImage.isPending}
         onClose={handleCloseSidebar}
         onSave={handleSave}
-        onUpdateEvent={handleUpdateEvent}
         onCreatePerson={handleCreatePerson}
+        onSaveEdit={handleSaveEdit}
       />
     </div>
   );

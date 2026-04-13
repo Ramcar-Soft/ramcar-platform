@@ -392,6 +392,18 @@ async function patchToApi(path2, data) {
   if (!response.ok) throw new Error(`API error: ${response.status}`);
   return response.json();
 }
+function applyPatchToLocalPerson(existing, patch) {
+  return {
+    ...existing,
+    full_name: patch.fullName ?? existing.full_name,
+    status: patch.status ?? existing.status,
+    phone: patch.phone ?? existing.phone,
+    company: patch.company ?? existing.company,
+    resident_id: patch.residentId !== void 0 ? patch.residentId : existing.resident_id,
+    notes: patch.notes ?? existing.notes,
+    updated_at: (/* @__PURE__ */ new Date()).toISOString()
+  };
+}
 function registerVisitPersonsHandlers() {
   ipcMain.handle("visit-persons:list", async (_event, filters) => {
     if (net.isOnline() && authToken$1) {
@@ -535,17 +547,24 @@ function registerVisitPersonsHandlers() {
     enqueue("access_event", localEvent.id, "create", { ...data, eventId });
     return localEvent;
   });
-  ipcMain.handle("visit-persons:update-event", async (_event, id, data) => {
+  ipcMain.handle("visit-persons:update", async (_event, id, patch) => {
+    const existing = findVisitPersonById(id);
     if (net.isOnline() && authToken$1) {
       try {
-        const updated = await patchToApi(`/access-events/${id}`, data);
-        upsertAccessEvent(mapApiEventToLocal(updated));
+        const updated = await patchToApi(`/visit-persons/${id}`, patch);
+        upsertVisitPerson(mapApiPersonToLocal(updated));
         return updated;
       } catch {
       }
     }
-    enqueue("access_event", id, "update", { id, ...data });
-    return { id, ...data };
+    if (existing) {
+      const patched = applyPatchToLocalPerson(existing, patch);
+      upsertVisitPerson(patched);
+      enqueue("visit_person", id, "update", { id, ...patch });
+      return patched;
+    }
+    enqueue("visit_person", id, "update", { id, ...patch });
+    return { id, ...patch };
   });
   ipcMain.handle("visit-persons:images", async (_event, visitPersonId) => {
     if (net.isOnline() && authToken$1) {

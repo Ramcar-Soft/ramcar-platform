@@ -24,16 +24,28 @@ interface VisitorsTableProps {
   search: string;
   onSearchChange: (value: string) => void;
   onSelectPerson: (person: VisitPerson) => void;
+  onEditPerson?: (person: VisitPerson) => void;
   onRegisterNew?: () => void;
 }
 
 export const VisitorsTable = forwardRef<HTMLInputElement, VisitorsTableProps>(
   function VisitorsTable(
-    { data, isLoading, isError, highlightedIndex, search, onSearchChange, onSelectPerson, onRegisterNew },
+    {
+      data,
+      isLoading,
+      isError,
+      highlightedIndex,
+      search,
+      onSearchChange,
+      onSelectPerson,
+      onEditPerson,
+      onRegisterNew,
+    },
     searchInputRef,
   ) {
     const t = useTranslations("visitPersons");
-    const columns = getVisitorColumns(t);
+    const editLabel = t("actions.editVisitor");
+    const columns = getVisitorColumns(t, { onEditPerson, editLabel });
     const highlightedRowRef = useRef<HTMLTableRowElement>(null);
 
     useEffect(() => {
@@ -65,7 +77,7 @@ export const VisitorsTable = forwardRef<HTMLInputElement, VisitorsTableProps>(
 
         <div className="rounded-md border">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-secondary">
               <TableRow>
                 {columns.map((col) => (
                   <TableHead key={col.key}>{col.header}</TableHead>

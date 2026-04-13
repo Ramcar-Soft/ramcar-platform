@@ -57,7 +57,7 @@
     "lost-and-found": "Extraviados",
     "history": "Historial",
     "blacklist": "Lista Negra",
-    "access-log": "Movimientos",
+    "access-log": "Bitácora",
     "access-log_visitors": "Visitantes",
     "access-log_providers": "Proveedores",
     "access-log_residents": "Residentes",
@@ -176,7 +176,8 @@
       "email": "Correo Electrónico",
       "phone": "Teléfono",
       "address": "Dirección",
-      "status": "Estado"
+      "status": "Estado",
+      "edit": "Editar"
     },
     "empty": "No se encontraron residentes",
     "noResidents": "No hay residentes registrados en esta comunidad.",
@@ -278,7 +279,8 @@
       "status": "Estatus",
       "residentName": "Residente",
       "company": "Empresa",
-      "phone": "Teléfono"
+      "phone": "Teléfono",
+      "edit": "Editar"
     },
     "status": {
       "allowed": "Permitir Ingresar",
@@ -288,6 +290,7 @@
     "sidebar": {
       "title": "Evento de Acceso",
       "registerTitle": "Registrar Visitante",
+      "editTitle": "Editar Visitante",
       "visitsResident": "Visita a"
     },
     "form": {
@@ -302,13 +305,28 @@
       "cancel": "Cancelar",
       "status": "Estatus"
     },
+    "edit": {
+      "title": "Editar Visitante",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "discardConfirmTitle": "¿Descartar cambios?",
+      "discardConfirmBody": "Tienes cambios sin guardar. ¿Seguro que deseas descartarlos?",
+      "keepEditing": "Seguir editando",
+      "discard": "Descartar"
+    },
+    "actions": {
+      "editVisitor": "Editar visitante",
+      "editProvider": "Editar proveedor"
+    },
     "empty": "No se encontraron visitantes",
     "emptySearch": "Sin resultados para la búsqueda",
     "errorLoading": "Error al cargar visitantes. Por favor, intenta de nuevo.",
     "messages": {
       "created": "Visitante registrado exitosamente",
+      "updated": "Registro actualizado exitosamente",
       "eventCreated": "Evento de acceso registrado exitosamente",
-      "errorCreating": "Error al registrar visitante"
+      "errorCreating": "Error al registrar visitante",
+      "errorUpdating": "Error al actualizar el registro"
     }
   },
   "providers": {
@@ -320,11 +338,13 @@
       "fullName": "Nombre Completo",
       "company": "Empresa",
       "phone": "Teléfono",
-      "status": "Estado"
+      "status": "Estado",
+      "edit": "Editar"
     },
     "sidebar": {
       "title": "Evento de Acceso",
       "registerTitle": "Registrar Proveedor",
+      "editTitle": "Editar Proveedor",
       "visitsResident": "Residente asociado"
     },
     "empty": "No se encontraron proveedores",
@@ -332,8 +352,10 @@
     "errorLoading": "Error al cargar proveedores. Por favor, intenta de nuevo.",
     "messages": {
       "created": "Proveedor registrado exitosamente",
+      "updated": "Proveedor actualizado exitosamente",
       "eventCreated": "Evento de acceso registrado exitosamente",
-      "errorCreating": "Error al registrar proveedor"
+      "errorCreating": "Error al registrar proveedor",
+      "errorUpdating": "Error al actualizar proveedor"
     }
   },
   "images": {

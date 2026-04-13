@@ -3,7 +3,6 @@
 import { Button, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ramcar/ui";
 import { MoreHorizontal, ArrowUpDown } from "lucide-react";
 import type { ExtendedUserProfile } from "../types";
-import { UserStatusBadge } from "./user-status-badge";
 
 interface ColumnDef {
   key: string;
@@ -48,13 +47,7 @@ export function getUserColumns({ t, onEdit, onToggleStatus }: GetColumnsOptions)
     {
       key: "phone",
       header: t("columns.phone"),
-      render: (user) => user.phone ?? "—",
-    },
-    {
-      key: "status",
-      header: t("columns.status"),
-      sortable: true,
-      render: (user) => <UserStatusBadge status={user.status} />,
+      render: (r) => r.phone ? <a className="text-blue-700 underline" href={`tel:${r.phone}`}>{r.phone}</a> : "—",
     },
     {
       key: "user_groups",

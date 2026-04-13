@@ -6,17 +6,12 @@ import {
   Input,
   Label,
   Textarea,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { ResidentSelect } from "@/shared/components/resident-select/resident-select";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import type { VisitPersonStatus } from "../types";
+import { VisitPersonStatusSelect } from "@/shared/components/visit-person-status-select";
 
 interface VisitPersonFormData {
   fullName: string;
@@ -33,7 +28,6 @@ interface VisitPersonFormProps {
 
 export function VisitPersonForm({ onSave, onCancel, isSaving }: VisitPersonFormProps) {
   const t = useTranslations("visitPersons.form");
-  const tStatus = useTranslations("visitPersons.status");
   const tCommon = useTranslations("common");
 
   const [fullName, setFullName] = useState("");
@@ -61,9 +55,7 @@ export function VisitPersonForm({ onSave, onCancel, isSaving }: VisitPersonFormP
 
   useEffect(() => {
     if (wasRestored) {
-      toast.info(tCommon("draftRestored", { time: "" }), {
-        action: { label: tCommon("discardDraft"), onClick: () => discardDraft() },
-      });
+      console.log(tCommon("draftRestored", { time: "" }));
     }
   }, [wasRestored, tCommon, discardDraft]);
 
@@ -88,16 +80,7 @@ export function VisitPersonForm({ onSave, onCancel, isSaving }: VisitPersonFormP
 
       <div className="space-y-2">
         <Label>{t("status")}</Label>
-        <Select value={status} onValueChange={(v) => setStatus(v as VisitPersonStatus)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="allowed">{tStatus("allowed")}</SelectItem>
-            <SelectItem value="flagged">{tStatus("flagged")}</SelectItem>
-            <SelectItem value="denied">{tStatus("denied")}</SelectItem>
-          </SelectContent>
-        </Select>
+        <VisitPersonStatusSelect value={status} onValueChange={setStatus} />
       </div>
 
       <div className="space-y-2">

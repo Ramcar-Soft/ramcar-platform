@@ -11,7 +11,7 @@ export interface VisitPersonsAPI {
   createVehicle: (data: Record<string, unknown>) => Promise<Record<string, unknown>>;
   recentEvents: (visitPersonId: string) => Promise<Record<string, unknown>[]>;
   createEvent: (data: Record<string, unknown>) => Promise<Record<string, unknown>>;
-  updateEvent: (id: string, data: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  update: (id: string, patch: Record<string, unknown>) => Promise<Record<string, unknown>>;
   images: (visitPersonId: string) => Promise<Record<string, unknown>[]>;
   uploadImage: (visitPersonId: string, imageType: string, imageData: Uint8Array) => Promise<{ id: string; localPath: string; imageType: string }>;
 }

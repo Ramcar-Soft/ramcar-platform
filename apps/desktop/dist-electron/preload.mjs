@@ -12,7 +12,7 @@ const api = {
     createVehicle: (data) => electron.ipcRenderer.invoke("visit-persons:create-vehicle", data),
     recentEvents: (visitPersonId) => electron.ipcRenderer.invoke("visit-persons:recent-events", visitPersonId),
     createEvent: (data) => electron.ipcRenderer.invoke("visit-persons:create-event", data),
-    updateEvent: (id, data) => electron.ipcRenderer.invoke("visit-persons:update-event", id, data),
+    update: (id, patch) => electron.ipcRenderer.invoke("visit-persons:update", id, patch),
     images: (visitPersonId) => electron.ipcRenderer.invoke("visit-persons:images", visitPersonId),
     uploadImage: (visitPersonId, imageType, imageData) => electron.ipcRenderer.invoke("visit-persons:upload-image", visitPersonId, imageType, imageData)
   },

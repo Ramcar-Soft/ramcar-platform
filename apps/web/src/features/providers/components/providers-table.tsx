@@ -24,17 +24,32 @@ interface ProvidersTableProps {
   search: string;
   onSearchChange: (value: string) => void;
   onSelectPerson: (person: VisitPerson) => void;
+  onEditPerson?: (person: VisitPerson) => void;
   onRegisterNew?: () => void;
 }
 
 export const ProvidersTable = forwardRef<HTMLInputElement, ProvidersTableProps>(
   function ProvidersTable(
-    { data, isLoading, isError, highlightedIndex, search, onSearchChange, onSelectPerson, onRegisterNew },
+    {
+      data,
+      isLoading,
+      isError,
+      highlightedIndex,
+      search,
+      onSearchChange,
+      onSelectPerson,
+      onEditPerson,
+      onRegisterNew,
+    },
     searchInputRef,
   ) {
     const t = useTranslations("providers");
     const tStatus = useTranslations("visitPersons.status");
-    const columns = getProviderColumns(t, tStatus);
+    const tActions = useTranslations("visitPersons.actions");
+    const columns = getProviderColumns(t, tStatus, {
+      onEditPerson,
+      editLabel: tActions("editProvider"),
+    });
     const highlightedRowRef = useRef<HTMLTableRowElement>(null);
 
     useEffect(() => {
@@ -66,7 +81,7 @@ export const ProvidersTable = forwardRef<HTMLInputElement, ProvidersTableProps>(
 
         <div className="rounded-md border">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-secondary">
               <TableRow>
                 {columns.map((col) => (
                   <TableHead key={col.key}>{col.header}</TableHead>

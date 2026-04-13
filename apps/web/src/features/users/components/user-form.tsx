@@ -14,7 +14,6 @@ import {
   Checkbox,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import { useAppStore } from "@ramcar/store";
 import { getAssignableRoles } from "@ramcar/shared";
@@ -99,12 +98,7 @@ export function UserForm({
 
   useEffect(() => {
     if (wasRestored) {
-      toast.info(tCommon("draftRestored", { time: "" }), {
-        action: {
-          label: tCommon("discardDraft"),
-          onClick: () => discardDraft(),
-        },
-      });
+      console.log(tCommon("draftRestored", { time: "" }));
     }
   }, [wasRestored, tCommon, discardDraft]);
 

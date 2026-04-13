@@ -14,7 +14,7 @@ import {
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
-import type { Direction, AccessMode, Vehicle, AccessEvent } from "@ramcar/shared";
+import type { Direction, AccessMode, Vehicle } from "@ramcar/shared";
 
 interface AccessEventFormData {
   direction: Direction;
@@ -30,8 +30,6 @@ interface VisitPersonAccessEventFormProps {
   onCancel: () => void;
   onAddVehicle?: () => void;
   isSaving: boolean;
-  editingEvent?: AccessEvent | null;
-  onCancelEdit?: () => void;
 }
 
 function formatVehicleLabel(v: Vehicle): string {
@@ -48,17 +46,15 @@ export function VisitPersonAccessEventForm({
   onCancel,
   onAddVehicle,
   isSaving,
-  editingEvent,
-  onCancelEdit,
 }: VisitPersonAccessEventFormProps) {
   const t = useTranslations("accessEvents");
   const tVehicles = useTranslations("vehicles");
   const tCommon = useTranslations("common");
 
-  const [direction, setDirection] = useState<Direction>(editingEvent?.direction ?? "entry");
-  const [accessMode, setAccessMode] = useState<AccessMode>(editingEvent?.accessMode ?? "vehicle");
-  const [vehicleId, setVehicleId] = useState<string>(editingEvent?.vehicleId ?? "");
-  const [notes, setNotes] = useState(editingEvent?.notes ?? "");
+  const [direction, setDirection] = useState<Direction>("entry");
+  const [accessMode, setAccessMode] = useState<AccessMode>("vehicle");
+  const [vehicleId, setVehicleId] = useState<string>("");
+  const [notes, setNotes] = useState("");
 
   const composedData = useMemo(
     () => ({ direction, accessMode, vehicleId, notes }),
@@ -70,7 +66,6 @@ export function VisitPersonAccessEventForm({
     composedData,
     {
       onRestore: (draft) => {
-        if (editingEvent) return;
         setDirection(draft.direction ?? "entry");
         setAccessMode(draft.accessMode ?? "vehicle");
         setVehicleId(draft.vehicleId ?? "");
@@ -80,26 +75,10 @@ export function VisitPersonAccessEventForm({
   );
 
   useEffect(() => {
-    if (wasRestored && !editingEvent) {
-      toast.info(tCommon("draftRestored", { time: "" }), {
-        action: { label: tCommon("discardDraft"), onClick: () => discardDraft() },
-      });
+    if (wasRestored) {
+      console.log(tCommon("draftRestored", { time: "" }));
     }
-  }, [wasRestored, editingEvent, tCommon, discardDraft]);
-
-  useEffect(() => {
-    if (editingEvent) {
-      setDirection(editingEvent.direction);
-      setAccessMode(editingEvent.accessMode);
-      setVehicleId(editingEvent.vehicleId ?? "");
-      setNotes(editingEvent.notes ?? "");
-    } else {
-      setDirection("entry");
-      setAccessMode("vehicle");
-      setVehicleId("");
-      setNotes("");
-    }
-  }, [editingEvent]);
+  }, [wasRestored, tCommon, discardDraft]);
 
   useEffect(() => {
     if (accessMode === "vehicle" && vehicles?.length && !vehicleId) {
@@ -132,12 +111,6 @@ export function VisitPersonAccessEventForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {editingEvent && (
-        <div className="text-sm font-medium text-muted-foreground">
-          {t("form.edit")}
-        </div>
-      )}
-
       <div className="space-y-3">
         <Label>{t("direction.label")}</Label>
         <div className="flex gap-2">
@@ -209,13 +182,7 @@ export function VisitPersonAccessEventForm({
         <Button type="submit" disabled={isSaving || !canSave} className="flex-1">
           {isSaving ? t("form.saving") : t("form.save")}
         </Button>
-        <Button
-          type="button"
-          className="flex-1"
-          variant="outline"
-          onClick={editingEvent && onCancelEdit ? onCancelEdit : onCancel}
-          disabled={isSaving}
-        >
+        <Button type="button" className="flex-1" variant="outline" onClick={onCancel} disabled={isSaving}>
           {t("form.cancel")}
         </Button>
       </div>

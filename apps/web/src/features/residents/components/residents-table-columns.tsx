@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@ramcar/ui";
 import type { ExtendedUserProfile } from "../types";
 
 interface ColumnDef {
@@ -24,21 +23,12 @@ export function getResidentColumns(t: (key: string) => string): ColumnDef[] {
     {
       key: "phone",
       header: t("columns.phone"),
-      render: (r) => r.phone ?? "—",
+      render: (r) => r.phone ? <a className="text-blue-700 underline" href={`tel:${r.phone}`}>{r.phone}</a> : "—",
     },
     {
       key: "address",
       header: t("columns.address"),
       render: (r) => r.address ?? "—",
-    },
-    {
-      key: "status",
-      header: t("columns.status"),
-      render: (r) => (
-        <Badge variant={r.status === "active" ? "default" : "secondary"}>
-          {r.status === "active" ? t("columns.status") : r.status}
-        </Badge>
-      ),
     },
   ];
 }

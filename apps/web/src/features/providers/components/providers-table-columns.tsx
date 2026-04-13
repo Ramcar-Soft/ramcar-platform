@@ -1,11 +1,12 @@
 "use client";
 
+import { Badge, Button } from "@ramcar/ui";
+import { Pencil } from "lucide-react";
 import type { VisitPerson, VisitPersonStatus } from "../types";
-import { Badge } from "@ramcar/ui";
 
-const statusVariantMap: Record<VisitPersonStatus, "default" | "destructive" | "secondary"> = {
+const statusVariantMap: Record<VisitPersonStatus, "default" | "destructive" | "warning"> = {
   allowed: "default",
-  flagged: "secondary",
+  flagged: "warning",
   denied: "destructive",
 };
 
@@ -15,11 +16,17 @@ interface ColumnDef {
   render: (person: VisitPerson) => React.ReactNode;
 }
 
+interface GetProviderColumnsOptions {
+  onEditPerson?: (person: VisitPerson) => void;
+  editLabel?: string;
+}
+
 export function getProviderColumns(
   t: (key: string) => string,
   tStatus: (key: string) => string,
+  options: GetProviderColumnsOptions = {},
 ): ColumnDef[] {
-  return [
+  const columns: ColumnDef[] = [
     {
       key: "code",
       header: t("columns.code"),
@@ -44,10 +51,33 @@ export function getProviderColumns(
       key: "status",
       header: t("columns.status"),
       render: (p) => (
-        <Badge variant={statusVariantMap[p.status]}>
-          {tStatus(p.status)}
-        </Badge>
+        <Badge variant={statusVariantMap[p.status]}>{tStatus(p.status)}</Badge>
       ),
     },
   ];
+
+  if (options.onEditPerson) {
+    columns.push({
+      key: "actions",
+      header: t("columns.edit"),
+      render: (p) => (
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-label={options.editLabel}
+            onClick={(e) => {
+              e.stopPropagation();
+              options.onEditPerson?.(p);
+            }}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    });
+  }
+
+  return columns;
 }

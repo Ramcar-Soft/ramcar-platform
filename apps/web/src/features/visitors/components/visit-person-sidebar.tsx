@@ -10,18 +10,27 @@ import {
   Separator,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
-import type { VisitPerson, AccessEvent, Vehicle, VisitPersonStatus, Direction, AccessMode } from "../types";
+import type {
+  VisitPerson,
+  AccessEvent,
+  Vehicle,
+  VisitPersonStatus,
+  Direction,
+  AccessMode,
+  UpdateVisitPersonInput,
+} from "../types";
 import type { VisitPersonImage, ImageType } from "@ramcar/shared";
 import { VisitPersonStatusBadge } from "./visit-person-status-badge";
 import { RecentEventsList } from "./recent-events-list";
 import { VisitPersonAccessEventForm } from "./visit-person-access-event-form";
 import { VisitPersonForm } from "./visit-person-form";
+import { VisitPersonEditForm } from "./visit-person-edit-form";
 import { ImageSection } from "./image-section";
 import { VehicleForm } from "@/shared/components/vehicle-form/vehicle-form";
 
 interface VisitPersonSidebarProps {
   open: boolean;
-  mode: "view" | "create";
+  mode: "view" | "create" | "edit";
   person: VisitPerson | null;
   recentEvents: AccessEvent[] | undefined;
   isLoadingRecentEvents: boolean;
@@ -29,6 +38,7 @@ interface VisitPersonSidebarProps {
   isLoadingVehicles: boolean;
   isSaving: boolean;
   isCreating: boolean;
+  isSavingEdit?: boolean;
   images?: VisitPersonImage[];
   isLoadingImages?: boolean;
   onUploadImage?: (params: { visitPersonId: string; file: File; imageType: ImageType }) => void;
@@ -40,21 +50,13 @@ interface VisitPersonSidebarProps {
     vehicleId?: string;
     notes: string;
   }) => Promise<void>;
-  onUpdateEvent?: (
-    eventId: string,
-    data: {
-      direction: Direction;
-      accessMode: AccessMode;
-      vehicleId?: string;
-      notes: string;
-    },
-  ) => Promise<void>;
   onCreatePerson: (data: {
     fullName: string;
     status: VisitPersonStatus;
     residentId: string;
     notes: string;
   }) => Promise<void>;
+  onSaveEdit?: (patch: UpdateVisitPersonInput) => void;
 }
 
 export function VisitPersonSidebar({
@@ -67,43 +69,37 @@ export function VisitPersonSidebar({
   isLoadingVehicles,
   isSaving,
   isCreating,
+  isSavingEdit,
   images,
   isLoadingImages,
   onUploadImage,
   isUploadingImage,
   onClose,
   onSave,
-  onUpdateEvent,
   onCreatePerson,
+  onSaveEdit,
 }: VisitPersonSidebarProps) {
   const t = useTranslations("visitPersons");
   const [showVehicleForm, setShowVehicleForm] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<AccessEvent | null>(null);
 
   const handleCloseVehicleForm = () => setShowVehicleForm(false);
 
-  const handleSaveOrUpdate = async (data: {
-    direction: Direction;
-    accessMode: AccessMode;
-    vehicleId?: string;
-    notes: string;
-  }) => {
-    if (editingEvent && onUpdateEvent) {
-      await onUpdateEvent(editingEvent.id, data);
-      setEditingEvent(null);
-    } else {
-      await onSave(data);
-    }
-  };
+  const titleKey =
+    mode === "create"
+      ? "sidebar.registerTitle"
+      : mode === "edit"
+        ? "sidebar.editTitle"
+        : "sidebar.title";
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent side="right" className="w-[400px] sm:w-[800px] sm:max-w-[800px] overflow-y-auto px-4 pb-6">
+      <SheetContent
+        side="right"
+        className="w-[400px] sm:w-[800px] sm:max-w-[800px] overflow-y-auto px-4 pb-6"
+      >
         <SheetHeader>
-          <SheetTitle>
-            {mode === "create" ? t("sidebar.registerTitle") : t("sidebar.title")}
-          </SheetTitle>
-          {mode === "view" && person && (
+          <SheetTitle>{t(titleKey)}</SheetTitle>
+          {(mode === "view" || mode === "edit") && person && (
             <SheetDescription>
               <span className="font-mono text-xs mr-2">{person.code}</span>
               {person.fullName}
@@ -120,7 +116,28 @@ export function VisitPersonSidebar({
               isSaving={isCreating}
             />
           </div>
-        ) : person && (
+        ) : mode === "edit" && person && onSaveEdit ? (
+          <div className="space-y-6 mt-2">
+            <VisitPersonEditForm
+              person={person}
+              onSave={onSaveEdit}
+              onCancel={onClose}
+              isSaving={isSavingEdit ?? false}
+            />
+            {onUploadImage && (
+              <>
+                <Separator />
+                <ImageSection
+                  visitPersonId={person.id}
+                  images={images}
+                  isLoading={isLoadingImages ?? false}
+                  onUpload={onUploadImage}
+                  isUploading={isUploadingImage ?? false}
+                />
+              </>
+            )}
+          </div>
+        ) : person ? (
           <div className="space-y-6">
             {showVehicleForm ? (
               <VehicleForm
@@ -133,7 +150,6 @@ export function VisitPersonSidebar({
                 <RecentEventsList
                   events={recentEvents}
                   isLoading={isLoadingRecentEvents}
-                  onEdit={onUpdateEvent ? setEditingEvent : undefined}
                 />
                 <Separator />
                 <div className="flex items-center gap-2">
@@ -145,12 +161,10 @@ export function VisitPersonSidebar({
                 <VisitPersonAccessEventForm
                   vehicles={vehicles}
                   isLoadingVehicles={isLoadingVehicles}
-                  onSave={handleSaveOrUpdate}
+                  onSave={onSave}
                   onCancel={onClose}
                   onAddVehicle={() => setShowVehicleForm(true)}
                   isSaving={isSaving}
-                  editingEvent={editingEvent}
-                  onCancelEdit={() => setEditingEvent(null)}
                 />
               </>
             )}
@@ -167,7 +181,7 @@ export function VisitPersonSidebar({
               </>
             )}
           </div>
-        )}
+        ) : null}
       </SheetContent>
     </Sheet>
   );

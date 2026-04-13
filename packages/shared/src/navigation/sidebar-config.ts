@@ -33,18 +33,6 @@ export const sidebarItems: SidebarItem[] = [
     platforms: ["web"],
   },
   {
-    key: "logbook",
-    icon: "ClipboardList",
-    route: "/logbook",
-    subItems: [
-      { key: "visitors", route: "/logbook/visitors" },
-      { key: "providers", route: "/logbook/providers" },
-      { key: "residents", route: "/logbook/residents" },
-    ],
-    roles: ["super_admin", "admin"],
-    platforms: ["web"],
-  },
-  {
     key: "visits-and-residents",
     icon: "Users",
     route: "/visits-and-residents",
@@ -55,6 +43,18 @@ export const sidebarItems: SidebarItem[] = [
     ],
     roles: ["super_admin", "admin", "guard"],
     platforms: ["web", "desktop"],
+  },
+  {
+    key: "logbook",
+    icon: "ClipboardList",
+    route: "/logbook",
+    subItems: [
+      { key: "visitors", route: "/logbook/visitors" },
+      { key: "providers", route: "/logbook/providers" },
+      { key: "residents", route: "/logbook/residents" },
+    ],
+    roles: ["super_admin", "admin"],
+    platforms: ["web"],
   },
   {
     key: "projects",

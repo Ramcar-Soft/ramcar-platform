@@ -78,10 +78,10 @@ export function AccessEventForm({
       <div className="space-y-3">
         <Label>{t("accessEvents.direction.label")}</Label>
         <div className="flex gap-2">
-          <Button type="button" className="bg-blue-300!" variant={direction === "entry" ? "secondary" : "outline"} size="sm" onClick={() => setDirection("entry")}>
+          <Button type="button" variant={direction === "entry" ? "default" : "outline"} size="sm" onClick={() => setDirection("entry")}>
             {t("accessEvents.direction.entry")}
           </Button>
-          <Button type="button" variant={direction === "exit" ? "secondary" : "outline"} size="sm" onClick={() => setDirection("exit")}>
+          <Button type="button" variant={direction === "exit" ? "default" : "outline"} size="sm" onClick={() => setDirection("exit")}>
             {t("accessEvents.direction.exit")}
           </Button>
         </div>
@@ -90,10 +90,10 @@ export function AccessEventForm({
       <div className="space-y-3">
         <Label>{t("accessEvents.accessMode.label")}</Label>
         <div className="flex gap-2">
-          <Button type="button" variant={accessMode === "pedestrian" ? "secondary" : "outline"} size="sm" onClick={() => setAccessMode("pedestrian")}>
+          <Button type="button" variant={accessMode === "pedestrian" ? "default" : "outline"} size="sm" onClick={() => setAccessMode("pedestrian")}>
             {t("accessEvents.accessMode.pedestrian")}
           </Button>
-          <Button type="button" variant={accessMode === "vehicle" ? "secondary" : "outline"} size="sm" onClick={() => setAccessMode("vehicle")}>
+          <Button type="button" variant={accessMode === "vehicle" ? "default" : "outline"} size="sm" onClick={() => setAccessMode("vehicle")}>
             {t("accessEvents.accessMode.vehicle")}
           </Button>
         </div>
@@ -144,7 +144,7 @@ export function AccessEventForm({
         <Button type="submit" disabled={isSaving || !canSave} className="flex-1">
           {isSaving ? t("accessEvents.form.saving") : t("accessEvents.form.save")}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="flex-1">
           {t("accessEvents.form.cancel")}
         </Button>
       </div>
