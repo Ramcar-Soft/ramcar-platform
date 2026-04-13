@@ -103,6 +103,7 @@ async function syncEntry(
     },
     access_event: {
       create: { method: "POST", path: "/access-events" },
+      update: { method: "PATCH", path: `/access-events/${payload.id}` },
     },
   };
 

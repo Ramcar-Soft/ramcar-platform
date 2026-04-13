@@ -726,7 +726,8 @@ async function syncEntry(entityType, action, payload) {
       create: { method: "POST", path: "/vehicles" }
     },
     access_event: {
-      create: { method: "POST", path: "/access-events" }
+      create: { method: "POST", path: "/access-events" },
+      update: { method: "PATCH", path: `/access-events/${payload.id}` }
     }
   };
   const endpoint = (_a = endpointMap[entityType]) == null ? void 0 : _a[action];

@@ -52,8 +52,10 @@ export {
 } from "./validators/vehicle";
 export {
   createAccessEventSchema,
+  updateAccessEventSchema,
   residentFiltersSchema,
   type CreateAccessEventInput,
+  type UpdateAccessEventInput,
   type ResidentFiltersInput,
 } from "./validators/access-event";
 export {

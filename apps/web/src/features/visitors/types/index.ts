@@ -14,4 +14,5 @@ export type {
   CreateAccessEventInput,
   CreateVehicleInput,
   UpdateVisitPersonInput,
+  UpdateAccessEventInput,
 } from "@ramcar/shared";

@@ -215,11 +215,14 @@
     "form": {
       "save": "Save",
       "saving": "Saving...",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "edit": "Edit"
     },
     "messages": {
       "created": "Access event logged successfully",
-      "errorCreating": "Error logging access event. Please try again."
+      "updated": "Access event updated successfully",
+      "errorCreating": "Error logging access event. Please try again.",
+      "errorUpdating": "Error updating access event."
     }
   },
   "vehicles": {

@@ -215,11 +215,14 @@
     "form": {
       "save": "Guardar",
       "saving": "Guardando...",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "edit": "Editar"
     },
     "messages": {
       "created": "Evento de acceso registrado exitosamente",
-      "errorCreating": "Error al registrar evento de acceso. Por favor, intenta de nuevo."
+      "updated": "Evento de acceso actualizado exitosamente",
+      "errorCreating": "Error al registrar evento de acceso. Por favor, intenta de nuevo.",
+      "errorUpdating": "Error al actualizar evento de acceso."
     }
   },
   "vehicles": {

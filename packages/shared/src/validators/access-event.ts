@@ -63,6 +63,25 @@ export const createAccessEventSchema = z
 
 export type CreateAccessEventInput = z.infer<typeof createAccessEventSchema>;
 
+export const updateAccessEventSchema = z
+  .object({
+    direction: directionEnum.optional(),
+    accessMode: accessModeEnum.optional(),
+    vehicleId: z.string().uuid("Invalid vehicle ID").optional().nullable(),
+    notes: z.string().optional().or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    if (data.accessMode === "vehicle" && !data.vehicleId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Vehicle is required when access mode is 'vehicle'",
+        path: ["vehicleId"],
+      });
+    }
+  });
+
+export type UpdateAccessEventInput = z.infer<typeof updateAccessEventSchema>;
+
 export const residentFiltersSchema = z.object({
   search: z.string().optional(),
   status: z.enum(["active", "inactive"]).optional(),
