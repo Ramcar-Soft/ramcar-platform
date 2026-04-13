@@ -1,9 +1,7 @@
 import { useState } from "react";
-import {
-  Button, Input, Label, Textarea,
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@ramcar/ui";
+import { Button, Input, Label, Textarea } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
+import { VisitPersonStatusSelect } from "../../../shared/components/visit-person-status-select";
 import type { VisitPersonStatus } from "../types";
 
 interface ProviderFormData {
@@ -52,14 +50,7 @@ export function ProviderForm({ onSave, onCancel, isSaving }: ProviderFormProps) 
       </div>
       <div className="space-y-2">
         <Label>{t("visitPersons.form.status")}</Label>
-        <Select value={status} onValueChange={(v) => setStatus(v as VisitPersonStatus)}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="allowed">{t("visitPersons.status.allowed")}</SelectItem>
-            <SelectItem value="flagged">{t("visitPersons.status.flagged")}</SelectItem>
-            <SelectItem value="denied">{t("visitPersons.status.denied")}</SelectItem>
-          </SelectContent>
-        </Select>
+        <VisitPersonStatusSelect value={status} onValueChange={setStatus} />
       </div>
       <div className="space-y-2">
         <Label>{t("visitPersons.form.notes")}</Label>
@@ -69,7 +60,7 @@ export function ProviderForm({ onSave, onCancel, isSaving }: ProviderFormProps) 
         <Button type="submit" disabled={isSaving || !fullName.trim()} className="flex-1">
           {isSaving ? t("visitPersons.form.saving") : t("visitPersons.form.save")}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="flex-1">
           {t("visitPersons.form.cancel")}
         </Button>
       </div>

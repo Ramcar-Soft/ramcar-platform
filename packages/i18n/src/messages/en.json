@@ -40,7 +40,7 @@
     "dashboard": "Dashboard",
     "catalogs": "Catalogs",
     "catalogs_users": "Users",
-    "logbook": "Logbook",
+    "logbook": "Access Log",
     "logbook_visitors": "Visitors",
     "logbook_providers": "Providers",
     "logbook_residents": "Residents",
@@ -176,7 +176,8 @@
       "email": "Email",
       "phone": "Phone",
       "address": "Address",
-      "status": "Status"
+      "status": "Status",
+      "edit": "Edit"
     },
     "empty": "No residents found",
     "noResidents": "No residents registered in this community.",
@@ -214,14 +215,11 @@
     "form": {
       "save": "Save",
       "saving": "Saving...",
-      "cancel": "Cancel",
-      "edit": "Edit"
+      "cancel": "Cancel"
     },
     "messages": {
       "created": "Access event logged successfully",
-      "updated": "Access event updated successfully",
-      "errorCreating": "Error logging access event. Please try again.",
-      "errorUpdating": "Error updating access event."
+      "errorCreating": "Error logging access event. Please try again."
     }
   },
   "vehicles": {
@@ -278,7 +276,8 @@
       "status": "Status",
       "residentName": "Resident",
       "company": "Company",
-      "phone": "Phone"
+      "phone": "Phone",
+      "edit": "Edit"
     },
     "status": {
       "allowed": "Allowed",
@@ -288,6 +287,7 @@
     "sidebar": {
       "title": "Access Event",
       "registerTitle": "Register Visitor",
+      "editTitle": "Edit Visitor",
       "visitsResident": "Visits"
     },
     "form": {
@@ -302,13 +302,28 @@
       "cancel": "Cancel",
       "status": "Status"
     },
+    "edit": {
+      "title": "Edit Visitor",
+      "save": "Save",
+      "saving": "Saving...",
+      "discardConfirmTitle": "Discard changes?",
+      "discardConfirmBody": "You have unsaved changes. Are you sure you want to discard them?",
+      "keepEditing": "Keep editing",
+      "discard": "Discard"
+    },
+    "actions": {
+      "editVisitor": "Edit visitor",
+      "editProvider": "Edit provider"
+    },
     "empty": "No visitors found",
     "emptySearch": "No results for search",
     "errorLoading": "Error loading visitors. Please try again.",
     "messages": {
       "created": "Visitor registered successfully",
+      "updated": "Visit person updated successfully",
       "eventCreated": "Access event logged successfully",
-      "errorCreating": "Error registering visitor"
+      "errorCreating": "Error registering visitor",
+      "errorUpdating": "Error updating record"
     }
   },
   "providers": {
@@ -320,11 +335,13 @@
       "fullName": "Full Name",
       "company": "Company",
       "phone": "Phone",
-      "status": "Status"
+      "status": "Status",
+      "edit": "Edit"
     },
     "sidebar": {
       "title": "Access Event",
       "registerTitle": "Register Provider",
+      "editTitle": "Edit Provider",
       "visitsResident": "Associated resident"
     },
     "empty": "No providers found",
@@ -332,8 +349,10 @@
     "errorLoading": "Error loading providers. Please try again.",
     "messages": {
       "created": "Provider registered successfully",
+      "updated": "Provider updated successfully",
       "eventCreated": "Access event logged successfully",
-      "errorCreating": "Error registering provider"
+      "errorCreating": "Error registering provider",
+      "errorUpdating": "Error updating provider"
     }
   },
   "images": {

@@ -102,7 +102,7 @@ export function UsersTable({ locale }: UsersTableProps) {
 
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-secondary">
             <TableRow>
               {columns.map((col) => (
                 <TableHead key={col.key}>

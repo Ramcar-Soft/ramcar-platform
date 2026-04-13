@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import type { AccessEvent, UpdateAccessEventInput } from "@ramcar/shared";
+import { Injectable } from "@nestjs/common";
+import type { AccessEvent } from "@ramcar/shared";
 import { AccessEventsRepository } from "./access-events.repository";
 import type { CreateAccessEventDto } from "./dto/create-access-event.dto";
 
@@ -42,26 +42,6 @@ export class AccessEventsService {
       tenantId,
     );
     return rows.map((row) => this.mapRow(row));
-  }
-
-  async update(
-    id: string,
-    dto: UpdateAccessEventInput,
-    tenantId: string,
-  ): Promise<AccessEvent> {
-    const updateData: Record<string, unknown> = {};
-    if (dto.direction !== undefined) updateData.direction = dto.direction;
-    if (dto.accessMode !== undefined) updateData.access_mode = dto.accessMode;
-    if (dto.accessMode === "pedestrian") {
-      updateData.vehicle_id = null;
-    } else if (dto.vehicleId !== undefined) {
-      updateData.vehicle_id = dto.vehicleId;
-    }
-    if (dto.notes !== undefined) updateData.notes = dto.notes || null;
-
-    const row = await this.repository.update(id, tenantId, updateData);
-    if (!row) throw new NotFoundException("Access event not found");
-    return this.mapRow(row);
   }
 
   private mapRow(row: Record<string, unknown>): AccessEvent {

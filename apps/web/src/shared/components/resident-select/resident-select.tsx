@@ -53,7 +53,7 @@ export function ResidentSelect({ value, onChange, placeholder }: ResidentSelectP
         className="mb-1"
       />
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger className="w-full">
           <SelectValue placeholder={t("selectResident")} />
         </SelectTrigger>
         <SelectContent>

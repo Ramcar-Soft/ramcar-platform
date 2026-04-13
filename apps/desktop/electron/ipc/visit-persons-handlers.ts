@@ -81,6 +81,22 @@ async function patchToApi<T>(path: string, data: unknown): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+function applyPatchToLocalPerson(
+  existing: LocalVisitPerson,
+  patch: Record<string, unknown>,
+): LocalVisitPerson {
+  return {
+    ...existing,
+    full_name: (patch.fullName as string) ?? existing.full_name,
+    status: (patch.status as "allowed" | "flagged" | "denied") ?? existing.status,
+    phone: (patch.phone as string | null | undefined) ?? existing.phone,
+    company: (patch.company as string | null | undefined) ?? existing.company,
+    resident_id: patch.residentId !== undefined ? (patch.residentId as string | null) : existing.resident_id,
+    notes: (patch.notes as string | null | undefined) ?? existing.notes,
+    updated_at: new Date().toISOString(),
+  };
+}
+
 export function registerVisitPersonsHandlers(): void {
   // List visit persons (online → API + cache, offline → SQLite)
   ipcMain.handle("visit-persons:list", async (_event, filters: VisitPersonFilters) => {
@@ -250,19 +266,28 @@ export function registerVisitPersonsHandlers(): void {
     return localEvent;
   });
 
-  // Update access event
-  ipcMain.handle("visit-persons:update-event", async (_event, id: string, data: Record<string, unknown>) => {
+  // Update visit person (optimistic SQLite update + API/outbox)
+  ipcMain.handle("visit-persons:update", async (_event, id: string, patch: Record<string, unknown>) => {
+    const existing = findVisitPersonById(id);
+
     if (net.isOnline() && authToken) {
       try {
-        const updated = await patchToApi<LocalAccessEvent>(`/access-events/${id}`, data);
-        upsertAccessEvent(mapApiEventToLocal(updated));
+        const updated = await patchToApi<LocalVisitPerson>(`/visit-persons/${id}`, patch);
+        upsertVisitPerson(mapApiPersonToLocal(updated));
         return updated;
       } catch {
-        // Fallback
+        // Fallback to offline update
       }
     }
-    enqueue("access_event", id, "update", { id, ...data });
-    return { id, ...data };
+
+    if (existing) {
+      const patched = applyPatchToLocalPerson(existing, patch);
+      upsertVisitPerson(patched);
+      enqueue("visit_person", id, "update", { id, ...patch });
+      return patched;
+    }
+    enqueue("visit_person", id, "update", { id, ...patch });
+    return { id, ...patch };
   });
 
   // Get images for visit person

@@ -51,7 +51,7 @@ export function AccessEventSidebar({
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent side="right" className="w-[400px] sm:w-[440px] overflow-y-auto px-4">
+      <SheetContent side="right" className="w-[400px] sm:w-[800px] sm:max-w-[800px] overflow-y-auto px-4">
         <SheetHeader>
           <SheetTitle>{t("title")}</SheetTitle>
           {resident && (

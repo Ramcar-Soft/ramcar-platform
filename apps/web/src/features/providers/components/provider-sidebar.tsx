@@ -11,12 +11,21 @@ import {
   Badge,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
-import type { VisitPerson, AccessEvent, Vehicle, VisitPersonStatus, Direction, AccessMode } from "../types";
+import type {
+  VisitPerson,
+  AccessEvent,
+  Vehicle,
+  VisitPersonStatus,
+  Direction,
+  AccessMode,
+  UpdateVisitPersonInput,
+} from "../types";
 import type { VisitPersonImage, ImageType } from "@ramcar/shared";
 import { RecentEventsList } from "@/features/visitors/components/recent-events-list";
 import { VisitPersonAccessEventForm } from "@/features/visitors/components/visit-person-access-event-form";
 import { ImageSection } from "@/features/visitors/components/image-section";
 import { ProviderForm } from "./provider-form";
+import { ProviderEditForm } from "./provider-edit-form";
 import { VehicleForm } from "@/shared/components/vehicle-form/vehicle-form";
 
 const statusVariantMap = {
@@ -27,7 +36,7 @@ const statusVariantMap = {
 
 interface ProviderSidebarProps {
   open: boolean;
-  mode: "view" | "create";
+  mode: "view" | "create" | "edit";
   person: VisitPerson | null;
   recentEvents: AccessEvent[] | undefined;
   isLoadingRecentEvents: boolean;
@@ -35,6 +44,7 @@ interface ProviderSidebarProps {
   isLoadingVehicles: boolean;
   isSaving: boolean;
   isCreating: boolean;
+  isSavingEdit?: boolean;
   images?: VisitPersonImage[];
   isLoadingImages?: boolean;
   onUploadImage?: (params: { visitPersonId: string; file: File; imageType: ImageType }) => void;
@@ -46,15 +56,6 @@ interface ProviderSidebarProps {
     vehicleId?: string;
     notes: string;
   }) => Promise<void>;
-  onUpdateEvent?: (
-    eventId: string,
-    data: {
-      direction: Direction;
-      accessMode: AccessMode;
-      vehicleId?: string;
-      notes: string;
-    },
-  ) => Promise<void>;
   onCreatePerson: (data: {
     fullName: string;
     phone: string;
@@ -63,6 +64,7 @@ interface ProviderSidebarProps {
     residentId: string;
     notes: string;
   }) => Promise<void>;
+  onSaveEdit?: (patch: UpdateVisitPersonInput) => void;
 }
 
 export function ProviderSidebar({
@@ -75,44 +77,38 @@ export function ProviderSidebar({
   isLoadingVehicles,
   isSaving,
   isCreating,
+  isSavingEdit,
   images,
   isLoadingImages,
   onUploadImage,
   isUploadingImage,
   onClose,
   onSave,
-  onUpdateEvent,
   onCreatePerson,
+  onSaveEdit,
 }: ProviderSidebarProps) {
   const t = useTranslations("providers");
   const tStatus = useTranslations("visitPersons.status");
   const [showVehicleForm, setShowVehicleForm] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<AccessEvent | null>(null);
 
   const handleCloseVehicleForm = () => setShowVehicleForm(false);
 
-  const handleSaveOrUpdate = async (data: {
-    direction: Direction;
-    accessMode: AccessMode;
-    vehicleId?: string;
-    notes: string;
-  }) => {
-    if (editingEvent && onUpdateEvent) {
-      await onUpdateEvent(editingEvent.id, data);
-      setEditingEvent(null);
-    } else {
-      await onSave(data);
-    }
-  };
+  const titleKey =
+    mode === "create"
+      ? "sidebar.registerTitle"
+      : mode === "edit"
+        ? "sidebar.editTitle"
+        : "sidebar.title";
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent side="right" className="w-[400px] sm:w-[800px] sm:max-w-[800px] overflow-y-auto px-4 pb-6">
+      <SheetContent
+        side="right"
+        className="w-[400px] sm:w-[800px] sm:max-w-[800px] overflow-y-auto px-4 pb-6"
+      >
         <SheetHeader>
-          <SheetTitle>
-            {mode === "create" ? t("sidebar.registerTitle") : t("sidebar.title")}
-          </SheetTitle>
-          {mode === "view" && person && (
+          <SheetTitle>{t(titleKey)}</SheetTitle>
+          {(mode === "view" || mode === "edit") && person && (
             <SheetDescription>
               <span className="font-mono text-xs mr-2">{person.code}</span>
               {person.fullName}
@@ -129,43 +125,63 @@ export function ProviderSidebar({
               isSaving={isCreating}
             />
           </div>
-        ) : person && (
+        ) : mode === "edit" && person && onSaveEdit ? (
+          <div className="space-y-6 mt-2">
+            <ProviderEditForm
+              person={person}
+              onSave={onSaveEdit}
+              onCancel={onClose}
+              isSaving={isSavingEdit ?? false}
+            />
+            {onUploadImage && (
+              <>
+                <Separator />
+                <ImageSection
+                  visitPersonId={person.id}
+                  images={images}
+                  isLoading={isLoadingImages ?? false}
+                  onUpload={onUploadImage}
+                  isUploading={isUploadingImage ?? false}
+                />
+              </>
+            )}
+          </div>
+        ) : person ? (
           <div className="space-y-6">
             {!showVehicleForm && (
               <>
                 <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant={statusVariantMap[person.status]}>
-                  {tStatus(person.status)}
-                </Badge>
-                {person.phone && (
-                  <span className="text-sm text-muted-foreground">{person.phone}</span>
-                )}
-                {person.residentName && (
-                  <span className="text-sm text-muted-foreground">
-                    {t("sidebar.visitsResident")}: {person.residentName}
-                  </span>
-                )}
-              </div>
+                  <Badge variant={statusVariantMap[person.status]}>
+                    {tStatus(person.status)}
+                  </Badge>
+                  {person.phone && (
+                    <span className="text-sm text-muted-foreground">{person.phone}</span>
+                  )}
+                  {person.residentName && (
+                    <span className="text-sm text-muted-foreground">
+                      {t("sidebar.visitsResident")}: {person.residentName}
+                    </span>
+                  )}
+                </div>
 
-              {onUploadImage && (
-                <>
-                  <ImageSection
-                    visitPersonId={person.id}
-                    images={images}
-                    isLoading={isLoadingImages ?? false}
-                    onUpload={onUploadImage}
-                    isUploading={isUploadingImage ?? false}
-                  />
-                  <Separator />
-                </>
-              )}
+                {onUploadImage && (
+                  <>
+                    <ImageSection
+                      visitPersonId={person.id}
+                      images={images}
+                      isLoading={isLoadingImages ?? false}
+                      onUpload={onUploadImage}
+                      isUploading={isUploadingImage ?? false}
+                    />
+                    <Separator />
+                  </>
+                )}
 
-              <RecentEventsList
-                events={recentEvents}
-                isLoading={isLoadingRecentEvents}
-                onEdit={onUpdateEvent ? setEditingEvent : undefined}
-              />
-              <Separator />
+                <RecentEventsList
+                  events={recentEvents}
+                  isLoading={isLoadingRecentEvents}
+                />
+                <Separator />
               </>
             )}
 
@@ -179,16 +195,14 @@ export function ProviderSidebar({
               <VisitPersonAccessEventForm
                 vehicles={vehicles}
                 isLoadingVehicles={isLoadingVehicles}
-                onSave={handleSaveOrUpdate}
+                onSave={onSave}
                 onCancel={onClose}
                 onAddVehicle={() => setShowVehicleForm(true)}
                 isSaving={isSaving}
-                editingEvent={editingEvent}
-                onCancelEdit={() => setEditingEvent(null)}
               />
             )}
           </div>
-        )}
+        ) : null}
       </SheetContent>
     </Sheet>
   );

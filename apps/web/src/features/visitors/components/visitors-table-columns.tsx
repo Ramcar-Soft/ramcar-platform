@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@ramcar/ui";
+import { Pencil } from "lucide-react";
 import type { VisitPerson } from "../types";
 import { VisitPersonStatusBadge } from "./visit-person-status-badge";
 
@@ -9,8 +11,16 @@ interface ColumnDef {
   render: (person: VisitPerson) => React.ReactNode;
 }
 
-export function getVisitorColumns(t: (key: string) => string): ColumnDef[] {
-  return [
+interface GetVisitorColumnsOptions {
+  onEditPerson?: (person: VisitPerson) => void;
+  editLabel?: string;
+}
+
+export function getVisitorColumns(
+  t: (key: string) => string,
+  options: GetVisitorColumnsOptions = {},
+): ColumnDef[] {
+  const columns: ColumnDef[] = [
     {
       key: "code",
       header: t("columns.code"),
@@ -32,4 +42,29 @@ export function getVisitorColumns(t: (key: string) => string): ColumnDef[] {
       render: (p) => p.residentName ?? "—",
     },
   ];
+
+  if (options.onEditPerson) {
+    columns.push({
+      key: "actions",
+      header: t("columns.edit"),
+      render: (p) => (
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-label={options.editLabel}
+            onClick={(e) => {
+              e.stopPropagation();
+              options.onEditPerson?.(p);
+            }}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    });
+  }
+
+  return columns;
 }

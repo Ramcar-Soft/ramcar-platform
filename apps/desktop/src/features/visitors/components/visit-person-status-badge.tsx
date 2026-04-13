@@ -4,7 +4,7 @@ import type { VisitPersonStatus } from "../types";
 
 const statusVariantMap = {
   allowed: "default" as const,
-  flagged: "secondary" as const,
+  flagged: "warning" as const,
   denied: "destructive" as const,
 };
 

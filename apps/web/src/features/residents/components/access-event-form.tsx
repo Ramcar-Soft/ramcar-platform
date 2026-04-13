@@ -77,12 +77,7 @@ export function AccessEventForm({
 
   useEffect(() => {
     if (wasRestored) {
-      toast.info(tCommon("draftRestored", { time: "" }), {
-        action: {
-          label: tCommon("discardDraft"),
-          onClick: () => discardDraft(),
-        },
-      });
+      console.log(tCommon("draftRestored", { time: "" }));
     }
   }, [wasRestored, tCommon, discardDraft]);
 
@@ -231,6 +226,7 @@ export function AccessEventForm({
         <Button
           type="button"
           variant="outline"
+          className="flex-1"
           onClick={() => {
             discardDraft();
             onCancel();

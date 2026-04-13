@@ -1,16 +1,27 @@
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Separator } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
-import type { VisitPerson, AccessEvent, Vehicle, VisitPersonStatus, Direction, AccessMode } from "../types";
+import type {
+  VisitPerson,
+  AccessEvent,
+  Vehicle,
+  VisitPersonStatus,
+  Direction,
+  AccessMode,
+  UpdateVisitPersonInput,
+} from "../types";
+import type { VisitPersonImage, ImageType } from "@ramcar/shared";
 import { VisitPersonStatusBadge } from "./visit-person-status-badge";
 import { RecentEventsList } from "./recent-events-list";
 import { VisitPersonAccessEventForm } from "./visit-person-access-event-form";
 import { VisitPersonForm } from "./visit-person-form";
+import { VisitPersonEditForm } from "./visit-person-edit-form";
+import { ImageSection } from "./image-section";
 import { VehicleForm } from "../../../shared/components/vehicle-form/vehicle-form";
 
 interface VisitPersonSidebarProps {
   open: boolean;
-  mode: "view" | "create";
+  mode: "view" | "create" | "edit";
   person: VisitPerson | null;
   recentEvents: AccessEvent[] | undefined;
   isLoadingRecentEvents: boolean;
@@ -18,37 +29,38 @@ interface VisitPersonSidebarProps {
   isLoadingVehicles: boolean;
   isSaving: boolean;
   isCreating: boolean;
+  isSavingEdit?: boolean;
+  images?: VisitPersonImage[];
+  isLoadingImages?: boolean;
+  onUploadImage?: (params: { visitPersonId: string; file: File; imageType: ImageType }) => void;
+  isUploadingImage?: boolean;
   onClose: () => void;
   onSave: (data: { direction: Direction; accessMode: AccessMode; vehicleId?: string; notes: string }) => Promise<void>;
-  onUpdateEvent?: (eventId: string, data: { direction: Direction; accessMode: AccessMode; vehicleId?: string; notes: string }) => Promise<void>;
   onCreatePerson: (data: { fullName: string; status: VisitPersonStatus; residentId: string; notes: string }) => Promise<void>;
+  onSaveEdit?: (patch: UpdateVisitPersonInput) => void;
 }
 
 export function VisitPersonSidebar({
   open, mode, person, recentEvents, isLoadingRecentEvents, vehicles, isLoadingVehicles,
-  isSaving, isCreating, onClose, onSave, onUpdateEvent, onCreatePerson,
+  isSaving, isCreating, isSavingEdit, images, isLoadingImages, onUploadImage, isUploadingImage,
+  onClose, onSave, onCreatePerson, onSaveEdit,
 }: VisitPersonSidebarProps) {
   const { t } = useTranslation();
   const [showVehicleForm, setShowVehicleForm] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<AccessEvent | null>(null);
 
-  const handleSaveOrUpdate = async (data: { direction: Direction; accessMode: AccessMode; vehicleId?: string; notes: string }) => {
-    if (editingEvent && onUpdateEvent) {
-      await onUpdateEvent(editingEvent.id, data);
-      setEditingEvent(null);
-    } else {
-      await onSave(data);
-    }
-  };
+  const titleKey =
+    mode === "create"
+      ? "visitPersons.sidebar.registerTitle"
+      : mode === "edit"
+        ? "visitPersons.sidebar.editTitle"
+        : "visitPersons.sidebar.title";
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent side="right" className="w-[400px] sm:w-[440px] overflow-y-auto px-4">
+      <SheetContent side="right" className="w-[400px] sm:w-[800px] sm:max-w-[800px] overflow-y-auto px-4">
         <SheetHeader>
-          <SheetTitle>
-            {mode === "create" ? t("visitPersons.sidebar.registerTitle") : t("visitPersons.sidebar.title")}
-          </SheetTitle>
-          {mode === "view" && person && (
+          <SheetTitle>{t(titleKey)}</SheetTitle>
+          {(mode === "view" || mode === "edit") && person && (
             <SheetDescription>
               <span className="font-mono text-xs mr-2">{person.code}</span>
               {person.fullName}
@@ -61,6 +73,27 @@ export function VisitPersonSidebar({
           <div className="mt-6">
             <VisitPersonForm onSave={onCreatePerson} onCancel={onClose} isSaving={isCreating} />
           </div>
+        ) : mode === "edit" && person && onSaveEdit ? (
+          <div className="mt-6 space-y-6">
+            <VisitPersonEditForm
+              person={person}
+              onSave={onSaveEdit}
+              onCancel={onClose}
+              isSaving={isSavingEdit ?? false}
+            />
+            {onUploadImage && (
+              <>
+                <Separator />
+                <ImageSection
+                  visitPersonId={person.id}
+                  images={images}
+                  isLoading={isLoadingImages ?? false}
+                  onUpload={onUploadImage}
+                  isUploading={isUploadingImage ?? false}
+                />
+              </>
+            )}
+          </div>
         ) : person && (
           <div className="mt-6 space-y-6">
             <div className="flex items-center gap-2">
@@ -68,7 +101,7 @@ export function VisitPersonSidebar({
               {person.phone && <span className="text-sm text-muted-foreground">{person.phone}</span>}
             </div>
 
-            <RecentEventsList events={recentEvents} isLoading={isLoadingRecentEvents} onEdit={onUpdateEvent ? setEditingEvent : undefined} />
+            <RecentEventsList events={recentEvents} isLoading={isLoadingRecentEvents} />
             <Separator />
 
             {showVehicleForm ? (
@@ -77,13 +110,23 @@ export function VisitPersonSidebar({
               <VisitPersonAccessEventForm
                 vehicles={vehicles}
                 isLoadingVehicles={isLoadingVehicles}
-                onSave={handleSaveOrUpdate}
+                onSave={onSave}
                 onCancel={onClose}
                 onAddVehicle={() => setShowVehicleForm(true)}
                 isSaving={isSaving}
-                editingEvent={editingEvent}
-                onCancelEdit={() => setEditingEvent(null)}
               />
+            )}
+            {!showVehicleForm && onUploadImage && (
+              <>
+                <Separator />
+                <ImageSection
+                  visitPersonId={person.id}
+                  images={images}
+                  isLoading={isLoadingImages ?? false}
+                  onUpload={onUploadImage}
+                  isUploading={isUploadingImage ?? false}
+                />
+              </>
             )}
           </div>
         )}

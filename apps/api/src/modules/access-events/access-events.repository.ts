@@ -79,21 +79,4 @@ export class AccessEventsRepository {
     return data;
   }
 
-  async update(
-    id: string,
-    tenantId: string,
-    updateData: Record<string, unknown>,
-  ) {
-    const { data, error } = await this.supabase
-      .getClient()
-      .from("access_events")
-      .update(updateData)
-      .eq("tenant_id", tenantId)
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  }
 }

@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  Patch,
   Post,
   UseGuards,
 } from "@nestjs/common";
@@ -13,7 +12,6 @@ import { RolesGuard } from "../../common/guards/roles.guard";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { CurrentTenant } from "../../common/decorators/current-tenant.decorator";
-import { updateAccessEventSchema } from "@ramcar/shared";
 import { UsersService } from "../users/users.service";
 import { AccessEventsService } from "./access-events.service";
 import { createAccessEventSchema } from "./dto/create-access-event.dto";
@@ -36,16 +34,6 @@ export class AccessEventsController {
     const dto = createAccessEventSchema.parse(body);
     const profileId = await this.usersService.getProfileIdByAuthUserId(user.id);
     return this.accessEventsService.create(dto, tenantId, profileId);
-  }
-
-  @Patch(":id")
-  async update(
-    @Param("id") id: string,
-    @Body() body: unknown,
-    @CurrentTenant() tenantId: string,
-  ) {
-    const dto = updateAccessEventSchema.parse(body);
-    return this.accessEventsService.update(id, dto, tenantId);
   }
 
   @Get("recent/:userId")

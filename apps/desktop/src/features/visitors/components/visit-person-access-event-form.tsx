@@ -5,7 +5,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
-import type { Direction, AccessMode, Vehicle, AccessEvent } from "@ramcar/shared";
+import type { Direction, AccessMode, Vehicle } from "@ramcar/shared";
 
 interface AccessEventFormData {
   direction: Direction;
@@ -21,8 +21,6 @@ interface VisitPersonAccessEventFormProps {
   onCancel: () => void;
   onAddVehicle?: () => void;
   isSaving: boolean;
-  editingEvent?: AccessEvent | null;
-  onCancelEdit?: () => void;
 }
 
 function formatVehicleLabel(v: Vehicle): string {
@@ -33,28 +31,14 @@ function formatVehicleLabel(v: Vehicle): string {
 }
 
 export function VisitPersonAccessEventForm({
-  vehicles, isLoadingVehicles, onSave, onCancel, onAddVehicle, isSaving, editingEvent, onCancelEdit,
+  vehicles, isLoadingVehicles, onSave, onCancel, onAddVehicle, isSaving,
 }: VisitPersonAccessEventFormProps) {
   const { t } = useTranslation();
 
-  const [direction, setDirection] = useState<Direction>(editingEvent?.direction ?? "entry");
-  const [accessMode, setAccessMode] = useState<AccessMode>(editingEvent?.accessMode ?? "vehicle");
-  const [vehicleId, setVehicleId] = useState<string>(editingEvent?.vehicleId ?? "");
-  const [notes, setNotes] = useState(editingEvent?.notes ?? "");
-
-  useEffect(() => {
-    if (editingEvent) {
-      setDirection(editingEvent.direction);
-      setAccessMode(editingEvent.accessMode);
-      setVehicleId(editingEvent.vehicleId ?? "");
-      setNotes(editingEvent.notes ?? "");
-    } else {
-      setDirection("entry");
-      setAccessMode("vehicle");
-      setVehicleId("");
-      setNotes("");
-    }
-  }, [editingEvent]);
+  const [direction, setDirection] = useState<Direction>("entry");
+  const [accessMode, setAccessMode] = useState<AccessMode>("vehicle");
+  const [vehicleId, setVehicleId] = useState<string>("");
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     if (accessMode === "vehicle" && vehicles?.length && !vehicleId) {
@@ -84,12 +68,6 @@ export function VisitPersonAccessEventForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {editingEvent && (
-        <div className="text-sm font-medium text-muted-foreground">
-          {t("accessEvents.form.edit")}
-        </div>
-      )}
-
       <div className="space-y-3">
         <Label>{t("accessEvents.direction.label")}</Label>
         <div className="flex gap-2">
@@ -157,7 +135,7 @@ export function VisitPersonAccessEventForm({
         <Button type="submit" disabled={isSaving || !canSave} className="flex-1">
           {isSaving ? t("accessEvents.form.saving") : t("accessEvents.form.save")}
         </Button>
-        <Button type="button" variant="outline" onClick={editingEvent && onCancelEdit ? onCancelEdit : onCancel} disabled={isSaving}>
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="flex-1">
           {t("accessEvents.form.cancel")}
         </Button>
       </div>
