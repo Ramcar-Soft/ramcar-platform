@@ -71,4 +71,41 @@ export const apiClient = {
     });
     return handleResponse<T>(response);
   },
+
+  async patch<T>(path: string, data?: unknown): Promise<T> {
+    const headers = await getAuthHeaders();
+    const url = buildUrl(path);
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    return handleResponse<T>(response);
+  },
+
+  async delete<T>(path: string): Promise<T> {
+    const headers = await getAuthHeaders();
+    const url = buildUrl(path);
+    const response = await fetch(url, { method: "DELETE", headers });
+    return handleResponse<T>(response);
+  },
+
+  async upload<T>(path: string, formData: FormData): Promise<T> {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const headers: HeadersInit = {};
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+
+    const url = buildUrl(path);
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+    return handleResponse<T>(response);
+  },
 };

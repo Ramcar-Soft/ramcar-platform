@@ -37,16 +37,39 @@ export type {
   AccessEventSource,
   AccessEvent,
 } from "./types/access-event";
+export type {
+  VisitPersonType,
+  VisitPersonStatus,
+  VisitPerson,
+} from "./types/visit-person";
+export type {
+  ImageType,
+  VisitPersonImage,
+} from "./types/visit-person-image";
 export {
   createVehicleSchema,
   type CreateVehicleInput,
 } from "./validators/vehicle";
 export {
   createAccessEventSchema,
+  updateAccessEventSchema,
   residentFiltersSchema,
   type CreateAccessEventInput,
+  type UpdateAccessEventInput,
   type ResidentFiltersInput,
 } from "./validators/access-event";
+export {
+  createVisitPersonSchema,
+  updateVisitPersonSchema,
+  visitPersonFiltersSchema,
+  type CreateVisitPersonInput,
+  type UpdateVisitPersonInput,
+  type VisitPersonFiltersInput,
+} from "./validators/visit-person";
+export {
+  imageTypeEnum,
+  type ImageTypeInput,
+} from "./validators/visit-person-image";
 export type {
   Platform,
   SidebarItem,

@@ -12,8 +12,9 @@ function useCreateVehicle() {
     mutationFn: (data: CreateVehicleInput) =>
       apiClient.post<Vehicle>("/vehicles", data),
     onSuccess: (_data, variables) => {
+      const ownerId = variables.ownerType === "user" ? variables.userId : variables.visitPersonId;
       queryClient.invalidateQueries({
-        queryKey: ["residents", variables.userId, "vehicles"],
+        queryKey: ["residents", ownerId, "vehicles"],
       });
     },
   });
@@ -21,12 +22,13 @@ function useCreateVehicle() {
 import { VehicleTypeSelect } from "./vehicle-type-select";
 
 interface VehicleFormProps {
-  userId: string;
+  userId?: string;
+  visitPersonId?: string;
   onSaved: () => void;
   onCancel: () => void;
 }
 
-export function VehicleForm({ userId, onSaved, onCancel }: VehicleFormProps) {
+export function VehicleForm({ userId, visitPersonId, onSaved, onCancel }: VehicleFormProps) {
   const { t } = useTranslation();
   const createVehicle = useCreateVehicle();
 
@@ -39,8 +41,12 @@ export function VehicleForm({ userId, onSaved, onCancel }: VehicleFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const ownerFields = visitPersonId
+      ? { ownerType: "visitPerson" as const, visitPersonId }
+      : { ownerType: "user" as const, userId: userId! };
+
     const result = createVehicleSchema.safeParse({
-      userId,
+      ...ownerFields,
       vehicleType,
       brand: brand || undefined,
       model: model || undefined,

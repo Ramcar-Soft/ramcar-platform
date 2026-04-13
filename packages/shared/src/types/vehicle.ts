@@ -20,7 +20,8 @@ export const VEHICLE_TYPES: readonly VehicleType[] = [
 export interface Vehicle {
   id: string;
   tenantId: string;
-  userId: string;
+  userId: string | null;
+  visitPersonId: string | null;
   vehicleType: VehicleType;
   brand: string | null;
   model: string | null;

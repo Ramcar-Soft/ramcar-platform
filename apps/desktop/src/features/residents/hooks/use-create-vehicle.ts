@@ -9,8 +9,9 @@ export function useCreateVehicle() {
     mutationFn: (data: CreateVehicleInput) =>
       apiClient.post<Vehicle>("/vehicles", data),
     onSuccess: (_data, variables) => {
+      const ownerId = variables.ownerType === "user" ? variables.userId : variables.visitPersonId;
       queryClient.invalidateQueries({
-        queryKey: ["residents", variables.userId, "vehicles"],
+        queryKey: ["residents", ownerId, "vehicles"],
       });
     },
   });

@@ -14,7 +14,8 @@ export class AccessEventsRepository {
         tenant_id: tenantId,
         event_id: dto.eventId || undefined,
         person_type: dto.personType,
-        user_id: dto.userId,
+        user_id: dto.userId || null,
+        visit_person_id: dto.visitPersonId || null,
         direction: dto.direction,
         access_mode: dto.accessMode,
         vehicle_id: dto.vehicleId || null,
@@ -55,6 +56,42 @@ export class AccessEventsRepository {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async findRecentByVisitPersonId(
+    visitPersonId: string,
+    tenantId: string,
+    limit = 3,
+  ) {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from("access_events")
+      .select()
+      .eq("tenant_id", tenantId)
+      .eq("visit_person_id", visitPersonId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data;
+  }
+
+  async update(
+    id: string,
+    tenantId: string,
+    updateData: Record<string, unknown>,
+  ) {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from("access_events")
+      .update(updateData)
+      .eq("tenant_id", tenantId)
+      .eq("id", id)
+      .select()
+      .single();
 
     if (error) throw error;
     return data;

@@ -23,11 +23,20 @@ export class VehiclesService {
     return rows.map((row) => this.mapRow(row));
   }
 
+  async findByVisitPersonId(
+    visitPersonId: string,
+    tenantId: string,
+  ): Promise<Vehicle[]> {
+    const rows = await this.repository.findByVisitPersonId(visitPersonId, tenantId);
+    return rows.map((row) => this.mapRow(row));
+  }
+
   private mapRow(row: Record<string, unknown>): Vehicle {
     return {
       id: row.id as string,
       tenantId: row.tenant_id as string,
-      userId: row.user_id as string,
+      userId: (row.user_id as string) ?? null,
+      visitPersonId: (row.visit_person_id as string) ?? null,
       vehicleType: row.vehicle_type as Vehicle["vehicleType"],
       brand: (row.brand as string) ?? null,
       model: (row.model as string) ?? null,

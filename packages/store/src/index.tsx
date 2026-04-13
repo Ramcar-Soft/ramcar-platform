@@ -5,18 +5,21 @@ import { createStore as createZustandStore, useStore, type StoreApi } from "zust
 import { createAuthSlice, type AuthSlice } from "./slices/auth-slice";
 import { createSidebarSlice, type SidebarSlice } from "./slices/sidebar-slice";
 import { createThemeSlice, type ThemeSlice } from "./slices/theme-slice";
+import { createSyncSlice, type SyncSlice } from "./slices/sync-slice";
 
 export type { AuthSlice } from "./slices/auth-slice";
 export type { SidebarSlice } from "./slices/sidebar-slice";
 export type { ThemeSlice, Theme } from "./slices/theme-slice";
+export type { SyncSlice, SyncStatus } from "./slices/sync-slice";
 
-export interface AppState extends AuthSlice, SidebarSlice, ThemeSlice {}
+export interface AppState extends AuthSlice, SidebarSlice, ThemeSlice, SyncSlice {}
 
 export const createStore = () => {
   return createZustandStore<AppState>()((...args) => ({
     ...createAuthSlice(...args),
     ...createSidebarSlice(...args),
     ...createThemeSlice(...args),
+    ...createSyncSlice(...args),
   }));
 };
 

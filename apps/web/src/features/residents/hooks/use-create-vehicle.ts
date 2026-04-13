@@ -11,9 +11,15 @@ export function useCreateVehicle() {
     mutationFn: (data: CreateVehicleInput) =>
       apiClient.post<Vehicle>("/vehicles", data),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["residents", variables.userId, "vehicles"],
-      });
+      if (variables.ownerType === "user") {
+        queryClient.invalidateQueries({
+          queryKey: ["residents", variables.userId, "vehicles"],
+        });
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["vehicles", "visit-person", variables.visitPersonId],
+        });
+      }
     },
   });
 }

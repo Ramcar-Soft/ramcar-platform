@@ -1,8 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
-  UseGuards,
+  Get,
   Post,
+  Query,
+  UseGuards,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { TenantGuard } from "../../common/guards/tenant.guard";
@@ -17,6 +20,21 @@ import { createVehicleSchema } from "./dto/create-vehicle.dto";
 @Roles("super_admin", "admin", "guard")
 export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}
+
+  @Get()
+  async findByOwner(
+    @Query("userId") userId?: string,
+    @Query("visitPersonId") visitPersonId?: string,
+    @CurrentTenant() tenantId?: string,
+  ) {
+    if (userId) {
+      return this.vehiclesService.findByUserId(userId, tenantId!);
+    }
+    if (visitPersonId) {
+      return this.vehiclesService.findByVisitPersonId(visitPersonId, tenantId!);
+    }
+    throw new BadRequestException("Either userId or visitPersonId is required");
+  }
 
   @Post()
   async create(

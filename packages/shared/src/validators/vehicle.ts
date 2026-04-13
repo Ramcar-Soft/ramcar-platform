@@ -10,14 +10,26 @@ const vehicleTypeEnum = z.enum([
   "other",
 ]);
 
-export const createVehicleSchema = z.object({
-  userId: z.string().uuid("Invalid user ID"),
+const vehicleFields = {
   vehicleType: vehicleTypeEnum,
   brand: z.string().max(100).optional().or(z.literal("")),
   model: z.string().max(100).optional().or(z.literal("")),
   plate: z.string().max(20).optional().or(z.literal("")),
   color: z.string().max(50).optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
-});
+};
+
+export const createVehicleSchema = z.discriminatedUnion("ownerType", [
+  z.object({
+    ownerType: z.literal("user"),
+    userId: z.string().uuid("Invalid user ID"),
+    ...vehicleFields,
+  }),
+  z.object({
+    ownerType: z.literal("visitPerson"),
+    visitPersonId: z.string().uuid("Invalid visit person ID"),
+    ...vehicleFields,
+  }),
+]);
 
 export type CreateVehicleInput = z.infer<typeof createVehicleSchema>;

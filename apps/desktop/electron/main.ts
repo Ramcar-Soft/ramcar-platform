@@ -2,6 +2,10 @@ import { app, BrowserWindow } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { registerSettingsHandlers } from './ipc/settings-handlers'
+import { registerVisitPersonsHandlers } from './ipc/visit-persons-handlers'
+import { registerSyncHandlers } from './ipc/sync-handlers'
+import { startSyncEngine, stopSyncEngine } from './services/sync-engine'
+import { closeDatabase } from './repositories/database'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -66,5 +70,13 @@ app.on('activate', () => {
 
 app.whenReady().then(() => {
   registerSettingsHandlers()
+  registerVisitPersonsHandlers()
+  registerSyncHandlers()
+  startSyncEngine()
   createWindow()
+})
+
+app.on('before-quit', () => {
+  stopSyncEngine()
+  closeDatabase()
 })

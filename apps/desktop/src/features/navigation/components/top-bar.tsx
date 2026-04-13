@@ -1,6 +1,7 @@
 import { SidebarTrigger, Separator } from "@ramcar/ui";
 import { LanguageSwitcher } from "../../../shared/components/language-switcher";
 import { ThemeToggle } from "./theme-toggle";
+import { SyncIndicator } from "./sync-indicator";
 
 export function TopBar() {
   return (
@@ -9,6 +10,8 @@ export function TopBar() {
       <Separator orientation="vertical" className="mr-2 h-4" />
       <div className="flex-1" />
       <div className="flex items-center gap-2">
+        <SyncIndicator />
+        <Separator orientation="vertical" className="h-4" />
         <ThemeToggle />
         <LanguageSwitcher />
       </div>

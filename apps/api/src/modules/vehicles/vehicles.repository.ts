@@ -7,12 +7,17 @@ export class VehiclesRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
   async create(dto: CreateVehicleDto, tenantId: string) {
+    const ownerFields =
+      dto.ownerType === "user"
+        ? { user_id: dto.userId, visit_person_id: null }
+        : { user_id: null, visit_person_id: dto.visitPersonId };
+
     const { data, error } = await this.supabase
       .getClient()
       .from("vehicles")
       .insert({
         tenant_id: tenantId,
-        user_id: dto.userId,
+        ...ownerFields,
         vehicle_type: dto.vehicleType,
         brand: dto.brand || null,
         model: dto.model || null,
@@ -34,6 +39,20 @@ export class VehiclesRepository {
       .select()
       .eq("tenant_id", tenantId)
       .eq("user_id", userId)
+      .eq("is_blacklisted", false)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data ?? [];
+  }
+
+  async findByVisitPersonId(visitPersonId: string, tenantId: string) {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from("vehicles")
+      .select()
+      .eq("tenant_id", tenantId)
+      .eq("visit_person_id", visitPersonId)
       .eq("is_blacklisted", false)
       .order("created_at", { ascending: false });
 

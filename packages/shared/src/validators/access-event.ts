@@ -10,7 +10,8 @@ const sortOrderEnum = z.enum(["asc", "desc"]);
 export const createAccessEventSchema = z
   .object({
     personType: personTypeEnum,
-    userId: z.string().uuid("Invalid user ID"),
+    userId: z.string().uuid("Invalid user ID").optional(),
+    visitPersonId: z.string().uuid("Invalid visit person ID").optional(),
     direction: directionEnum,
     accessMode: accessModeEnum,
     vehicleId: z.string().uuid("Invalid vehicle ID").optional(),
@@ -18,20 +19,68 @@ export const createAccessEventSchema = z
     source: sourceEnum,
     eventId: z.string().uuid().optional(),
   })
-  .refine(
-    (data) => {
-      if (data.accessMode === "vehicle") {
-        return !!data.vehicleId;
+  .superRefine((data, ctx) => {
+    if (data.personType === "resident") {
+      if (!data.userId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "userId is required for residents",
+          path: ["userId"],
+        });
       }
-      return true;
-    },
-    {
-      message: "Vehicle is required when access mode is 'vehicle'",
-      path: ["vehicleId"],
-    },
-  );
+      if (data.visitPersonId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "visitPersonId must not be set for residents",
+          path: ["visitPersonId"],
+        });
+      }
+    } else {
+      if (!data.visitPersonId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "visitPersonId is required for visitors/providers",
+          path: ["visitPersonId"],
+        });
+      }
+      if (data.userId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "userId must not be set for visitors/providers",
+          path: ["userId"],
+        });
+      }
+    }
+
+    if (data.accessMode === "vehicle" && !data.vehicleId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Vehicle is required when access mode is 'vehicle'",
+        path: ["vehicleId"],
+      });
+    }
+  });
 
 export type CreateAccessEventInput = z.infer<typeof createAccessEventSchema>;
+
+export const updateAccessEventSchema = z
+  .object({
+    direction: directionEnum.optional(),
+    accessMode: accessModeEnum.optional(),
+    vehicleId: z.string().uuid("Invalid vehicle ID").optional().nullable(),
+    notes: z.string().optional().or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    if (data.accessMode === "vehicle" && !data.vehicleId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Vehicle is required when access mode is 'vehicle'",
+        path: ["vehicleId"],
+      });
+    }
+  });
+
+export type UpdateAccessEventInput = z.infer<typeof updateAccessEventSchema>;
 
 export const residentFiltersSchema = z.object({
   search: z.string().optional(),
