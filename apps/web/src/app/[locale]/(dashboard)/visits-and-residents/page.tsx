@@ -3,5 +3,5 @@ import { getLocale } from "next-intl/server";
 
 export default async function VisitsAndResidentsPage() {
   const locale = await getLocale();
-  redirect(`/${locale}/visits-and-residents/residents`);
+  redirect(`/${locale}/visits-and-residents/visitors`);
 }

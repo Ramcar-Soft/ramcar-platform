@@ -12,10 +12,14 @@ import { AccessLogResidentsPage } from "../../features/access-log/pages/access-l
 import { PatrolsPage } from "../../features/patrols/pages/patrols-page";
 import { AccountPage } from "../../features/account/pages/account-page";
 import { ResidentsPage } from "../../features/residents/pages/residents-page";
+import { VisitorsPage } from "../../features/visitors/pages/visitors-page";
+import { ProvidersPage } from "../../features/providers/pages/providers-page";
 
 const routes: Record<string, React.ComponentType> = {
   "/dashboard": DashboardPage,
   "/visits-and-residents/residents": ResidentsPage,
+  "/visits-and-residents/visitors": VisitorsPage,
+  "/visits-and-residents/providers": ProvidersPage,
   "/access-log/visitors": AccessLogVisitorsPage,
   "/access-log/providers": AccessLogProvidersPage,
   "/access-log/residents": AccessLogResidentsPage,
@@ -38,7 +42,7 @@ export function PageRouter({ onLogout }: PageRouterProps) {
       navigate("/access-log/visitors");
     }
     if (currentPath === "/visits-and-residents") {
-      navigate("/visits-and-residents/residents");
+      navigate("/visits-and-residents/visitors");
     }
   }, [currentPath, navigate]);
 

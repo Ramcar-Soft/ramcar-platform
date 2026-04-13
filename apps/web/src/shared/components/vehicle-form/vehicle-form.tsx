@@ -10,12 +10,13 @@ import { useCreateVehicle } from "@/features/residents/hooks/use-create-vehicle"
 import { VehicleTypeSelect } from "./vehicle-type-select";
 
 interface VehicleFormProps {
-  userId: string;
+  userId?: string;
+  visitPersonId?: string;
   onSaved: () => void;
   onCancel: () => void;
 }
 
-export function VehicleForm({ userId, onSaved, onCancel }: VehicleFormProps) {
+export function VehicleForm({ userId, visitPersonId, onSaved, onCancel }: VehicleFormProps) {
   const t = useTranslations("vehicles");
   const createVehicle = useCreateVehicle();
 
@@ -62,8 +63,12 @@ export function VehicleForm({ userId, onSaved, onCancel }: VehicleFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const ownerFields = visitPersonId
+      ? { ownerType: "visitPerson" as const, visitPersonId }
+      : { ownerType: "user" as const, userId: userId! };
+
     const result = createVehicleSchema.safeParse({
-      userId,
+      ...ownerFields,
       vehicleType,
       brand: brand || undefined,
       model: model || undefined,
@@ -152,6 +157,7 @@ export function VehicleForm({ userId, onSaved, onCancel }: VehicleFormProps) {
         <Button
           type="button"
           variant="outline"
+          className="flex-1"
           onClick={() => {
             discardDraft();
             onCancel();

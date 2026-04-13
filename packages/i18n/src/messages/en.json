@@ -45,6 +45,8 @@
     "logbook_providers": "Providers",
     "logbook_residents": "Residents",
     "visits-and-residents": "Visits & Residents",
+    "visits-and-residents_visitors": "Visitors",
+    "visits-and-residents_providers": "Providers",
     "visits-and-residents_residents": "Residents",
     "projects": "Projects",
     "wifi": "Wi-Fi Networks",
@@ -212,11 +214,14 @@
     "form": {
       "save": "Save",
       "saving": "Saving...",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "edit": "Edit"
     },
     "messages": {
       "created": "Access event logged successfully",
-      "errorCreating": "Error logging access event. Please try again."
+      "updated": "Access event updated successfully",
+      "errorCreating": "Error logging access event. Please try again.",
+      "errorUpdating": "Error updating access event."
     }
   },
   "vehicles": {
@@ -262,5 +267,93 @@
       "errorCreating": "Error registering vehicle"
     },
     "noVehicles": "No vehicles registered. Add one below."
+  },
+  "visitPersons": {
+    "title": "Visitors",
+    "searchPlaceholder": "Search visitors...",
+    "registerNew": "Register New",
+    "columns": {
+      "code": "Code",
+      "fullName": "Full Name",
+      "status": "Status",
+      "residentName": "Resident",
+      "company": "Company",
+      "phone": "Phone"
+    },
+    "status": {
+      "allowed": "Allowed",
+      "flagged": "Flagged",
+      "denied": "Denied"
+    },
+    "sidebar": {
+      "title": "Access Event",
+      "registerTitle": "Register Visitor",
+      "visitsResident": "Visits"
+    },
+    "form": {
+      "fullName": "Full Name",
+      "phone": "Phone",
+      "company": "Company",
+      "residentId": "Resident",
+      "selectResident": "Select resident",
+      "notes": "Notes",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "status": "Status"
+    },
+    "empty": "No visitors found",
+    "emptySearch": "No results for search",
+    "errorLoading": "Error loading visitors. Please try again.",
+    "messages": {
+      "created": "Visitor registered successfully",
+      "eventCreated": "Access event logged successfully",
+      "errorCreating": "Error registering visitor"
+    }
+  },
+  "providers": {
+    "title": "Providers",
+    "searchPlaceholder": "Search providers...",
+    "registerNew": "Register New",
+    "columns": {
+      "code": "Code",
+      "fullName": "Full Name",
+      "company": "Company",
+      "phone": "Phone",
+      "status": "Status"
+    },
+    "sidebar": {
+      "title": "Access Event",
+      "registerTitle": "Register Provider",
+      "visitsResident": "Associated resident"
+    },
+    "empty": "No providers found",
+    "emptySearch": "No results for search",
+    "errorLoading": "Error loading providers. Please try again.",
+    "messages": {
+      "created": "Provider registered successfully",
+      "eventCreated": "Access event logged successfully",
+      "errorCreating": "Error registering provider"
+    }
+  },
+  "images": {
+    "title": "Images",
+    "upload": "Upload",
+    "uploading": "Uploading...",
+    "replace": "Replace",
+    "uploadStarted": "Upload started",
+    "types": {
+      "face": "Face",
+      "id_card": "ID Card",
+      "vehicle_plate": "Vehicle Plate",
+      "other": "Other"
+    }
+  },
+  "sync": {
+    "idle": "Synced",
+    "syncing": "Syncing...",
+    "error": "Sync error",
+    "offline": "Offline",
+    "pending": "{count} pending"
   }
 }

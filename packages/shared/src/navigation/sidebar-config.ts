@@ -49,6 +49,8 @@ export const sidebarItems: SidebarItem[] = [
     icon: "Users",
     route: "/visits-and-residents",
     subItems: [
+      { key: "visitors", route: "/visits-and-residents/visitors" },
+      { key: "providers", route: "/visits-and-residents/providers" },
       { key: "residents", route: "/visits-and-residents/residents" },
     ],
     roles: ["super_admin", "admin", "guard"],

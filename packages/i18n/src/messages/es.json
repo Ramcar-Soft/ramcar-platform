@@ -45,6 +45,8 @@
     "logbook_providers": "Proveedores",
     "logbook_residents": "Residentes",
     "visits-and-residents": "Visitas y Residentes",
+    "visits-and-residents_visitors": "Visitantes",
+    "visits-and-residents_providers": "Proveedores",
     "visits-and-residents_residents": "Residentes",
     "projects": "Proyectos",
     "wifi": "Redes Wi-Fi",
@@ -212,11 +214,14 @@
     "form": {
       "save": "Guardar",
       "saving": "Guardando...",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "edit": "Editar"
     },
     "messages": {
       "created": "Evento de acceso registrado exitosamente",
-      "errorCreating": "Error al registrar evento de acceso. Por favor, intenta de nuevo."
+      "updated": "Evento de acceso actualizado exitosamente",
+      "errorCreating": "Error al registrar evento de acceso. Por favor, intenta de nuevo.",
+      "errorUpdating": "Error al actualizar evento de acceso."
     }
   },
   "vehicles": {
@@ -262,5 +267,93 @@
       "errorCreating": "Error al registrar vehículo"
     },
     "noVehicles": "Sin vehículos registrados. Agrega uno abajo."
+  },
+  "visitPersons": {
+    "title": "Visitantes",
+    "searchPlaceholder": "Buscar visitantes...",
+    "registerNew": "Registrar Nuevo",
+    "columns": {
+      "code": "Código",
+      "fullName": "Nombre Completo",
+      "status": "Estatus",
+      "residentName": "Residente",
+      "company": "Empresa",
+      "phone": "Teléfono"
+    },
+    "status": {
+      "allowed": "Permitir Ingresar",
+      "flagged": "Marcar para Ingresar",
+      "denied": "Denegado"
+    },
+    "sidebar": {
+      "title": "Evento de Acceso",
+      "registerTitle": "Registrar Visitante",
+      "visitsResident": "Visita a"
+    },
+    "form": {
+      "fullName": "Nombre Completo",
+      "phone": "Teléfono",
+      "company": "Empresa",
+      "residentId": "Residente",
+      "selectResident": "Seleccionar residente",
+      "notes": "Notas",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "status": "Estatus"
+    },
+    "empty": "No se encontraron visitantes",
+    "emptySearch": "Sin resultados para la búsqueda",
+    "errorLoading": "Error al cargar visitantes. Por favor, intenta de nuevo.",
+    "messages": {
+      "created": "Visitante registrado exitosamente",
+      "eventCreated": "Evento de acceso registrado exitosamente",
+      "errorCreating": "Error al registrar visitante"
+    }
+  },
+  "providers": {
+    "title": "Proveedores",
+    "searchPlaceholder": "Buscar proveedores...",
+    "registerNew": "Registrar Nuevo",
+    "columns": {
+      "code": "Código",
+      "fullName": "Nombre Completo",
+      "company": "Empresa",
+      "phone": "Teléfono",
+      "status": "Estado"
+    },
+    "sidebar": {
+      "title": "Evento de Acceso",
+      "registerTitle": "Registrar Proveedor",
+      "visitsResident": "Residente asociado"
+    },
+    "empty": "No se encontraron proveedores",
+    "emptySearch": "Sin resultados para la búsqueda",
+    "errorLoading": "Error al cargar proveedores. Por favor, intenta de nuevo.",
+    "messages": {
+      "created": "Proveedor registrado exitosamente",
+      "eventCreated": "Evento de acceso registrado exitosamente",
+      "errorCreating": "Error al registrar proveedor"
+    }
+  },
+  "images": {
+    "title": "Imágenes",
+    "upload": "Subir",
+    "uploading": "Subiendo...",
+    "replace": "Reemplazar",
+    "uploadStarted": "Subida iniciada",
+    "types": {
+      "face": "Rostro",
+      "id_card": "Identificación",
+      "vehicle_plate": "Placa de Vehículo",
+      "other": "Otro"
+    }
+  },
+  "sync": {
+    "idle": "Sincronizado",
+    "syncing": "Sincronizando...",
+    "error": "Error de sincronización",
+    "offline": "Sin conexión",
+    "pending": "{count} pendientes"
   }
 }

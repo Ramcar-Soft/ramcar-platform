@@ -10,6 +10,8 @@ import { TenantsModule } from "./modules/tenants/tenants.module";
 import { VehiclesModule } from "./modules/vehicles/vehicles.module";
 import { AccessEventsModule } from "./modules/access-events/access-events.module";
 import { ResidentsModule } from "./modules/residents/residents.module";
+import { VisitPersonsModule } from "./modules/visit-persons/visit-persons.module";
+import { VisitPersonImagesModule } from "./modules/visit-person-images/visit-person-images.module";
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { ResidentsModule } from "./modules/residents/residents.module";
     VehiclesModule,
     AccessEventsModule,
     ResidentsModule,
+    VisitPersonsModule,
+    VisitPersonImagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
