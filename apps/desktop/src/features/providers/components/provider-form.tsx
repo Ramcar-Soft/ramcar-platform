@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { Button, Input, Label, Textarea } from "@ramcar/ui";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button, Input, Label, Separator, Textarea } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
+import type { ImageType } from "@ramcar/shared";
 import { VisitPersonStatusSelect } from "../../../shared/components/visit-person-status-select";
+import { ImageSection, type StagedImage } from "../../visitors/components/image-section";
 import type { VisitPersonStatus } from "../types";
 
 interface ProviderFormData {
@@ -11,15 +13,22 @@ interface ProviderFormData {
   status: VisitPersonStatus;
   residentId: string;
   notes: string;
+  stagedImages: Map<ImageType, File>;
 }
 
 interface ProviderFormProps {
   onSave: (data: ProviderFormData) => void;
   onCancel: () => void;
   isSaving: boolean;
+  isUploadingStagedImages?: boolean;
 }
 
-export function ProviderForm({ onSave, onCancel, isSaving }: ProviderFormProps) {
+export function ProviderForm({
+  onSave,
+  onCancel,
+  isSaving,
+  isUploadingStagedImages,
+}: ProviderFormProps) {
   const { t } = useTranslation();
 
   const [fullName, setFullName] = useState("");
@@ -27,12 +36,57 @@ export function ProviderForm({ onSave, onCancel, isSaving }: ProviderFormProps) 
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<VisitPersonStatus>("allowed");
   const [notes, setNotes] = useState("");
+  const [stagedImages, setStagedImages] = useState<Map<ImageType, StagedImage>>(
+    () => new Map(),
+  );
+  const stagedImagesRef = useRef(stagedImages);
+  stagedImagesRef.current = stagedImages;
+
+  const revokeAllPreviews = useCallback(() => {
+    stagedImagesRef.current.forEach(({ previewUrl }) =>
+      URL.revokeObjectURL(previewUrl),
+    );
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      revokeAllPreviews();
+    };
+  }, [revokeAllPreviews]);
+
+  const handleStageImage = useCallback((imageType: ImageType, file: File) => {
+    setStagedImages((prev) => {
+      const next = new Map(prev);
+      const previous = next.get(imageType);
+      if (previous) URL.revokeObjectURL(previous.previewUrl);
+      next.set(imageType, { file, previewUrl: URL.createObjectURL(file) });
+      return next;
+    });
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim()) return;
-    onSave({ fullName: fullName.trim(), phone, company, status, residentId: "", notes });
+    const filesByType = new Map<ImageType, File>();
+    stagedImages.forEach(({ file }, type) => filesByType.set(type, file));
+    onSave({
+      fullName: fullName.trim(),
+      phone,
+      company,
+      status,
+      residentId: "",
+      notes,
+      stagedImages: filesByType,
+    });
   };
+
+  const handleCancel = () => {
+    revokeAllPreviews();
+    setStagedImages(new Map());
+    onCancel();
+  };
+
+  const submitting = isSaving || !!isUploadingStagedImages;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -56,11 +110,28 @@ export function ProviderForm({ onSave, onCancel, isSaving }: ProviderFormProps) 
         <Label>{t("visitPersons.form.notes")}</Label>
         <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
       </div>
+
+      <Separator />
+
+      <ImageSection
+        mode="create"
+        isLoading={false}
+        isUploading={!!isUploadingStagedImages}
+        stagedImages={stagedImages}
+        onStageImage={handleStageImage}
+      />
+
       <div className="flex gap-2 pt-2">
-        <Button type="submit" disabled={isSaving || !fullName.trim()} className="flex-1">
-          {isSaving ? t("visitPersons.form.saving") : t("visitPersons.form.save")}
+        <Button type="submit" disabled={submitting || !fullName.trim()} className="flex-1">
+          {submitting ? t("visitPersons.form.saving") : t("visitPersons.form.save")}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="flex-1">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleCancel}
+          disabled={submitting}
+          className="flex-1"
+        >
           {t("visitPersons.form.cancel")}
         </Button>
       </div>

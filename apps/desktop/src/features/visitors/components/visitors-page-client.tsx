@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import type { ImageType } from "@ramcar/shared";
 import type {
   VisitPerson,
   VisitPersonFiltersInput,
@@ -104,7 +105,13 @@ export function VisitorsPageClient() {
   }, []);
 
   const handleCreatePerson = useCallback(
-    async (data: { fullName: string; status: VisitPersonStatus; residentId: string; notes: string }) => {
+    async (data: {
+      fullName: string;
+      status: VisitPersonStatus;
+      residentId: string;
+      notes: string;
+      stagedImages: Map<ImageType, File>;
+    }) => {
       const person = await createVisitPerson.mutateAsync({
         type: "visitor",
         fullName: data.fullName,
@@ -113,10 +120,29 @@ export function VisitorsPageClient() {
         notes: data.notes || undefined,
       });
       toast.success(t("visitPersons.messages.created"));
+
+      if (data.stagedImages.size > 0) {
+        let failed = 0;
+        for (const [imageType, file] of data.stagedImages) {
+          try {
+            await uploadImage.mutateAsync({
+              visitPersonId: person.id,
+              file,
+              imageType,
+            });
+          } catch {
+            failed += 1;
+          }
+        }
+        if (failed > 0) {
+          toast.error(t("visitPersons.messages.imageUploadFailed", { count: failed }));
+        }
+      }
+
       setSelectedPerson(person);
       setSidebarMode("view");
     },
-    [createVisitPerson, t],
+    [createVisitPerson, uploadImage, t],
   );
 
   const handleSave = useCallback(

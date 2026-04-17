@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
   Button,
   Input,
   Label,
+  Separator,
   Textarea,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
+import type { ImageType } from "@ramcar/shared";
 import { ResidentSelect } from "@/shared/components/resident-select/resident-select";
 import { VisitPersonStatusSelect } from "@/shared/components/visit-person-status-select";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
+import { ImageSection, type StagedImage } from "@/features/visitors/components/image-section";
 import type { VisitPersonStatus } from "../types";
 
 interface ProviderFormData {
@@ -20,15 +23,22 @@ interface ProviderFormData {
   status: VisitPersonStatus;
   residentId: string;
   notes: string;
+  stagedImages: Map<ImageType, File>;
 }
 
 interface ProviderFormProps {
   onSave: (data: ProviderFormData) => void;
   onCancel: () => void;
   isSaving: boolean;
+  isUploadingStagedImages?: boolean;
 }
 
-export function ProviderForm({ onSave, onCancel, isSaving }: ProviderFormProps) {
+export function ProviderForm({
+  onSave,
+  onCancel,
+  isSaving,
+  isUploadingStagedImages,
+}: ProviderFormProps) {
   const t = useTranslations("visitPersons.form");
   const tCommon = useTranslations("common");
 
@@ -38,6 +48,11 @@ export function ProviderForm({ onSave, onCancel, isSaving }: ProviderFormProps) 
   const [status, setStatus] = useState<VisitPersonStatus>("allowed");
   const [residentId, setResidentId] = useState("");
   const [notes, setNotes] = useState("");
+  const [stagedImages, setStagedImages] = useState<Map<ImageType, StagedImage>>(
+    () => new Map(),
+  );
+  const stagedImagesRef = useRef(stagedImages);
+  stagedImagesRef.current = stagedImages;
 
   const composedData = useMemo(
     () => ({ fullName, phone, company, status, residentId, notes }),
@@ -65,12 +80,52 @@ export function ProviderForm({ onSave, onCancel, isSaving }: ProviderFormProps) 
     }
   }, [wasRestored, tCommon, discardDraft]);
 
+  const revokeAllPreviews = useCallback(() => {
+    stagedImagesRef.current.forEach(({ previewUrl }) =>
+      URL.revokeObjectURL(previewUrl),
+    );
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      revokeAllPreviews();
+    };
+  }, [revokeAllPreviews]);
+
+  const handleStageImage = useCallback((imageType: ImageType, file: File) => {
+    setStagedImages((prev) => {
+      const next = new Map(prev);
+      const previous = next.get(imageType);
+      if (previous) URL.revokeObjectURL(previous.previewUrl);
+      next.set(imageType, { file, previewUrl: URL.createObjectURL(file) });
+      return next;
+    });
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim()) return;
     clearDraft();
-    onSave({ fullName: fullName.trim(), phone, company, status, residentId, notes });
+    const filesByType = new Map<ImageType, File>();
+    stagedImages.forEach(({ file }, type) => filesByType.set(type, file));
+    onSave({
+      fullName: fullName.trim(),
+      phone,
+      company,
+      status,
+      residentId,
+      notes,
+      stagedImages: filesByType,
+    });
   };
+
+  const handleCancel = () => {
+    revokeAllPreviews();
+    setStagedImages(new Map());
+    onCancel();
+  };
+
+  const submitting = isSaving || !!isUploadingStagedImages;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -104,11 +159,27 @@ export function ProviderForm({ onSave, onCancel, isSaving }: ProviderFormProps) 
         <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
       </div>
 
+      <Separator />
+
+      <ImageSection
+        mode="create"
+        isLoading={false}
+        isUploading={!!isUploadingStagedImages}
+        stagedImages={stagedImages}
+        onStageImage={handleStageImage}
+      />
+
       <div className="flex gap-2 pt-2">
-        <Button type="submit" disabled={isSaving || !fullName.trim()} className="flex-1">
-          {isSaving ? t("saving") : t("save")}
+        <Button type="submit" disabled={submitting || !fullName.trim()} className="flex-1">
+          {submitting ? t("saving") : t("save")}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSaving}>
+        <Button
+          type="button"
+          className="flex-1"
+          variant="outline"
+          onClick={handleCancel}
+          disabled={submitting}
+        >
           {t("cancel")}
         </Button>
       </div>

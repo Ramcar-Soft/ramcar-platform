@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import type { ImageType } from "@ramcar/shared";
 import type {
   VisitPerson,
   VisitPersonFiltersInput,
@@ -114,6 +115,7 @@ export function ProvidersPageClient() {
       status: VisitPersonStatus;
       residentId: string;
       notes: string;
+      stagedImages: Map<ImageType, File>;
     }) => {
       const person = await createVisitPerson.mutateAsync({
         type: "service_provider",
@@ -125,10 +127,29 @@ export function ProvidersPageClient() {
         notes: data.notes || undefined,
       });
       toast.success(tProviders("messages.created"));
+
+      if (data.stagedImages.size > 0) {
+        let failed = 0;
+        for (const [imageType, file] of data.stagedImages) {
+          try {
+            await uploadImage.mutateAsync({
+              visitPersonId: person.id,
+              file,
+              imageType,
+            });
+          } catch {
+            failed += 1;
+          }
+        }
+        if (failed > 0) {
+          toast.error(tProviders("messages.imageUploadFailed", { count: failed }));
+        }
+      }
+
       setSelectedPerson(person);
       setSidebarMode("view");
     },
-    [createVisitPerson, tProviders],
+    [createVisitPerson, uploadImage, tProviders],
   );
 
   const handleSave = useCallback(
