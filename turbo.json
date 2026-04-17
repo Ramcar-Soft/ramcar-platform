@@ -31,6 +31,9 @@
     },
     "test:e2e": {
       "cache": false
+    },
+    "check:shared-features": {
+      "cache": false
     }
   }
 }

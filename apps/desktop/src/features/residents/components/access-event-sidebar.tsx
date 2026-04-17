@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import type { ExtendedUserProfile, AccessEvent, Vehicle, Direction, AccessMode } from "@ramcar/shared";
 import { RecentEventsList } from "./last-event-badge";
 import { AccessEventForm } from "./access-event-form";
-import { VehicleForm } from "../../../shared/components/vehicle-form/vehicle-form";
+import { VehicleForm } from "@ramcar/features/shared/vehicle-form";
 
 interface AccessEventSidebarProps {
   open: boolean;

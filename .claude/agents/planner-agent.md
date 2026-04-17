@@ -34,6 +34,7 @@ escalates-to: "frontend-developer-agent, backend-developer-agent, desktop-develo
 - Constitution gates mandatory: ✓ PASS / ✗ FAIL / ⚠️ Partial for Principles I–VII
 - No tech choices contradicting constitution without written variance
 - Cross-reference spec by FR-NNN, SC-NNN
+- **Bi-app feature gate**: For any plan touching a feature that must exist in both `apps/web` and `apps/desktop`, the plan MUST place the feature's components, hooks, and user-facing strings in the shared feature-modules workspace package (per CLAUDE.md § "Cross-App Shared Feature Modules" and spec 014), NOT in per-app `src/features/` directories. The plan must explicitly name the shared package location, the translation adapter, and the transport adapter (web: direct HTTP; desktop: outbox-backed). Deliberate platform extensions (web-only `useFormPersistence`, desktop-only offline/sync badge, admin-only actions) must be described as host-supplied extension points, not as forks.
 
 **Phases**:
 - Phase 0: Research unknowns (→ research.md)

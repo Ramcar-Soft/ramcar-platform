@@ -15,8 +15,8 @@ import {
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
 import type { UpdateVisitPersonInput } from "@ramcar/shared";
-import { ResidentSelect } from "@/shared/components/resident-select/resident-select";
-import { VisitPersonStatusSelect } from "@/shared/components/visit-person-status-select";
+import { ResidentSelect } from "@ramcar/features/shared/resident-select";
+import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import type { VisitPerson, VisitPersonStatus } from "../types";
 

@@ -134,7 +134,47 @@ Two-process architecture communicating ONLY via IPC.
 - **@ramcar/shared** — Zod schemas define DTOs once, reused by API validation AND frontend forms
 - **@ramcar/store** — Zustand with slice pattern. SSR-safe via createStore() factory + StoreProvider context
 - **@ramcar/ui** — shadcn/ui components copied (not installed as dep). Built on Radix + Tailwind.
+- **@ramcar/i18n** — Shared locale messages (single source of truth for strings used by both web and desktop)
+- **@ramcar/features** — Shared feature slices for bi-app features. Layout: `src/adapters/` (transport/i18n/role ports), `src/shared/` (migrated primitives), `src/visitors/` (pilot). Each host app provides adapter implementations in `src/shared/lib/features/`. CI check: `pnpm check:shared-features` (driven by `shared-features.json`).
 - **@ramcar/db-types** — Auto-generated from Supabase schema. Never edit manually.
+
+### Cross-App Shared Feature Modules (spec 014 — NON-NEGOTIABLE for bi-app features)
+
+Features that exist in BOTH `apps/web` and `apps/desktop` (today: `visitors`, `residents`, `providers`; tomorrow: any new feature that must appear in portal and booth) are authored **once** in a shared workspace package and consumed by both apps. Per-app duplication of these features is explicitly prohibited.
+
+**Policy — shared core with platform extensions:**
+- The shared module owns the common body: layout, forms, tables, sidebars, data-fetching hooks, user-facing strings, validation wiring.
+- Each app owns: routing, shell/layout, auth bootstrap, Zustand provider wiring, and any **deliberate** platform-specific behavior injected through documented extension points (props, slots, adapter hooks).
+- Deliberate divergence is expressed via extension points, never by forking the feature.
+- Canonical deliberate divergences:
+  - **Web-only**: `useFormPersistence` draft recovery (guards against browser reloads; not relevant to the desktop renderer).
+  - **Desktop-only**: offline/sync status badge, outbox-backed mutation transport (the shared mutation hook accepts a transport; the desktop host wires it to the SyncEngine outbox, the web host wires it to direct HTTP).
+  - **Web-only**: admin-only actions not present in the guard booth UI.
+
+**Rules for the shared feature module:**
+- No `"use client";` directive. No `next/*` imports. No `window.electron`, IPC, or Node-in-renderer APIs.
+- i18n strings MUST be obtained through an abstraction injected by the host app (web wires `next-intl`, desktop wires `react-i18next`). Message catalogs live in `@ramcar/i18n`, not per-app.
+- Data fetching MUST go through an injected transport. Shared hooks call the NestJS API (Principle VIII); they do NOT hardcode `fetch` + URL assumptions that break desktop's outbox path.
+- Zod schemas continue to live in `@ramcar/shared` and are reused verbatim (Principle V).
+- Role-gated UI (Principle VI) is injectable by the host app.
+- The shared module MUST NOT own routing, layout shell, auth bootstrap, or store provider wiring.
+
+**Rules for each host app:**
+- Import the shared feature module; do not reimplement its components or hooks in `apps/[web|desktop]/src/features/[same-domain]/`.
+- Wire the transport adapter, the i18n adapter, and any platform-specific extensions at the app level.
+- Keep app-local `src/features/[domain]/` for features that are intentionally single-app (e.g., desktop: `dashboard`, `account`, `patrols`, `access-log`, `auth`; web: `users`). Do not force unification where none is intended.
+
+**Migration status (track here as features migrate):**
+- `visitors` — **migrated 2026-04-17** (spec 014). Components + hooks + shared primitives live in `packages/features/src/visitors/`. Both apps render via `<VisitorsView />` from `@ramcar/features/visitors`.
+- `residents` — pending post-pilot migration.
+- `providers` — pending post-pilot migration.
+- Per-app `src/shared/` duplicates (`vehicle-form`, `image-capture`, `visit-person-status-select`, `resident-select`) — **migrated 2026-04-17** to `packages/features/src/shared/`.
+
+**Red-flag checklist (reject at review):**
+- New `.tsx` / `.ts` component or hook added under both `apps/web/src/features/X/` and `apps/desktop/src/features/X/` for a feature listed above.
+- Shared feature module importing `next/*`, `"use client";`, `window.electron`, or a concrete i18n library.
+- Locale strings for a shared feature duplicated in both apps' message files instead of `@ramcar/i18n`.
+- Shared mutation hook assuming online HTTP and bypassing the injected transport.
 
 ## Git Rules
 
@@ -151,12 +191,18 @@ Two-process architecture communicating ONLY via IPC.
 
 ## Adding New Features
 
-1. **Frontend (web/www):** Create `src/features/[domain]/` with components, hooks, types. Data fetching via TanStack Query against NestJS API endpoints — no direct Supabase DB access. Wire into `src/app/` routes.
-2. **Backend (api):** Create `src/modules/[domain]/` with module, controller, service, repository, dto/. Register in AppModule.
-3. **Desktop:** Main process: `electron/` (service + repository + IPC handler). Renderer: `src/features/[domain]/`. Bridge: add to `electron/preload.ts`.
-4. **Shared types/validators:** Add to `packages/shared/src/types/` or `packages/shared/src/validators/`.
-5. **UI components:** `cd packages/ui && pnpx shadcn@latest add [component]`, then re-export from `src/index.ts`.
-6. **Database migrations:** `pnpm db:new [name]`, write SQL, `pnpm db:migrate:dev`, `pnpm db:types`.
+**First decide: is this a bi-app feature (portal AND booth) or single-app?**
+- Bi-app → author once in the shared feature-modules package (see "Cross-App Shared Feature Modules" above). Do NOT create parallel directories under `apps/web/src/features/` and `apps/desktop/src/features/`.
+- Single-app (e.g., desktop `dashboard`, web `users`) → use the per-app path below.
+
+1. **Bi-app frontend (web + desktop renderer):** Author UI, interaction logic, and TanStack Query hooks in the shared feature-modules package. Each host app imports from the shared package and wires the transport adapter (web: online HTTP; desktop: outbox-backed), the i18n adapter (web: `next-intl`; desktop: `react-i18next`), and any platform-specific extensions (web: `useFormPersistence`; desktop: offline/sync badge). Wire into each app's routing (`src/app/` on web, `page-router.tsx` on desktop).
+2. **Single-app frontend (web only, or desktop renderer only):** Create `src/features/[domain]/` in the target app with components, hooks, types. Data fetching via TanStack Query against NestJS API endpoints — no direct Supabase DB access. Wire into `src/app/` (web) or `page-router.tsx` (desktop).
+3. **Backend (api):** Create `src/modules/[domain]/` with module, controller, service, repository, dto/. Register in AppModule.
+4. **Desktop main process (offline/sync concerns):** `electron/services/` (service + SyncEngine wiring), `electron/repositories/` (SQLite), `electron/ipc/` (IPC handlers, delegation only). Bridge: add to `electron/preload.ts`.
+5. **Shared types/validators:** Add to `packages/shared/src/types/` or `packages/shared/src/validators/`.
+6. **Shared i18n messages:** Add to `@ramcar/i18n` message catalogs (single source of truth for strings used in both apps).
+7. **UI primitives:** `cd packages/ui && pnpx shadcn@latest add [component]`, then re-export from `src/index.ts`.
+8. **Database migrations:** `pnpm db:new [name]`, write SQL, `pnpm db:migrate:dev`, `pnpm db:types`.
 
 ## Active Technologies
 - TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr (001-auth-login)
@@ -185,6 +231,7 @@ Two-process architecture communicating ONLY via IPC.
 - PostgreSQL via Supabase — `visit_persons` and `visit_person_images` tables already exist; no schema changes. Desktop SQLite outbox — add `visit_person.update` operation kind. (012-visit-person-edit)
 - TypeScript 5.x (strict mode across the monorepo) + Next.js 16 (App Router) + next-intl v4 (web); Electron 30 + Vite + React 18 + react-i18next (desktop); NestJS v11 (API — unchanged); TanStack Query v5; shadcn/ui (Sheet, Button, Input, Select, Label, Skeleton) from `@ramcar/ui`; Zod via `@ramcar/shared` (unchanged schemas) (013-visitor-form-images)
 - PostgreSQL via Supabase — no schema changes. Supabase Storage private bucket — no bucket changes. SQLite/outbox (desktop) — not touched; creation remains online-only, matching current behavior. (013-visitor-form-images)
+- TypeScript 5.x (strict mode across the monorepo), Node.js 22 LTS (014-cross-app-code-sharing)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr

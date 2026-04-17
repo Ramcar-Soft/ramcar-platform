@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ramcar.example/schemas/shared-features-manifest.json",
+  "title": "Shared Features Manifest",
+  "description": "Authoritative list of features that have been migrated to @ramcar/features. Drives the CI duplication check (scripts/check-shared-features.ts).",
+  "type": "object",
+  "required": ["features"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema for editor tooling."
+    },
+    "features": {
+      "type": "array",
+      "description": "Features that have been migrated to @ramcar/features. Each entry forbids non-reexport code under apps/*/src/features/<name>/.",
+      "items": { "$ref": "#/$defs/Feature" }
+    },
+    "allowList": {
+      "type": "array",
+      "description": "Paths under apps/*/src/features/<X>/ that are exempt from the duplication check (e.g., page-only wiring that must stay in-app).",
+      "items": {
+        "type": "string",
+        "pattern": "^apps/(web|desktop)/src/features/[^/]+/.+$"
+      },
+      "default": []
+    }
+  },
+  "$defs": {
+    "Feature": {
+      "type": "object",
+      "required": ["name", "migratedAt", "package"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Directory name under apps/*/src/features/ that the check watches.",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "examples": ["visitors", "residents", "providers"]
+        },
+        "migratedAt": {
+          "type": "string",
+          "description": "Day the feature was moved to @ramcar/features (YYYY-MM-DD).",
+          "format": "date"
+        },
+        "package": {
+          "type": "string",
+          "description": "Subpath import where the feature is now available.",
+          "pattern": "^@ramcar/features(/[A-Za-z0-9/_-]+)?$",
+          "examples": ["@ramcar/features/visitors"]
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-form rationale or migration PR link."
+        }
+      }
+    }
+  }
+}

@@ -16,6 +16,7 @@
     "test:e2e:report": "playwright show-report e2e/playwright-report"
   },
   "dependencies": {
+    "@ramcar/features": "workspace:*",
     "@ramcar/i18n": "workspace:*",
     "@ramcar/shared": "workspace:*",
     "@ramcar/store": "workspace:*",

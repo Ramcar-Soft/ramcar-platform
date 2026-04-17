@@ -31,13 +31,15 @@ escalates-to: "code-reviewer-agent"
 
 **Constraints**:
 - Provides patterns/guidance, not full autonomous implementation
-- No renderer process code (no React components, no `src/features/`, no `src/shared/`)
+- No renderer process code (no React components, no `src/features/`, no `src/shared/`) — BUT see the bi-app responsibility below: the desktop renderer consumes shared feature modules, and the transport wiring from those modules to the main-process outbox is this agent's concern
 - No frontend packages (`packages/ui`, `packages/store`)
 - No NestJS API or Supabase infrastructure code
 - No deviations from CLAUDE.md architecture without explicit justification
 - IPC handlers delegate to services/repositories — NO business logic in `electron/ipc/`
 - SQLite access ONLY through `electron/repositories/` — no direct SQLite calls from services or IPC
 - Preload (`electron/preload.ts`) is the ONLY contract between main and renderer — if a function is not declared there, the renderer cannot call it
+- **Bi-app features (features that exist in BOTH `apps/web` and `apps/desktop` — today: `visitors`, `residents`, `providers`) consume UI and data hooks from the shared feature-modules workspace package.** The desktop renderer MUST NOT re-author these components under `apps/desktop/src/features/[bi-app-domain]/`. See CLAUDE.md § "Cross-App Shared Feature Modules" and spec 014.
+- Shared feature modules are transport-agnostic by design (Constitution Principle IV — offline-first). The desktop host MUST wire shared mutation hooks to an outbox-backed transport (via IPC → main-process SyncEngine); online-only HTTP transport is not acceptable for the desktop booth.
 
 **Responsibilities — Electron Main Process Patterns**:
 - Guide service creation in `electron/services/` for business logic
@@ -55,6 +57,13 @@ escalates-to: "code-reviewer-agent"
 - SQLite schema design for offline data and outbox tables
 - Connectivity detection and sync trigger strategies
 
+**Responsibilities — Bi-app Shared Feature Modules (spec 014)**:
+- For bi-app features, design the outbox-backed transport adapter that the desktop host injects into shared mutation hooks — keep the shared module agnostic while honoring offline-first.
+- Ensure that every shared mutation hook used in the desktop booth is wired to the outbox path (via IPC → main-process service → `electron/repositories/` + outbox), not to direct HTTP.
+- For shared list/read hooks used in the desktop booth, design the cache-aware path that reads from SQLite-backed cache when offline and hydrates from the NestJS API when online.
+- Expose desktop-only platform extension points (offline/sync badge, queued-write indicator) that the shared feature module accepts as optional slots; do not fork the shared module to add them.
+- IPC handlers and preload contracts for these transport adapters remain this agent's concern (renderer calls typed preload methods that resolve through main-process services).
+
 **Scope** (directories this agent covers):
 - `apps/desktop/electron/services/` — Business logic, SyncEngine, auto-updater
 - `apps/desktop/electron/repositories/` — SQLite data access (ONLY point of contact with SQLite)
@@ -71,6 +80,8 @@ escalates-to: "code-reviewer-agent"
 - When the user explicitly overrides a challenge, proceed with their decision without re-raising the same concern.
 - When the user's request is sound, proceed without unsolicited caveats or alternative suggestions.
 - Example challenge: Business logic placed in IPC handler → cite CLAUDE.md rule that IPC handlers delegate only.
+- Example challenge: A new component for a bi-app feature (visitors/residents/providers) is being added under `apps/desktop/src/features/` → cite CLAUDE.md § "Cross-App Shared Feature Modules" and spec 014; redirect to the shared feature-modules package and the host-owned transport adapter.
+- Example challenge: A shared mutation hook is being wired to direct HTTP in the desktop booth → cite Principle IV (offline-first); redirect to the outbox-backed transport adapter.
 - Example agree: Service follows established SyncEngine patterns → provide guidance directly.
 
 **Escalation**:

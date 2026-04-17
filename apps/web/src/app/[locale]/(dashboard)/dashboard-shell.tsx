@@ -7,6 +7,7 @@ import type { UserProfile } from "@ramcar/shared";
 import { AppSidebar } from "@/features/navigation";
 import { TopBar } from "@/features/navigation/components/top-bar";
 import { QueryProvider } from "@/shared/lib/query-provider";
+import { WebTransportProvider, WebI18nProvider, WebRoleProvider } from "@/shared/lib/features";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -17,6 +18,9 @@ export function DashboardShell({ children, userProfile }: DashboardShellProps) {
   return (
     <StoreProvider>
       <QueryProvider>
+        <WebTransportProvider>
+          <WebI18nProvider>
+            <WebRoleProvider>
         <AuthGate userProfile={userProfile}>
           <TooltipProvider>
             <SidebarProvider>
@@ -28,6 +32,9 @@ export function DashboardShell({ children, userProfile }: DashboardShellProps) {
             </SidebarProvider>
           </TooltipProvider>
         </AuthGate>
+            </WebRoleProvider>
+          </WebI18nProvider>
+        </WebTransportProvider>
         <Toaster />
       </QueryProvider>
     </StoreProvider>

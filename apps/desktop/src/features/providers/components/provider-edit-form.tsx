@@ -13,7 +13,7 @@ import {
 } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
 import type { UpdateVisitPersonInput } from "@ramcar/shared";
-import { VisitPersonStatusSelect } from "../../../shared/components/visit-person-status-select";
+import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
 import type { VisitPerson, VisitPersonStatus } from "../types";
 
 interface ProviderEditFormProps {
