@@ -1,0 +1,49 @@
+{
+  "name": "@ramcar/features",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./adapters": "./src/adapters/index.ts",
+    "./visitors": "./src/visitors/index.ts",
+    "./shared/image-capture": "./src/shared/image-capture/index.ts",
+    "./shared/vehicle-form": "./src/shared/vehicle-form/index.ts",
+    "./shared/visit-person-status-select": "./src/shared/visit-person-status-select/index.tsx",
+    "./shared/resident-select": "./src/shared/resident-select/index.tsx"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@ramcar/i18n": "workspace:*",
+    "@ramcar/shared": "workspace:*",
+    "@ramcar/store": "workspace:*",
+    "@ramcar/ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@ramcar/config": "workspace:*",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitest/coverage-v8": "^2.1.9",
+    "jsdom": "^29.0.2",
+    "lucide-react": "^1.7.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sonner": "^2.0.7",
+    "typescript": "^5.0.0",
+    "vitest": "^2.1.9"
+  }
+}

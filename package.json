@@ -24,7 +24,8 @@
     "db:new": "supabase migration new",
     "db:types": "dotenvx run -f .env.local -- supabase gen types typescript --local > packages/db-types/src/types.ts",
     "db:reset": "dotenvx run -f .env.local -- supabase db reset",
-    "prepare": "husky"
+    "prepare": "husky",
+    "check:shared-features": "tsx scripts/check-shared-features.ts"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -34,8 +35,10 @@
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.55.1",
     "eslint": "^10.2.0",
+    "glob": "^11.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "tsx": "^4.0.0",
     "turbo": "^2.8.17"
   },
   "pnpm": {

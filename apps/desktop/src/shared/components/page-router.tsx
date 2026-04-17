@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarInset, TooltipProvider, Toaster } from "@ramcar
 import { AppSidebar } from "../../features/navigation";
 import { TopBar } from "../../features/navigation/components/top-bar";
 import { QueryProvider } from "../lib/query-provider";
+import { DesktopTransportProvider, DesktopI18nProvider, DesktopRoleProvider } from "../lib/features";
 import { DashboardPage } from "../../features/dashboard/pages/dashboard-page";
 import { AccessLogVisitorsPage } from "../../features/access-log/pages/access-log-visitors-page";
 import { AccessLogProvidersPage } from "../../features/access-log/pages/access-log-providers-page";
@@ -12,7 +13,7 @@ import { AccessLogResidentsPage } from "../../features/access-log/pages/access-l
 import { PatrolsPage } from "../../features/patrols/pages/patrols-page";
 import { AccountPage } from "../../features/account/pages/account-page";
 import { ResidentsPage } from "../../features/residents/pages/residents-page";
-import { VisitorsPage } from "../../features/visitors/pages/visitors-page";
+import { VisitorsPage } from "../../pages/visitors-page";
 import { ProvidersPage } from "../../features/providers/pages/providers-page";
 
 const routes: Record<string, React.ComponentType> = {
@@ -58,6 +59,9 @@ export function PageRouter({ onLogout }: PageRouterProps) {
 
   return (
     <QueryProvider>
+      <DesktopTransportProvider>
+        <DesktopI18nProvider>
+          <DesktopRoleProvider>
       <TooltipProvider>
         <SidebarProvider>
           <AppSidebar onLogout={onLogout} />
@@ -70,6 +74,9 @@ export function PageRouter({ onLogout }: PageRouterProps) {
         </SidebarProvider>
       </TooltipProvider>
       <Toaster />
+          </DesktopRoleProvider>
+        </DesktopI18nProvider>
+      </DesktopTransportProvider>
     </QueryProvider>
   );
 }

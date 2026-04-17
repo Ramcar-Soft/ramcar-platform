@@ -15,6 +15,7 @@
     "test:cov": "vitest run --coverage"
   },
   "dependencies": {
+    "@ramcar/features": "workspace:*",
     "@ramcar/i18n": "workspace:*",
     "@ramcar/shared": "workspace:*",
     "@ramcar/store": "workspace:*",

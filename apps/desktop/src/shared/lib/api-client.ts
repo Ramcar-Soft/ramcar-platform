@@ -72,6 +72,17 @@ export const apiClient = {
     return handleResponse<T>(response);
   },
 
+  async put<T>(path: string, data?: unknown): Promise<T> {
+    const headers = await getAuthHeaders();
+    const url = buildUrl(path);
+    const response = await fetch(url, {
+      method: "PUT",
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    return handleResponse<T>(response);
+  },
+
   async patch<T>(path: string, data?: unknown): Promise<T> {
     const headers = await getAuthHeaders();
     const url = buildUrl(path);

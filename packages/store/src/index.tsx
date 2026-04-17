@@ -6,13 +6,15 @@ import { createAuthSlice, type AuthSlice } from "./slices/auth-slice";
 import { createSidebarSlice, type SidebarSlice } from "./slices/sidebar-slice";
 import { createThemeSlice, type ThemeSlice } from "./slices/theme-slice";
 import { createSyncSlice, type SyncSlice } from "./slices/sync-slice";
+import { createVisitorsSlice, type VisitorsSlice } from "./slices/visitors-slice";
 
 export type { AuthSlice } from "./slices/auth-slice";
 export type { SidebarSlice } from "./slices/sidebar-slice";
 export type { ThemeSlice, Theme } from "./slices/theme-slice";
 export type { SyncSlice, SyncStatus } from "./slices/sync-slice";
+export type { VisitorsSlice, VisitorsSidebarMode } from "./slices/visitors-slice";
 
-export interface AppState extends AuthSlice, SidebarSlice, ThemeSlice, SyncSlice {}
+export interface AppState extends AuthSlice, SidebarSlice, ThemeSlice, SyncSlice, VisitorsSlice {}
 
 export const createStore = () => {
   return createZustandStore<AppState>()((...args) => ({
@@ -20,6 +22,7 @@ export const createStore = () => {
     ...createSidebarSlice(...args),
     ...createThemeSlice(...args),
     ...createSyncSlice(...args),
+    ...createVisitorsSlice(...args),
   }));
 };
 

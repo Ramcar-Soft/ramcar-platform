@@ -11,12 +11,10 @@ import type {
   UpdateVisitPersonInput,
 } from "../types";
 import type { VisitPersonImage, ImageType } from "@ramcar/shared";
-import { RecentEventsList } from "../../visitors/components/recent-events-list";
-import { VisitPersonAccessEventForm } from "../../visitors/components/visit-person-access-event-form";
-import { ImageSection } from "../../visitors/components/image-section";
+import { RecentEventsList, VisitPersonAccessEventForm, ImageSection } from "@ramcar/features/visitors";
 import { ProviderForm } from "./provider-form";
 import { ProviderEditForm } from "./provider-edit-form";
-import { VehicleForm } from "../../../shared/components/vehicle-form/vehicle-form";
+import { VehicleForm } from "@ramcar/features/shared/vehicle-form";
 
 const statusVariantMap = {
   allowed: "default" as const,

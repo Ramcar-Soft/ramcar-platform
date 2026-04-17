@@ -1,0 +1,12 @@
+{
+  "$schema": "./specs/014-cross-app-code-sharing/contracts/shared-features-manifest.schema.json",
+  "features": [
+    {
+      "name": "visitors",
+      "migratedAt": "2026-04-17",
+      "package": "@ramcar/features/visitors",
+      "notes": "Pilot migration — spec 014. Includes all 10 components, 10 hooks, and shared primitives (image-capture, vehicle-form, visit-person-status-select, resident-select)."
+    }
+  ],
+  "allowList": []
+}

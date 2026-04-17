@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Input, Label, Separator, Textarea } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
 import type { ImageType } from "@ramcar/shared";
-import { VisitPersonStatusSelect } from "../../../shared/components/visit-person-status-select";
-import { ImageSection, type StagedImage } from "../../visitors/components/image-section";
+import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
+import { ImageSection, type StagedImage } from "@ramcar/features/visitors";
 import type { VisitPersonStatus } from "../types";
 
 interface ProviderFormData {

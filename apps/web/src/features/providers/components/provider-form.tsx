@@ -10,10 +10,10 @@ import {
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
 import type { ImageType } from "@ramcar/shared";
-import { ResidentSelect } from "@/shared/components/resident-select/resident-select";
-import { VisitPersonStatusSelect } from "@/shared/components/visit-person-status-select";
+import { ResidentSelect } from "@ramcar/features/shared/resident-select";
+import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
-import { ImageSection, type StagedImage } from "@/features/visitors/components/image-section";
+import { ImageSection, type StagedImage } from "@ramcar/features/visitors";
 import type { VisitPersonStatus } from "../types";
 
 interface ProviderFormData {
