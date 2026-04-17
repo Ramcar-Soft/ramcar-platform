@@ -183,6 +183,8 @@ Two-process architecture communicating ONLY via IPC.
 - PostgreSQL via Supabase (visit_persons, visit_person_images, vehicles, access_events), Supabase Storage private bucket (image files), SQLite (desktop offline cache) (011-visitor-provider-access)
 - TypeScript 5.x (strict mode across all workspaces), Node.js 22 LTS + Next.js 16 (App Router), NestJS v11, TanStack Query v5, @ramcar/ui (shadcn/ui: Sheet, Button, Input, Select, Textarea, Dialog), Zod, next-intl v4 (web), react-i18next (desktop), Electron 30 + Vite + React 18 (desktop), better-sqlite3 (desktop offline cache) (012-visit-person-edit)
 - PostgreSQL via Supabase — `visit_persons` and `visit_person_images` tables already exist; no schema changes. Desktop SQLite outbox — add `visit_person.update` operation kind. (012-visit-person-edit)
+- TypeScript 5.x (strict mode across the monorepo) + Next.js 16 (App Router) + next-intl v4 (web); Electron 30 + Vite + React 18 + react-i18next (desktop); NestJS v11 (API — unchanged); TanStack Query v5; shadcn/ui (Sheet, Button, Input, Select, Label, Skeleton) from `@ramcar/ui`; Zod via `@ramcar/shared` (unchanged schemas) (013-visitor-form-images)
+- PostgreSQL via Supabase — no schema changes. Supabase Storage private bucket — no bucket changes. SQLite/outbox (desktop) — not touched; creation remains online-only, matching current behavior. (013-visitor-form-images)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr

@@ -63,6 +63,7 @@ interface ProviderSidebarProps {
     status: VisitPersonStatus;
     residentId: string;
     notes: string;
+    stagedImages: Map<ImageType, File>;
   }) => Promise<void>;
   onSaveEdit?: (patch: UpdateVisitPersonInput) => void;
 }
@@ -123,6 +124,7 @@ export function ProviderSidebar({
               onSave={onCreatePerson}
               onCancel={onClose}
               isSaving={isCreating}
+              isUploadingStagedImages={isUploadingImage}
             />
           </div>
         ) : mode === "edit" && person && onSaveEdit ? (

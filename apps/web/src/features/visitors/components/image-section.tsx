@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   Select,
   SelectContent,
@@ -13,35 +14,75 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import type { ImageType, VisitPersonImage } from "@ramcar/shared";
 import { ImageGrid } from "@/shared/components/image-capture/image-grid";
-import { ImageUpload } from "@/shared/components/image-capture/image-upload";
+import {
+  ImageUpload,
+  type ImageUploadHandle,
+} from "@/shared/components/image-capture/image-upload";
 
 const IMAGE_TYPES: ImageType[] = ["face", "id_card", "vehicle_plate", "other"];
 
+export type StagedImage = { file: File; previewUrl: string };
+
 interface ImageSectionProps {
-  visitPersonId: string;
-  images: VisitPersonImage[] | undefined;
+  mode?: "create" | "edit" | "view";
+  visitPersonId?: string;
+  images?: VisitPersonImage[];
   isLoading: boolean;
-  onUpload: (params: { visitPersonId: string; file: File; imageType: ImageType }) => void;
+  onUpload?: (params: { visitPersonId: string; file: File; imageType: ImageType }) => void;
   isUploading: boolean;
+  stagedImages?: Map<ImageType, StagedImage>;
+  onStageImage?: (imageType: ImageType, file: File) => void;
+}
+
+function stagedToImages(staged: Map<ImageType, StagedImage>): VisitPersonImage[] {
+  const nowIso = new Date().toISOString();
+  return Array.from(staged.entries()).map(([imageType, { previewUrl }]) => ({
+    id: `staged-${imageType}`,
+    tenantId: "",
+    visitPersonId: "",
+    imageType,
+    storagePath: "",
+    signedUrl: previewUrl,
+    createdAt: nowIso,
+  }));
 }
 
 export function ImageSection({
+  mode = "edit",
   visitPersonId,
   images,
   isLoading,
   onUpload,
   isUploading,
+  stagedImages,
+  onStageImage,
 }: ImageSectionProps) {
   const t = useTranslations("images");
   const [selectedType, setSelectedType] = useState<ImageType>("face");
+  const uploadRef = useRef<ImageUploadHandle>(null);
+
+  const isCreateMode = mode === "create";
+  const gridImages = isCreateMode
+    ? stagedImages
+      ? stagedToImages(stagedImages)
+      : []
+    : (images ?? []);
 
   const handleUpload = (file: File, imageType: ImageType) => {
+    if (isCreateMode) {
+      onStageImage?.(imageType, file);
+      return;
+    }
+    if (!visitPersonId || !onUpload) return;
     onUpload({ visitPersonId, file, imageType });
     toast.info(t("uploadStarted"));
   };
 
   const handleReplace = (imageType: ImageType) => {
-    setSelectedType(imageType);
+    flushSync(() => {
+      setSelectedType(imageType);
+    });
+    uploadRef.current?.openFilePicker();
   };
 
   if (isLoading) {
@@ -50,10 +91,13 @@ export function ImageSection({
 
   return (
     <div className="space-y-3">
-      <h4 className="text-sm font-semibold">{t("title")}</h4>
+      <div className="space-y-1">
+        <h4 className="text-sm font-semibold">{t("title")}</h4>
+        <p className="text-xs text-muted-foreground">{t("selectTypeHint")}</p>
+      </div>
 
-      {images && images.length > 0 && (
-        <ImageGrid images={images} onReplace={handleReplace} />
+      {gridImages.length > 0 && (
+        <ImageGrid images={gridImages} onReplace={handleReplace} />
       )}
 
       <div className="flex items-end gap-2">
@@ -72,6 +116,7 @@ export function ImageSection({
           </Select>
         </div>
         <ImageUpload
+          ref={uploadRef}
           imageType={selectedType}
           onUpload={handleUpload}
           isUploading={isUploading}

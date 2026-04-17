@@ -1,5 +1,6 @@
 import { Button } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
+import { RefreshCw } from "lucide-react";
 import type { VisitPersonImage, ImageType } from "@ramcar/shared";
 
 interface ImageGridProps {
@@ -14,35 +15,43 @@ export function ImageGrid({ images, onReplace }: ImageGridProps) {
 
   return (
     <div className="grid grid-cols-2 gap-2">
-      {images.map((img) => (
-        <div key={img.id} className="relative group rounded-md overflow-hidden border">
-          {img.signedUrl ? (
-            <img
-              src={img.signedUrl}
-              alt={t(`images.types.${img.imageType}`)}
-              className="w-full h-24 object-cover"
-            />
-          ) : (
-            <div className="w-full h-24 bg-muted flex items-center justify-center text-xs text-muted-foreground">
-              {t(`images.types.${img.imageType}`)}
-            </div>
-          )}
-          <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-xs px-1 py-0.5 flex items-center justify-between">
-            <span>{t(`images.types.${img.imageType}`)}</span>
-            {onReplace && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 text-white hover:text-white/80 text-xs"
-                onClick={() => onReplace(img.imageType)}
-              >
-                {t("images.replace")}
-              </Button>
+      {images.map((img) => {
+        const typeLabel = t(`images.types.${img.imageType}`);
+        return (
+          <div
+            key={img.id}
+            className="relative group aspect-square rounded-md overflow-hidden border"
+          >
+            {img.signedUrl ? (
+              <img
+                src={img.signedUrl}
+                alt={typeLabel}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                {typeLabel}
+              </div>
             )}
+            <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-xs px-2 py-1 flex items-center justify-between gap-2">
+              <span className="truncate">{typeLabel}</span>
+              {onReplace && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={t("images.replaceAria", { type: typeLabel })}
+                  className="h-auto font-semibold text-white hover:text-white bg-white/15 hover:bg-white/25 backdrop-blur-sm px-2 py-0.5 rounded text-xs gap-1 focus-visible:ring-2 focus-visible:ring-white/70 outline-none"
+                  onClick={() => onReplace(img.imageType)}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  {t("images.replace")}
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

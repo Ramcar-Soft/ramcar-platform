@@ -303,7 +303,8 @@
       "save": "Save",
       "saving": "Saving...",
       "cancel": "Cancel",
-      "status": "Status"
+      "status": "Status",
+      "imagesSectionLabel": "Photos"
     },
     "edit": {
       "title": "Edit Visitor",
@@ -326,7 +327,8 @@
       "updated": "Visit person updated successfully",
       "eventCreated": "Access event logged successfully",
       "errorCreating": "Error registering visitor",
-      "errorUpdating": "Error updating record"
+      "errorUpdating": "Error updating record",
+      "imageUploadFailed": "{count} image(s) failed to upload. You can retry from the edit view."
     }
   },
   "providers": {
@@ -355,7 +357,8 @@
       "updated": "Provider updated successfully",
       "eventCreated": "Access event logged successfully",
       "errorCreating": "Error registering provider",
-      "errorUpdating": "Error updating provider"
+      "errorUpdating": "Error updating provider",
+      "imageUploadFailed": "{count} image(s) failed to upload. You can retry from the edit view."
     }
   },
   "images": {
@@ -363,7 +366,11 @@
     "upload": "Upload",
     "uploading": "Uploading...",
     "replace": "Replace",
+    "replaceAria": "Replace {type} image",
     "uploadStarted": "Upload started",
+    "invalidFile": "Invalid file: must be JPEG or PNG and under 5 MB.",
+    "selectTypeHint": "Select the type of image you want to upload or change.",
+    "stagedBadge": "Pending upload",
     "types": {
       "face": "Face",
       "id_card": "ID Card",

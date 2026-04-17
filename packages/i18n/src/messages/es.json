@@ -303,7 +303,8 @@
       "save": "Guardar",
       "saving": "Guardando...",
       "cancel": "Cancelar",
-      "status": "Estatus"
+      "status": "Estatus",
+      "imagesSectionLabel": "Fotos"
     },
     "edit": {
       "title": "Editar Visitante",
@@ -326,7 +327,8 @@
       "updated": "Registro actualizado exitosamente",
       "eventCreated": "Evento de acceso registrado exitosamente",
       "errorCreating": "Error al registrar visitante",
-      "errorUpdating": "Error al actualizar el registro"
+      "errorUpdating": "Error al actualizar el registro",
+      "imageUploadFailed": "{count} imagen(es) no se pudieron subir. Puedes reintentar desde la vista de edición."
     }
   },
   "providers": {
@@ -355,7 +357,8 @@
       "updated": "Proveedor actualizado exitosamente",
       "eventCreated": "Evento de acceso registrado exitosamente",
       "errorCreating": "Error al registrar proveedor",
-      "errorUpdating": "Error al actualizar proveedor"
+      "errorUpdating": "Error al actualizar proveedor",
+      "imageUploadFailed": "{count} imagen(es) no se pudieron subir. Puedes reintentar desde la vista de edición."
     }
   },
   "images": {
@@ -363,7 +366,11 @@
     "upload": "Subir",
     "uploading": "Subiendo...",
     "replace": "Reemplazar",
+    "replaceAria": "Reemplazar imagen de {type}",
     "uploadStarted": "Subida iniciada",
+    "invalidFile": "Archivo no válido: debe ser JPEG o PNG y pesar menos de 5 MB.",
+    "selectTypeHint": "Selecciona el tipo de imagen que deseas subir o cambiar.",
+    "stagedBadge": "Pendiente por subir",
     "types": {
       "face": "Rostro",
       "id_card": "Identificación",

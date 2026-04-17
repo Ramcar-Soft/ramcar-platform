@@ -36,7 +36,13 @@ interface VisitPersonSidebarProps {
   isUploadingImage?: boolean;
   onClose: () => void;
   onSave: (data: { direction: Direction; accessMode: AccessMode; vehicleId?: string; notes: string }) => Promise<void>;
-  onCreatePerson: (data: { fullName: string; status: VisitPersonStatus; residentId: string; notes: string }) => Promise<void>;
+  onCreatePerson: (data: {
+    fullName: string;
+    status: VisitPersonStatus;
+    residentId: string;
+    notes: string;
+    stagedImages: Map<ImageType, File>;
+  }) => Promise<void>;
   onSaveEdit?: (patch: UpdateVisitPersonInput) => void;
 }
 
@@ -71,7 +77,12 @@ export function VisitPersonSidebar({
 
         {mode === "create" ? (
           <div className="mt-6">
-            <VisitPersonForm onSave={onCreatePerson} onCancel={onClose} isSaving={isCreating} />
+            <VisitPersonForm
+              onSave={onCreatePerson}
+              onCancel={onClose}
+              isSaving={isCreating}
+              isUploadingStagedImages={isUploadingImage}
+            />
           </div>
         ) : mode === "edit" && person && onSaveEdit ? (
           <div className="mt-6 space-y-6">

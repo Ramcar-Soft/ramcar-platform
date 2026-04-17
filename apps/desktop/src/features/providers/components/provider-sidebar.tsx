@@ -41,7 +41,15 @@ interface ProviderSidebarProps {
   isUploadingImage?: boolean;
   onClose: () => void;
   onSave: (data: { direction: Direction; accessMode: AccessMode; vehicleId?: string; notes: string }) => Promise<void>;
-  onCreatePerson: (data: { fullName: string; phone: string; company: string; status: VisitPersonStatus; residentId: string; notes: string }) => Promise<void>;
+  onCreatePerson: (data: {
+    fullName: string;
+    phone: string;
+    company: string;
+    status: VisitPersonStatus;
+    residentId: string;
+    notes: string;
+    stagedImages: Map<ImageType, File>;
+  }) => Promise<void>;
   onSaveEdit?: (patch: UpdateVisitPersonInput) => void;
 }
 
@@ -76,7 +84,12 @@ export function ProviderSidebar({
 
         {mode === "create" ? (
           <div className="mt-6">
-            <ProviderForm onSave={onCreatePerson} onCancel={onClose} isSaving={isCreating} />
+            <ProviderForm
+              onSave={onCreatePerson}
+              onCancel={onClose}
+              isSaving={isCreating}
+              isUploadingStagedImages={isUploadingImage}
+            />
           </div>
         ) : mode === "edit" && person && onSaveEdit ? (
           <div className="mt-6 space-y-6">
