@@ -189,6 +189,31 @@ Features that exist in BOTH `apps/web` and `apps/desktop` (today: `visitors`, `r
 - TypeScript: strict mode, extends shared tsconfigs from `@ramcar/config`
 - Next.js apps override `jsx: "preserve"` (Next.js handles JSX transformation)
 
+## UI Patterns (NON-NEGOTIABLE)
+
+### Create / Edit forms — right-side Sheet, never a dedicated page
+
+All catalog create and edit flows MUST use a right-side `Sheet` (`@ramcar/ui`) — **never** a dedicated `/new` or `/[id]/edit` route.
+
+**Rules:**
+- No `app/[locale]/(dashboard)/[catalog]/new/page.tsx` or `[id]/edit/page.tsx` files. Dedicated page routes for create/edit are prohibited.
+- Every catalog feature exposes a `[Domain]Sidebar` component in `features/[domain]/components/[domain]-sidebar.tsx` that wraps the form in a `Sheet`.
+- The parent list/table component owns the sidebar state: `sidebarOpen: boolean`, `sidebarMode: "create" | "edit"`, `selectedId: string | undefined`.
+- `useKeyboardNavigation` must receive `disabled: sidebarOpen` so arrow-key table navigation pauses while the Sheet is open.
+- i18n keys for Sheet titles follow `[domain].sidebar.createTitle` / `[domain].sidebar.editTitle` in `@ramcar/i18n`.
+- The `[Domain]Sidebar` component prop contract: `{ open: boolean; mode: "create" | "edit"; [entityId]?: string; onClose: () => void }`.
+- `useGetUser` / equivalent fetch hooks inside the sidebar must gate on `enabled: Boolean(open && mode === "edit" && entityId)` — no fetch when `open === false`.
+- Sheet width: `w-[400px] sm:w-[800px] sm:max-w-[800px] overflow-y-auto`.
+- `tw-animate-css` must be installed so Sheet slide/fade animations work (already present in the repo).
+
+**Reference implementations:** `apps/web/src/features/users/components/user-sidebar.tsx` (spec 015), `packages/features/src/visitors/components/visit-person-sidebar.tsx` (spec 011/014).
+
+**Red-flag checklist (reject at review):**
+- A new `/new/page.tsx` or `/[id]/edit/page.tsx` added under any catalog route.
+- A `[Domain]PageClient` wrapper component that navigates to a standalone form page.
+- `router.push(…/new)` or `router.push(…/[id]/edit)` calls inside a catalog table/list component.
+- A `[Domain]Sidebar` that does NOT pass `disabled: sidebarOpen` to `useKeyboardNavigation`.
+
 ## Adding New Features
 
 **First decide: is this a bi-app feature (portal AND booth) or single-app?**
@@ -232,6 +257,8 @@ Features that exist in BOTH `apps/web` and `apps/desktop` (today: `visitors`, `r
 - TypeScript 5.x (strict mode across the monorepo) + Next.js 16 (App Router) + next-intl v4 (web); Electron 30 + Vite + React 18 + react-i18next (desktop); NestJS v11 (API — unchanged); TanStack Query v5; shadcn/ui (Sheet, Button, Input, Select, Label, Skeleton) from `@ramcar/ui`; Zod via `@ramcar/shared` (unchanged schemas) (013-visitor-form-images)
 - PostgreSQL via Supabase — no schema changes. Supabase Storage private bucket — no bucket changes. SQLite/outbox (desktop) — not touched; creation remains online-only, matching current behavior. (013-visitor-form-images)
 - TypeScript 5.x (strict mode across the monorepo), Node.js 22 LTS (014-cross-app-code-sharing)
+- TypeScript 5.x (strict mode), Node.js 22 LTS + Next.js 16 (App Router, web), `@ramcar/ui` (shadcn/ui `Sheet`, `SheetContent`, `SheetHeader`, `SheetTitle`, `SheetDescription`), TanStack Query v5, Zustand (via `@ramcar/store`), next-intl v4, `@ramcar/shared` (Zod DTOs for `CreateUserInput` / `UpdateUserInput` / `ExtendedUserProfile`), Tailwind CSS 4, `tw-animate-css` (already installed on the current branch to restore Sheet slide/fade — a prerequisite for this work) (015-users-form-sidebar)
+- N/A — no schema changes, no new queries. Existing `/api/users` endpoints are reused verbatim. (015-users-form-sidebar)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr

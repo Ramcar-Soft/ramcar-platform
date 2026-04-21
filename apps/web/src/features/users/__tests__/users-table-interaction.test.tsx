@@ -6,9 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ExtendedUserProfile } from "../types";
 import type { PaginatedResponse } from "@ramcar/shared";
 
-const mockRouterPush = vi.fn();
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockRouterPush }),
+  useRouter: () => ({}),
 }));
 
 vi.mock("next-intl", () => ({
@@ -48,6 +47,21 @@ vi.mock("../hooks/use-users", () => ({
 vi.mock("../hooks/use-tenants", () => ({
   useTenants: () => ({ data: [] }),
 }));
+vi.mock("../hooks/use-user-groups", () => ({
+  useUserGroups: () => ({ data: [], isLoading: false }),
+}));
+vi.mock("../hooks/use-get-user", () => ({
+  useGetUser: () => ({ data: undefined, isLoading: false, isError: false, isFetching: false }),
+}));
+vi.mock("../hooks/use-create-user", () => ({
+  useCreateUser: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+vi.mock("../hooks/use-update-user", () => ({
+  useUpdateUser: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+vi.mock("@/shared/hooks/use-form-persistence", () => ({
+  useFormPersistence: () => ({ wasRestored: false, discardDraft: vi.fn(), clearDraft: vi.fn() }),
+}));
 
 vi.mock("@ramcar/store", () => ({
   useAppStore: (selector: (s: unknown) => unknown) =>
@@ -65,13 +79,12 @@ function renderWithClient(ui: React.ReactElement) {
 
 describe("UsersTable interaction", () => {
   beforeEach(() => {
-    mockRouterPush.mockReset();
     cleanup();
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
   });
 
   it("renders inactive rows with opacity-60", () => {
-    renderWithClient(<UsersTable locale="en" />);
+    renderWithClient(<UsersTable />);
     const bob = screen.getByText("Bob").closest("tr")!;
     expect(bob.className).toMatch(/opacity-60/);
     const alice = screen.getByText("Alice").closest("tr")!;
@@ -79,7 +92,7 @@ describe("UsersTable interaction", () => {
   });
 
   it("ArrowDown highlights the first row, ArrowDown again highlights the second", () => {
-    renderWithClient(<UsersTable locale="en" />);
+    renderWithClient(<UsersTable />);
     act(() => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
     });
@@ -92,19 +105,20 @@ describe("UsersTable interaction", () => {
     expect(second.getAttribute("aria-selected")).toBe("true");
   });
 
-  it("Enter on a highlighted editable row navigates to the edit route", () => {
-    renderWithClient(<UsersTable locale="en" />);
+  it("Enter on a highlighted editable row opens the edit Sheet", () => {
+    renderWithClient(<UsersTable />);
     act(() => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
     });
     act(() => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     });
-    expect(mockRouterPush).toHaveBeenCalledWith("/en/catalogs/users/p1/edit");
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "sidebar.editTitle" })).toBeTruthy();
   });
 
   it("Enter on a non-editable row is a no-op", () => {
-    renderWithClient(<UsersTable locale="en" />);
+    renderWithClient(<UsersTable />);
     act(() => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
@@ -115,28 +129,48 @@ describe("UsersTable interaction", () => {
     act(() => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     });
-    expect(mockRouterPush).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("clicking an editable row navigates to the edit route", () => {
-    renderWithClient(<UsersTable locale="en" />);
+  it("clicking an editable row opens the edit Sheet", () => {
+    renderWithClient(<UsersTable />);
     fireEvent.click(screen.getByText("Alice").closest("tr")!);
-    expect(mockRouterPush).toHaveBeenCalledWith("/en/catalogs/users/p1/edit");
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "sidebar.editTitle" })).toBeTruthy();
   });
 
-  it("clicking a non-editable row does not navigate", () => {
-    renderWithClient(<UsersTable locale="en" />);
+  it("clicking a non-editable row does not open the Sheet", () => {
+    renderWithClient(<UsersTable />);
     fireEvent.click(screen.getByText("Carol").closest("tr")!);
-    expect(mockRouterPush).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("pressing B focuses the search input when no input is focused", () => {
-    renderWithClient(<UsersTable locale="en" />);
+    renderWithClient(<UsersTable />);
     const search = screen.getByPlaceholderText("searchPlaceholder") as HTMLInputElement;
     expect(document.activeElement).not.toBe(search);
     act(() => {
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "b", bubbles: true }));
     });
     expect(document.activeElement).toBe(search);
+  });
+
+  it("ArrowDown does not change highlighted row while Sheet is open (T025)", () => {
+    renderWithClient(<UsersTable />);
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    });
+    const first = screen.getByText("Alice").closest("tr")!;
+    expect(first.getAttribute("aria-selected")).toBe("true");
+
+    fireEvent.click(screen.getByText("Alice").closest("tr")!);
+    expect(screen.getByRole("dialog")).toBeTruthy();
+
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    });
+    expect(first.getAttribute("aria-selected")).toBe("true");
+    const second = screen.getByText("Bob").closest("tr")!;
+    expect(second.getAttribute("aria-selected")).not.toBe("true");
   });
 });
