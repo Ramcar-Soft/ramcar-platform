@@ -6,7 +6,7 @@ import { useResidents } from "../hooks/use-residents";
 import { useRecentAccessEvents } from "../hooks/use-recent-access-events";
 import { useCreateAccessEvent } from "../hooks/use-create-access-event";
 import { useResidentVehicles } from "../hooks/use-resident-vehicles";
-import { useKeyboardNavigation } from "../hooks/use-keyboard-navigation";
+import { useKeyboardNavigation } from "@ramcar/features";
 import { ResidentsTable } from "./residents-table";
 import { AccessEventSidebar } from "./access-event-sidebar";
 
@@ -46,13 +46,13 @@ export function ResidentsPageClient() {
 
   const createAccessEvent = useCreateAccessEvent();
 
-  useKeyboardNavigation({
+  useKeyboardNavigation<ExtendedUserProfile>({
     searchInputRef,
-    sidebarOpen,
-    residents: data?.data,
+    disabled: sidebarOpen,
+    items: data?.data,
     highlightedIndex,
     setHighlightedIndex,
-    onSelectResident: (resident) => {
+    onSelectItem: (resident) => {
       setSelectedResident(resident);
       setSidebarOpen(true);
       setSearch("");

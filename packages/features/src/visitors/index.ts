@@ -17,7 +17,6 @@ export { useVisitPersonVehicles } from "./hooks/use-visit-person-vehicles";
 export { useRecentVisitPersonEvents } from "./hooks/use-recent-visit-person-events";
 export { useCreateAccessEvent } from "./hooks/use-create-access-event";
 export { useUpdateAccessEvent } from "./hooks/use-update-access-event";
-export { useKeyboardNavigation } from "./hooks/use-keyboard-navigation";
 
 export type {
   VisitPerson,

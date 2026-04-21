@@ -18,7 +18,7 @@ import { useUpdateVisitPerson } from "../hooks/use-update-visit-person";
 import { useVisitPersonVehicles } from "../hooks/use-visit-person-vehicles";
 import { useVisitPersonImages } from "../hooks/use-visit-person-images";
 import { useUploadVisitPersonImage } from "../hooks/use-upload-visit-person-image";
-import { useKeyboardNavigation } from "../hooks/use-keyboard-navigation";
+import { useKeyboardNavigation } from "@ramcar/features";
 import { ProvidersTable } from "./providers-table";
 import { ProviderSidebar } from "./provider-sidebar";
 
@@ -78,13 +78,13 @@ export function ProvidersPageClient() {
     setHighlightedIndex(-1);
   }, []);
 
-  useKeyboardNavigation({
+  useKeyboardNavigation<VisitPerson>({
     searchInputRef,
-    sidebarOpen,
-    persons: data?.data,
+    disabled: sidebarOpen,
+    items: data?.data,
     highlightedIndex,
     setHighlightedIndex,
-    onSelectPerson: handleSelectPerson,
+    onSelectItem: handleSelectPerson,
   });
 
   const handleRegisterNew = useCallback(() => {

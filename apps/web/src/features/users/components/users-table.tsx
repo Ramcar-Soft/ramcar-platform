@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   Button,
   Table,
@@ -10,11 +10,13 @@ import {
   TableHeader,
   TableRow,
   Skeleton,
+  cn,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
 import { useAppStore } from "@ramcar/store";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useKeyboardNavigation } from "@ramcar/features";
 import type { UserFilters } from "../types";
 import { useUsers } from "../hooks/use-users";
 import { useTenants } from "../hooks/use-tenants";
@@ -34,13 +36,16 @@ export function UsersTable({ locale }: UsersTableProps) {
   const isSuperAdmin = user?.role === "super_admin";
   const { data: tenants } = useTenants();
 
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const highlightedRowRef = useRef<HTMLTableRowElement>(null);
+
   const [filters, setFilters] = useState<UserFilters>({
     page: 1,
     pageSize: 10,
     sortBy: "full_name",
     sortOrder: "asc",
   });
-
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [statusDialogUser, setStatusDialogUser] =
     useState<ExtendedUserProfile | null>(null);
 
@@ -74,6 +79,30 @@ export function UsersTable({ locale }: UsersTableProps) {
     setStatusDialogUser(u);
   }, []);
 
+  const handleSelectItem = useCallback(
+    (u: ExtendedUserProfile) => {
+      if (u.canEdit) handleEdit(u);
+    },
+    [handleEdit],
+  );
+
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [filters, data?.data]);
+
+  useEffect(() => {
+    highlightedRowRef.current?.scrollIntoView({ block: "nearest" });
+  }, [highlightedIndex]);
+
+  useKeyboardNavigation<ExtendedUserProfile>({
+    searchInputRef,
+    disabled: !!statusDialogUser,
+    items: data?.data,
+    highlightedIndex,
+    setHighlightedIndex,
+    onSelectItem: handleSelectItem,
+  });
+
   const columns = getUserColumns({
     t,
     onEdit: handleEdit,
@@ -95,6 +124,7 @@ export function UsersTable({ locale }: UsersTableProps) {
       </div>
 
       <UserFiltersBar
+        ref={searchInputRef}
         filters={filters}
         onFiltersChange={handleFiltersChange}
         tenants={isSuperAdmin ? tenants : undefined}
@@ -147,10 +177,32 @@ export function UsersTable({ locale }: UsersTableProps) {
                 </TableCell>
               </TableRow>
             ) : (
-              data?.data.map((u) => (
-                <TableRow key={u.id}>
+              data?.data.map((u, index) => (
+                <TableRow
+                  key={u.id}
+                  ref={index === highlightedIndex ? highlightedRowRef : null}
+                  className={cn(
+                    "transition-colors",
+                    u.canEdit && "cursor-pointer",
+                    index === highlightedIndex && "bg-accent",
+                    u.status === "inactive" && "opacity-60",
+                  )}
+                  aria-selected={index === highlightedIndex}
+                  onClick={() => {
+                    if (u.canEdit) handleEdit(u);
+                  }}
+                >
                   {columns.map((col) => (
-                    <TableCell key={col.key}>{col.render(u)}</TableCell>
+                    <TableCell
+                      key={col.key}
+                      onClick={
+                        col.key === "actions"
+                          ? (e) => e.stopPropagation()
+                          : undefined
+                      }
+                    >
+                      {col.render(u)}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
