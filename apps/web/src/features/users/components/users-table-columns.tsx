@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@ramcar/ui";
+import { UserStatusBadge } from "./user-status-badge";
 import { MoreHorizontal, ArrowUpDown } from "lucide-react";
 import type { ExtendedUserProfile } from "../types";
 
@@ -48,6 +49,12 @@ export function getUserColumns({ t, onEdit, onToggleStatus }: GetColumnsOptions)
       key: "phone",
       header: t("columns.phone"),
       render: (r) => r.phone ? <a className="text-blue-700 underline" href={`tel:${r.phone}`}>{r.phone}</a> : "—",
+    },
+    {
+      key: "status",
+      header: t("columns.status"),
+      sortable: true,
+      render: (user) => <UserStatusBadge status={user.status} />,
     },
     {
       key: "user_groups",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Button,
   Input,
@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
   Textarea,
-  Checkbox,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
@@ -84,7 +83,7 @@ export function UserForm({
     ? `user-edit-${initialData?.id}`
     : "user-create";
 
-  const { wasRestored, discardDraft, clearDraft } = useFormPersistence(
+  const { discardDraft, clearDraft } = useFormPersistence(
     persistenceKey,
     formData as unknown as Record<string, unknown>,
     {
@@ -93,14 +92,6 @@ export function UserForm({
       excludeFields: ["password", "confirmPassword"],
     },
   );
-
-  const tCommon = useTranslations("common");
-
-  useEffect(() => {
-    if (wasRestored) {
-      console.log(tCommon("draftRestored", { time: "" }));
-    }
-  }, [wasRestored, tCommon, discardDraft]);
 
   const updateField = <K extends keyof UserFormData>(
     key: K,
@@ -143,28 +134,24 @@ export function UserForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    const submitData = { ...formData };
+    const submitData: Partial<UserFormData> = { ...formData };
     if (isEdit || !submitData.password) {
       delete submitData.password;
       delete submitData.confirmPassword;
     }
+    if (roleLocked) {
+      delete submitData.role;
+    }
     try {
-      await onSubmit(submitData);
+      await onSubmit(submitData as UserFormData);
       clearDraft();
     } catch {
       // Submission failed — keep draft for recovery
     }
   };
 
-  const toggleUserGroup = (groupId: string) => {
-    updateField(
-      "userGroupIds",
-      formData.userGroupIds.includes(groupId)
-        ? formData.userGroupIds.filter((id) => id !== groupId)
-        : [...formData.userGroupIds, groupId],
-    );
-  };
-
+  const isSelf = mode === "edit" && initialData?.userId === currentUser?.userId;
+  const roleLocked = isSelf && actorRole === "admin";
   const isSuperAdmin = actorRole === "super_admin";
 
   return (
@@ -202,6 +189,7 @@ export function UserForm({
           <Select
             value={formData.role}
             onValueChange={(v) => updateField("role", v)}
+            disabled={roleLocked}
           >
             <SelectTrigger aria-invalid={!!errors.role}>
               <SelectValue placeholder={t("form.selectRole")} />
@@ -214,6 +202,11 @@ export function UserForm({
               ))}
             </SelectContent>
           </Select>
+          {roleLocked && (
+            <p className="text-xs text-muted-foreground">
+              {t("form.roleLockedSelf")}
+            </p>
+          )}
           {errors.role && (
             <p className="text-sm text-destructive">{errors.role}</p>
           )}
@@ -348,21 +341,25 @@ export function UserForm({
       </div>
 
       <div className="space-y-2">
-        <Label>{t("form.userGroups")}</Label>
-        <div className="flex flex-wrap gap-3">
-          {userGroups.map((group) => (
-            <label
-              key={group.id}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <Checkbox
-                checked={formData.userGroupIds.includes(group.id)}
-                onCheckedChange={() => toggleUserGroup(group.id)}
-              />
-              <span className="text-sm">{group.name}</span>
-            </label>
-          ))}
-        </div>
+        <Label>{t("form.userGroup")}</Label>
+        <Select
+          value={formData.userGroupIds[0] ?? "none"}
+          onValueChange={(v) =>
+            updateField("userGroupIds", v === "none" ? [] : [v])
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={t("form.selectUserGroup")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{t("form.noUserGroup")}</SelectItem>
+            {userGroups.map((group) => (
+              <SelectItem key={group.id} value={group.id}>
+                {group.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">

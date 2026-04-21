@@ -15,7 +15,7 @@ vi.mock("../hooks/use-create-access-event", () => ({ useCreateAccessEvent: () =>
 vi.mock("../hooks/use-create-visit-person", () => ({ useCreateVisitPerson: () => ({ mutateAsync: vi.fn(), isPending: false }) }));
 vi.mock("../hooks/use-update-visit-person", () => ({ useUpdateVisitPerson: () => ({ mutate: vi.fn(), isPending: false }) }));
 vi.mock("../hooks/use-upload-visit-person-image", () => ({ useUploadVisitPersonImage: () => ({ mutate: vi.fn(), isPending: false }) }));
-vi.mock("../hooks/use-keyboard-navigation", () => ({ useKeyboardNavigation: () => {} }));
+vi.mock("../../shared/hooks/use-keyboard-navigation", () => ({ useKeyboardNavigation: () => {} }));
 
 describe("VisitorsView slot props", () => {
   it("renders topRightSlot when provided", () => {
