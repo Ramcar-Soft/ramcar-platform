@@ -15,7 +15,6 @@ import {
 import { useTranslations } from "next-intl";
 import { useAppStore } from "@ramcar/store";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useKeyboardNavigation } from "@ramcar/features";
 import type { UserFilters } from "../types";
 import { useUsers } from "../hooks/use-users";
@@ -23,15 +22,11 @@ import { useTenants } from "../hooks/use-tenants";
 import { UserFiltersBar } from "./user-filters";
 import { getUserColumns, SortableHeader } from "./users-table-columns";
 import { ConfirmStatusDialog } from "./confirm-status-dialog";
+import { UserSidebar } from "./user-sidebar";
 import type { ExtendedUserProfile } from "../types";
 
-interface UsersTableProps {
-  locale: string;
-}
-
-export function UsersTable({ locale }: UsersTableProps) {
+export function UsersTable() {
   const t = useTranslations("users");
-  const router = useRouter();
   const user = useAppStore((s) => s.user);
   const isSuperAdmin = user?.role === "super_admin";
   const { data: tenants } = useTenants();
@@ -48,6 +43,10 @@ export function UsersTable({ locale }: UsersTableProps) {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [statusDialogUser, setStatusDialogUser] =
     useState<ExtendedUserProfile | null>(null);
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarMode, setSidebarMode] = useState<"create" | "edit">("create");
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(undefined);
 
   const { data, isLoading, isError } = useUsers(filters);
 
@@ -70,9 +69,11 @@ export function UsersTable({ locale }: UsersTableProps) {
 
   const handleEdit = useCallback(
     (u: ExtendedUserProfile) => {
-      router.push(`/${locale}/catalogs/users/${u.id}/edit`);
+      setSelectedUserId(u.id);
+      setSidebarMode("edit");
+      setSidebarOpen(true);
     },
-    [router, locale],
+    [],
   );
 
   const handleToggleStatus = useCallback((u: ExtendedUserProfile) => {
@@ -96,7 +97,7 @@ export function UsersTable({ locale }: UsersTableProps) {
 
   useKeyboardNavigation<ExtendedUserProfile>({
     searchInputRef,
-    disabled: !!statusDialogUser,
+    disabled: !!statusDialogUser || sidebarOpen,
     items: data?.data,
     highlightedIndex,
     setHighlightedIndex,
@@ -116,7 +117,13 @@ export function UsersTable({ locale }: UsersTableProps) {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         {(user?.role === "super_admin" || user?.role === "admin") && (
-          <Button onClick={() => router.push(`/${locale}/catalogs/users/new`)}>
+          <Button
+            onClick={() => {
+              setSelectedUserId(undefined);
+              setSidebarMode("create");
+              setSidebarOpen(true);
+            }}
+          >
             <Plus className="mr-2 h-4 w-4" />
             {t("createUser")}
           </Button>
@@ -244,6 +251,13 @@ export function UsersTable({ locale }: UsersTableProps) {
       <ConfirmStatusDialog
         user={statusDialogUser}
         onClose={() => setStatusDialogUser(null)}
+      />
+
+      <UserSidebar
+        open={sidebarOpen}
+        mode={sidebarMode}
+        userId={selectedUserId}
+        onClose={() => setSidebarOpen(false)}
       />
     </div>
   );

@@ -373,7 +373,7 @@ export function UserForm({
       </div>
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending} className="flex-1">
           {isPending
             ? mode === "create"
               ? t("form.creating")
@@ -383,6 +383,7 @@ export function UserForm({
               : t("form.save")}
         </Button>
         <Button
+          className="flex-1"
           type="button"
           variant="outline"
           onClick={() => {

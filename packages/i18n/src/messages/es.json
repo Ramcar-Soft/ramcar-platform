@@ -167,6 +167,10 @@
       "showing": "Mostrando {from} a {to} de {total}",
       "page": "Página {page} de {totalPages}"
     },
+    "sidebar": {
+      "createTitle": "Crear Usuario",
+      "editTitle": "Editar Usuario"
+    },
     "empty": "No se encontraron usuarios",
     "errorLoading": "Error al cargar usuarios. Por favor, intenta de nuevo."
   },
