@@ -270,7 +270,7 @@ export function ColorSelect({
           className="w-[--radix-popover-trigger-width] p-0"
         >
           <Command
-            filter={(itemValue, searchTerm) => {
+            filter={(itemValue: string, searchTerm: string) => {
               const needle = normalizeSearch(searchTerm);
               return itemValue.includes(needle) ? 1 : 0;
             }}
