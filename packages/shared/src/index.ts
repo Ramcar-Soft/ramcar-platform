@@ -36,7 +36,11 @@ export type {
   PersonType,
   AccessEventSource,
   AccessEvent,
+  AccessEventListItem,
+  AccessEventListResponse,
+  LogbookLocale,
 } from "./types/access-event";
+export { LOGBOOK_CSV_LABELS } from "./types/access-event";
 export type {
   VisitPersonType,
   VisitPersonStatus,
@@ -54,9 +58,13 @@ export {
   createAccessEventSchema,
   updateAccessEventSchema,
   residentFiltersSchema,
+  accessEventListQuerySchema,
+  accessEventExportQuerySchema,
   type CreateAccessEventInput,
   type UpdateAccessEventInput,
   type ResidentFiltersInput,
+  type AccessEventListQueryInput,
+  type AccessEventExportQueryInput,
 } from "./validators/access-event";
 export {
   createVisitPersonSchema,

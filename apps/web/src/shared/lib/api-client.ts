@@ -121,4 +121,27 @@ export const apiClient = {
     });
     return handleResponse<T>(response);
   },
+
+  async download(path: string, options?: { params?: Record<string, unknown> }): Promise<{ blob: Blob; filename: string }> {
+    const headers = await getAuthHeaders();
+    const url = buildUrl(path, options?.params);
+    const response = await fetch(url, { method: "GET", headers });
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({ message: response.statusText }));
+      throw new ApiError(body.message ?? response.statusText, response.status, body);
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.startsWith("text/csv")) {
+      throw new ApiError("Unexpected response format", response.status, null);
+    }
+
+    const disposition = response.headers.get("content-disposition") ?? "";
+    const match = /filename="([^"]+)"/i.exec(disposition);
+    const filename = match?.[1] ?? "export.csv";
+
+    const blob = await response.blob();
+    return { blob, filename };
+  },
 };

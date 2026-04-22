@@ -194,7 +194,8 @@
       "empty": "No residents found",
       "loading": "Loading residents…",
       "error": "Failed to load residents",
-      "ariaLabel": "Select resident"
+      "ariaLabel": "Select resident",
+      "clear": "Clear selection"
     }
   },
   "accessEvents": {
@@ -533,5 +534,96 @@
     "error": "Sync error",
     "offline": "Offline",
     "pending": "{count} pending"
+  },
+  "logbook": {
+    "title": "Access Log",
+    "tabs": {
+      "visitors": "Visitors",
+      "providers": "Providers",
+      "residents": "Residents"
+    },
+    "toolbar": {
+      "search": {
+        "placeholder": "Search by name, plate, notes…",
+        "ariaLabel": "Search access log",
+        "clear": "Clear search"
+      },
+      "dateRange": {
+        "trigger": "Date range",
+        "apply": "Apply",
+        "cancel": "Cancel",
+        "invalidRange": "End date must be on or after start date"
+      },
+      "tenantSelect": {
+        "placeholder": "Select tenant",
+        "allOption": "All tenants"
+      },
+      "resident": {
+        "placeholder": "Filter by resident"
+      }
+    },
+    "presets": {
+      "today": "Today",
+      "last_7d": "Last 7 days",
+      "last_30d": "Last 30 days",
+      "last_90d": "Last 3 months",
+      "custom": "Custom range"
+    },
+    "columns": {
+      "tenant": "Tenant",
+      "code": "Code",
+      "name": "Name",
+      "company": "Company",
+      "residentVisited": "Resident visited",
+      "direction": "Direction",
+      "vehicle": "Vehicle",
+      "status": "Status",
+      "registeredBy": "Registered by",
+      "date": "Date",
+      "unit": "Unit",
+      "mode": "Mode"
+    },
+    "direction": {
+      "entry": "Entry",
+      "exit": "Exit"
+    },
+    "mode": {
+      "vehicle": "Vehicle",
+      "pedestrian": "Pedestrian"
+    },
+    "status": {
+      "allowed": "Allowed",
+      "flagged": "Flagged",
+      "denied": "Denied"
+    },
+    "empty": {
+      "title": "No records found",
+      "description": "Try adjusting the filters or date range."
+    },
+    "error": {
+      "title": "Failed to load records",
+      "retry": "Retry"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "indicator": "{page} / {totalPages}",
+      "pageSize": "Rows per page"
+    },
+    "export": {
+      "menu": {
+        "trigger": "Export",
+        "current": "Export current view",
+        "all": "Export all…"
+      },
+      "allTitle": "Export all records",
+      "allDescription": "Select a date range to export all matching records as a CSV file.",
+      "allRequireRange": "Please select a date range before exporting.",
+      "submit": "Export",
+      "cancel": "Cancel",
+      "generating": "Generating…",
+      "error": "Export failed. Please try again.",
+      "noRows": "No rows to export"
+    }
   }
 }

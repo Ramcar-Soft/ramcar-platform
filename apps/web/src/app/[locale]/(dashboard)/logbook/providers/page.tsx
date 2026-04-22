@@ -1,11 +1,13 @@
-import { getTranslations } from "next-intl/server";
+"use client";
 
-export default async function LogbookProvidersPage() {
-  const t = await getTranslations("sidebar");
+import { useLocale, useTranslations } from "next-intl";
+import { LogbookSubpage } from "@/features/logbook";
+import { getProvidersColumns } from "@/features/logbook/components/providers-columns";
 
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-semibold text-foreground">{t("logbook_providers")}</h1>
-    </main>
-  );
+export default function LogbookProvidersPage() {
+  const t = useTranslations("logbook");
+  const locale = useLocale();
+  const columns = getProvidersColumns((key) => t(key), locale);
+
+  return <LogbookSubpage personType="service_provider" columns={columns} />;
 }

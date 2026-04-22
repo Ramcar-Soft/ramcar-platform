@@ -263,6 +263,7 @@ All catalog create and edit flows MUST use a right-side `Sheet` (`@ramcar/ui`) �
 - N/A — presentation-only change. Vehicles continue to persist `color` as hex or legacy text through the existing API/DB path; nothing on the data layer moves. (017-vehicle-select-color-swatch)
 - TypeScript 5.x (strict mode, repo-wide) (018-resident-select-combobox)
 - PostgreSQL via Supabase — **no schema changes**. Reuses existing `profiles` table via `ResidentsService.list` → `UsersRepository.list` (list) and `UsersRepository.getById` (resolver). (018-resident-select-combobox)
+- PostgreSQL via Supabase. **No new tables** for this feature. Read-only query over `access_events` joined to `profiles` (for guard name and the resident-being-visited name), `visit_persons` (for visitor/provider name, code, company, status, resident_id), and `vehicles` (for plate/brand). Two potential schema adjustments require planning-phase decisions and are handled in Phase 0 (tenant time zone column, resident unit column). (019-logbook-bitacora)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr

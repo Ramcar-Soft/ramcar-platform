@@ -92,3 +92,22 @@ export const residentFiltersSchema = z.object({
 });
 
 export type ResidentFiltersInput = z.infer<typeof residentFiltersSchema>;
+
+export const accessEventListQuerySchema = z.object({
+  personType: z.enum(["visitor", "service_provider", "resident"]),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().refine((v) => [10, 25, 50, 100].includes(v), {
+    message: "pageSize must be one of 10, 25, 50, 100",
+  }).default(25),
+  dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  tenantId: z.string().uuid().optional(),
+  residentId: z.string().uuid().optional(),
+  search: z.string().trim().max(200).optional(),
+  locale: z.enum(["en", "es"]).default("en"),
+});
+
+export type AccessEventListQueryInput = z.infer<typeof accessEventListQuerySchema>;
+
+export const accessEventExportQuerySchema = accessEventListQuerySchema.omit({ page: true, pageSize: true });
+export type AccessEventExportQueryInput = z.infer<typeof accessEventExportQuerySchema>;
