@@ -1,26 +1,43 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { ChevronDown } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Input,
+  Button,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@ramcar/ui";
 import type { PaginatedResponse, ExtendedUserProfile } from "@ramcar/shared";
 import { useI18n, useTransport, useRole } from "../../adapters";
 
-interface ResidentSelectProps {
+export interface ResidentSelectProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  disabled?: boolean;
+  ariaLabel?: string;
+  id?: string;
 }
 
-export function ResidentSelect({ value, onChange, placeholder }: ResidentSelectProps) {
+export function ResidentSelect({
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  ariaLabel,
+  id,
+}: ResidentSelectProps) {
   const { t } = useI18n();
   const transport = useTransport();
   const { tenantId } = useRole();
+
+  const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -29,41 +46,114 @@ export function ResidentSelect({ value, onChange, placeholder }: ResidentSelectP
     return () => clearTimeout(timer);
   }, [search]);
 
-  const { data } = useQuery<PaginatedResponse<ExtendedUserProfile>>({
+  const {
+    data: listData,
+    isPending: listPending,
+    isError: listError,
+  } = useQuery<PaginatedResponse<ExtendedUserProfile>>({
     queryKey: ["residents", tenantId, "select", debouncedSearch],
     queryFn: () =>
       transport.get<PaginatedResponse<ExtendedUserProfile>>("/residents", {
         params: {
-          search: debouncedSearch || undefined,
+          search: (debouncedSearch.trim()) || undefined,
           pageSize: 50,
           status: "active",
+          sortBy: "full_name",
+          sortOrder: "asc",
         },
       }),
   });
 
-  const residents = data?.data ?? [];
+  const residents = listData?.data ?? [];
+  const currentPageContainsValue = residents.some((r) => r.id === value);
+
+  const { data: resolvedResident } = useQuery<ExtendedUserProfile>({
+    queryKey: ["residents", tenantId, "detail", value],
+    queryFn: () => transport.get<ExtendedUserProfile>(`/residents/${value}`),
+    enabled: Boolean(value && !currentPageContainsValue),
+    retry: false,
+  });
+
+  const selectedResident = residents.find((r) => r.id === value) ?? resolvedResident;
+
+  function getTriggerLabel() {
+    if (selectedResident) {
+      return selectedResident.address
+        ? `${selectedResident.fullName} — ${selectedResident.address}`
+        : selectedResident.fullName;
+    }
+    return placeholder ?? t("residents.select.placeholder");
+  }
+
+  const isPlaceholder = !selectedResident;
+
+  function commit(residentId: string) {
+    onChange(residentId);
+    setOpen(false);
+    setSearch("");
+  }
 
   return (
-    <div className="space-y-2">
-      <Input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder={placeholder ?? t("visitPersons.form.selectResident")}
-        className="mb-1"
-      />
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder={t("visitPersons.form.selectResident")} />
-        </SelectTrigger>
-        <SelectContent>
-          {residents.map((r) => (
-            <SelectItem key={r.id} value={r.id}>
-              {r.fullName}
-              {r.address && ` — ${r.address}`}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          id={id}
+          disabled={disabled}
+          aria-label={ariaLabel ?? t("residents.select.ariaLabel")}
+          aria-expanded={open}
+          role="combobox"
+          className="w-full justify-start gap-2 font-normal"
+        >
+          <span className={isPlaceholder ? "text-muted-foreground truncate" : "truncate"}>
+            {getTriggerLabel()}
+          </span>
+          <ChevronDown className="ml-auto h-4 w-4 opacity-50" aria-hidden="true" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-[--radix-popover-trigger-width] p-0">
+        <Command filter={() => 1}>
+          <CommandInput
+            placeholder={t("residents.select.searchPlaceholder")}
+            value={search}
+            onValueChange={setSearch}
+          />
+          <CommandList>
+            {listPending && !listData ? (
+              <CommandItem disabled className="text-muted-foreground justify-center">
+                {t("residents.select.loading")}
+              </CommandItem>
+            ) : listError ? (
+              <CommandItem disabled className="text-muted-foreground justify-center">
+                {t("residents.select.error")}
+              </CommandItem>
+            ) : (
+              <>
+                <CommandEmpty>{t("residents.select.empty")}</CommandEmpty>
+                <CommandGroup>
+                  {residents.map((resident) => (
+                    <CommandItem
+                      key={resident.id}
+                      value={resident.id}
+                      onSelect={() => commit(resident.id)}
+                    >
+                      <div className="flex flex-col">
+                        <span className="truncate">{resident.fullName}</span>
+                        {resident.address && (
+                          <span className="text-muted-foreground text-xs truncate">
+                            {resident.address}
+                          </span>
+                        )}
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </>
+            )}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

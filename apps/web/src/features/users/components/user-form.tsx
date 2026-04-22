@@ -108,13 +108,11 @@ export function UserForm({
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
     if (!formData.fullName.trim()) errs.fullName = "Required";
-    if (!formData.email.trim()) errs.email = "Required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       errs.email = "Invalid email";
     if (!formData.role) errs.role = "Required";
     if (!formData.tenantId) errs.tenantId = "Required";
     if (!formData.address.trim()) errs.address = "Required";
-    if (!formData.username.trim()) errs.username = "Required";
     else if (formData.username.length < 3)
       errs.username = "Min 3 characters";
     else if (!/^[a-zA-Z0-9_]*$/.test(formData.username))
@@ -171,10 +169,11 @@ export function UserForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">{t("form.email")} *</Label>
+          <Label htmlFor="email">{t("form.email")}</Label>
           <Input
             id="email"
             type="email"
+            autoComplete="none"
             value={formData.email}
             onChange={(e) => updateField("email", e.target.value)}
             aria-invalid={!!errors.email}
@@ -235,51 +234,55 @@ export function UserForm({
           )}
         </div>
 
+        <div className="space-y-2 sm:col-span-1">
+          <div className="space-y-2">
+            <Label htmlFor="phone">{t("form.phone")} *</Label>
+            <Input
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => updateField("phone", e.target.value)}
+              aria-invalid={!!errors.phone}
+            />
+            {errors.phone && (
+              <p className="text-sm text-destructive">{errors.phone}</p>
+            )}
+          </div>
+
+          <div className="space-y-2 pt-2">
+            <Label>{t("form.phoneType")}</Label>
+            <Select
+              value={formData.phoneType ?? ""}
+              onValueChange={(v) =>
+                updateField("phoneType", v as PhoneType)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t("form.selectPhoneType")} />
+              </SelectTrigger>
+              <SelectContent>
+                {PHONE_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {t(`phoneTypes.${type}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+
         <div className="space-y-2">
-          <Label htmlFor="username">{t("form.username")} *</Label>
+          <Label htmlFor="username">{t("form.username")}</Label>
           <Input
             id="username"
             value={formData.username}
+            autoComplete="off"
             onChange={(e) => updateField("username", e.target.value)}
             aria-invalid={!!errors.username}
           />
           {errors.username && (
             <p className="text-sm text-destructive">{errors.username}</p>
           )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="phone">{t("form.phone")} *</Label>
-          <Input
-            id="phone"
-            value={formData.phone}
-            onChange={(e) => updateField("phone", e.target.value)}
-            aria-invalid={!!errors.phone}
-          />
-          {errors.phone && (
-            <p className="text-sm text-destructive">{errors.phone}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label>{t("form.phoneType")}</Label>
-          <Select
-            value={formData.phoneType ?? ""}
-            onValueChange={(v) =>
-              updateField("phoneType", v as PhoneType)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("form.selectPhoneType")} />
-            </SelectTrigger>
-            <SelectContent>
-              {PHONE_TYPES.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {t(`phoneTypes.${type}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="space-y-2 sm:col-span-2">
@@ -302,6 +305,7 @@ export function UserForm({
               <Input
                 id="password"
                 type="password"
+                autoComplete="new-password"
                 value={formData.password}
                 onChange={(e) => updateField("password", e.target.value)}
                 aria-invalid={!!errors.password}

@@ -32,7 +32,7 @@ export class UsersRepository {
 
     if (search) {
       query = query.or(
-        `full_name.ilike.%${search}%,email.ilike.%${search}%,username.ilike.%${search}%,phone.ilike.%${search}%,role.ilike.%${search}%`,
+        `full_name.ilike.%${search}%,address.ilike.%${search}%,email.ilike.%${search}%,username.ilike.%${search}%,phone.ilike.%${search}%,role.ilike.%${search}%`,
       );
     }
 

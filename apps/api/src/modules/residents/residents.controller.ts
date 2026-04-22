@@ -34,6 +34,19 @@ export class ResidentsController {
     );
   }
 
+  @Get(":id")
+  async getById(
+    @Param("id") id: string,
+    @CurrentUser() user: unknown,
+    @CurrentTenant() tenantId: string,
+  ) {
+    return this.residentsService.getById(
+      id,
+      user as { id: string; app_metadata?: { role?: string; tenant_id?: string } },
+      tenantId,
+    );
+  }
+
   @Get(":id/vehicles")
   async getVehicles(
     @Param("id") id: string,
