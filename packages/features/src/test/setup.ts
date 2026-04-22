@@ -1,5 +1,16 @@
 import "@testing-library/jest-dom/vitest";
 
+// Radix UI Select uses pointer capture; jsdom does not implement it.
+if (!Element.prototype.hasPointerCapture) {
+  Element.prototype.hasPointerCapture = () => false;
+}
+if (!Element.prototype.setPointerCapture) {
+  Element.prototype.setPointerCapture = () => {};
+}
+if (!Element.prototype.releasePointerCapture) {
+  Element.prototype.releasePointerCapture = () => {};
+}
+
 // cmdk uses ResizeObserver and scrollIntoView; jsdom does not implement them.
 global.ResizeObserver = class ResizeObserver {
   observe() {}

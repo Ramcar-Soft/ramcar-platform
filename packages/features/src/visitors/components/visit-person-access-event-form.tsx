@@ -27,6 +27,7 @@ interface VisitPersonAccessEventFormProps {
   onCancel: () => void;
   onAddVehicle?: () => void;
   isSaving: boolean;
+  initialVehicleId?: string | null;
   initialDraft?: {
     direction: Direction;
     accessMode: AccessMode;
@@ -50,6 +51,7 @@ export function VisitPersonAccessEventForm({
   onCancel,
   onAddVehicle,
   isSaving,
+  initialVehicleId,
   initialDraft,
   onDraftChange,
 }: VisitPersonAccessEventFormProps) {
@@ -62,7 +64,7 @@ export function VisitPersonAccessEventForm({
     initialDraft?.accessMode ?? "vehicle",
   );
   const [vehicleId, setVehicleId] = useState<string>(
-    initialDraft?.vehicleId ?? "",
+    initialVehicleId ?? initialDraft?.vehicleId ?? "",
   );
   const [notes, setNotes] = useState(initialDraft?.notes ?? "");
 
@@ -79,7 +81,7 @@ export function VisitPersonAccessEventForm({
   }, [composedData]);
 
   useEffect(() => {
-    if (accessMode === "vehicle" && vehicles?.length && !vehicleId) {
+    if (accessMode === "vehicle" && vehicles?.length === 1 && !vehicleId) {
       setVehicleId(vehicles[0].id);
     }
   }, [accessMode, vehicles, vehicleId]);

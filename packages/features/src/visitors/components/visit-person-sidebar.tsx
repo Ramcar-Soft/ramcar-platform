@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -94,6 +94,9 @@ export function VisitPersonSidebar({
 }: VisitPersonSidebarProps) {
   const { t } = useI18n();
   const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
+
+  useEffect(() => { setJustCreatedVehicleId(null); }, [person?.id]);
 
   const handleCloseVehicleForm = () => setShowVehicleForm(false);
 
@@ -158,7 +161,10 @@ export function VisitPersonSidebar({
             {showVehicleForm ? (
               <VehicleForm
                 visitPersonId={person.id}
-                onSaved={handleCloseVehicleForm}
+                onSaved={(vehicle) => {
+                  setJustCreatedVehicleId(vehicle.id);
+                  setShowVehicleForm(false);
+                }}
                 onCancel={handleCloseVehicleForm}
               />
             ) : (
@@ -181,6 +187,7 @@ export function VisitPersonSidebar({
                   onCancel={onClose}
                   onAddVehicle={() => setShowVehicleForm(true)}
                   isSaving={isSaving}
+                  initialVehicleId={justCreatedVehicleId}
                 />
               </>
             )}

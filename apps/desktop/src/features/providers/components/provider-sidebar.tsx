@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, Separator, Badge } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
 import type {
@@ -58,6 +58,9 @@ export function ProviderSidebar({
 }: ProviderSidebarProps) {
   const { t } = useTranslation();
   const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
+
+  useEffect(() => { setJustCreatedVehicleId(null); }, [person?.id]);
 
   const titleKey =
     mode === "create"
@@ -126,7 +129,14 @@ export function ProviderSidebar({
             <Separator />
 
             {showVehicleForm ? (
-              <VehicleForm visitPersonId={person.id} onSaved={() => setShowVehicleForm(false)} onCancel={() => setShowVehicleForm(false)} />
+              <VehicleForm
+                visitPersonId={person.id}
+                onSaved={(vehicle) => {
+                  setJustCreatedVehicleId(vehicle.id);
+                  setShowVehicleForm(false);
+                }}
+                onCancel={() => setShowVehicleForm(false)}
+              />
             ) : (
               <VisitPersonAccessEventForm
                 vehicles={vehicles}
@@ -135,6 +145,7 @@ export function ProviderSidebar({
                 onCancel={onClose}
                 onAddVehicle={() => setShowVehicleForm(true)}
                 isSaving={isSaving}
+                initialVehicleId={justCreatedVehicleId}
               />
             )}
             {!showVehicleForm && onUploadImage && (
