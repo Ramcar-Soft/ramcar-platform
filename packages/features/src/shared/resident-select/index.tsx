@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import {
   Button,
   Command,
@@ -93,6 +93,12 @@ export function ResidentSelect({
     setSearch("");
   }
 
+  function clear(e: React.MouseEvent) {
+    e.stopPropagation();
+    onChange("");
+    setSearch("");
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -106,10 +112,20 @@ export function ResidentSelect({
           role="combobox"
           className="w-full justify-start gap-2 font-normal"
         >
-          <span className={isPlaceholder ? "text-muted-foreground truncate" : "truncate"}>
+          <span className={isPlaceholder ? "text-muted-foreground truncate flex-1" : "truncate flex-1"}>
             {getTriggerLabel()}
           </span>
-          <ChevronDown className="ml-auto h-4 w-4 opacity-50" aria-hidden="true" />
+          {!isPlaceholder && (
+            <span
+              role="button"
+              aria-label={t("residents.select.clear")}
+              onClick={clear}
+              className="text-muted-foreground hover:text-foreground rounded"
+            >
+              <X className="h-3.5 w-3.5" aria-hidden="true" />
+            </span>
+          )}
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" aria-hidden="true" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-[--radix-popover-trigger-width] p-0">

@@ -1,11 +1,12 @@
-import { getTranslations } from "next-intl/server";
+"use client";
 
-export default async function LogbookVisitorsPage() {
-  const t = await getTranslations("sidebar");
+import { useLocale, useTranslations } from "next-intl";
+import { LogbookSubpage, getVisitorsColumns } from "@/features/logbook";
 
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-semibold text-foreground">{t("logbook_visitors")}</h1>
-    </main>
-  );
+export default function LogbookVisitorsPage() {
+  const t = useTranslations("logbook");
+  const locale = useLocale();
+  const columns = getVisitorsColumns((key) => t(key), locale);
+
+  return <LogbookSubpage personType="visitor" columns={columns} />;
 }

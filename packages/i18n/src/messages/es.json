@@ -194,7 +194,8 @@
       "empty": "No se encontraron residentes",
       "loading": "Cargando residentes…",
       "error": "Error al cargar residentes",
-      "ariaLabel": "Seleccionar residente"
+      "ariaLabel": "Seleccionar residente",
+      "clear": "Limpiar selección"
     }
   },
   "accessEvents": {
@@ -533,5 +534,96 @@
     "error": "Error de sincronización",
     "offline": "Sin conexión",
     "pending": "{count} pendientes"
+  },
+  "logbook": {
+    "title": "Bitácora de Accesos",
+    "tabs": {
+      "visitors": "Visitantes",
+      "providers": "Proveedores",
+      "residents": "Residentes"
+    },
+    "toolbar": {
+      "search": {
+        "placeholder": "Buscar por nombre, placa, notas…",
+        "ariaLabel": "Buscar en la bitácora",
+        "clear": "Limpiar búsqueda"
+      },
+      "dateRange": {
+        "trigger": "Rango de fechas",
+        "apply": "Aplicar",
+        "cancel": "Cancelar",
+        "invalidRange": "La fecha fin debe ser igual o posterior a la fecha inicio"
+      },
+      "tenantSelect": {
+        "placeholder": "Seleccionar condominio",
+        "allOption": "Todos los condominios"
+      },
+      "resident": {
+        "placeholder": "Filtrar por residente"
+      }
+    },
+    "presets": {
+      "today": "Hoy",
+      "last_7d": "Últimos 7 días",
+      "last_30d": "Últimos 30 días",
+      "last_90d": "Últimos 3 meses",
+      "custom": "Rango personalizado"
+    },
+    "columns": {
+      "tenant": "Condominio",
+      "code": "Código",
+      "name": "Nombre",
+      "company": "Empresa",
+      "residentVisited": "Residente visitado",
+      "direction": "Dirección",
+      "vehicle": "Vehículo",
+      "status": "Estado",
+      "registeredBy": "Registrado por",
+      "date": "Fecha",
+      "unit": "Unidad",
+      "mode": "Modo"
+    },
+    "direction": {
+      "entry": "Entrada",
+      "exit": "Salida"
+    },
+    "mode": {
+      "vehicle": "Vehículo",
+      "pedestrian": "Peatón"
+    },
+    "status": {
+      "allowed": "Permitido",
+      "flagged": "Marcado",
+      "denied": "Denegado"
+    },
+    "empty": {
+      "title": "No se encontraron registros",
+      "description": "Intenta ajustar los filtros o el rango de fechas."
+    },
+    "error": {
+      "title": "Error al cargar registros",
+      "retry": "Reintentar"
+    },
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "indicator": "{page} / {totalPages}",
+      "pageSize": "Filas por página"
+    },
+    "export": {
+      "menu": {
+        "trigger": "Exportar",
+        "current": "Exportar vista actual",
+        "all": "Exportar todo…"
+      },
+      "allTitle": "Exportar todos los registros",
+      "allDescription": "Selecciona un rango de fechas para exportar los registros como archivo CSV.",
+      "allRequireRange": "Por favor selecciona un rango de fechas antes de exportar.",
+      "submit": "Exportar",
+      "cancel": "Cancelar",
+      "generating": "Generando…",
+      "error": "La exportación falló. Por favor intenta de nuevo.",
+      "noRows": "No hay filas para exportar"
+    }
   }
 }
