@@ -43,6 +43,7 @@ export class VehiclesService {
       plate: (row.plate as string) ?? null,
       color: (row.color as string) ?? null,
       notes: (row.notes as string) ?? null,
+      year: (row.year as number) ?? null,
       createdAt: row.created_at as string,
       updatedAt: row.updated_at as string,
     };

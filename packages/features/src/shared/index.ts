@@ -24,3 +24,19 @@ export {
 
 export { useKeyboardNavigation } from "./hooks/use-keyboard-navigation";
 export type { UseKeyboardNavigationOptions } from "./hooks/use-keyboard-navigation";
+
+export {
+  VehicleBrandSelect,
+  VehicleModelSelect,
+  VehicleYearInput,
+  VEHICLE_BRAND_MODEL,
+  normalizeForSearch,
+  buildBrandIndex,
+  searchModels,
+} from "./vehicle-brand-model";
+export type {
+  VehicleBrandSelectProps,
+  VehicleModelSelectProps,
+  VehicleYearInputProps,
+  VehicleBrand,
+} from "./vehicle-brand-model";

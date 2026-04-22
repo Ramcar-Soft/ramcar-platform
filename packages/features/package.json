@@ -12,7 +12,8 @@
     "./shared/vehicle-form": "./src/shared/vehicle-form/index.ts",
     "./shared/visit-person-status-select": "./src/shared/visit-person-status-select/index.tsx",
     "./shared/resident-select": "./src/shared/resident-select/index.tsx",
-    "./shared/color-select": "./src/shared/color-select/index.ts"
+    "./shared/color-select": "./src/shared/color-select/index.ts",
+    "./shared/vehicle-brand-model": "./src/shared/vehicle-brand-model/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -24,7 +25,8 @@
     "@ramcar/i18n": "workspace:*",
     "@ramcar/shared": "workspace:*",
     "@ramcar/store": "workspace:*",
-    "@ramcar/ui": "workspace:*"
+    "@ramcar/ui": "workspace:*",
+    "fuse.js": "^7.0.0"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",

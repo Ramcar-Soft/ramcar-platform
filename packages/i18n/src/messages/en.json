@@ -246,11 +246,26 @@
     },
     "brand": {
       "label": "Brand",
-      "placeholder": "e.g., Toyota"
+      "placeholder": "e.g., Toyota",
+      "searchPlaceholder": "Search brand…",
+      "noResults": "No match — use what you typed?",
+      "addCustom": "Use \"{query}\" as brand",
+      "ariaLabel": "Brand"
     },
     "model": {
       "label": "Model",
-      "placeholder": "e.g., Corolla"
+      "placeholder": "e.g., Corolla",
+      "searchPlaceholder": "Search model…",
+      "disabled": "Pick a brand first",
+      "noResults": "No match — use what you typed?",
+      "addCustom": "Use \"{query}\" as model",
+      "ariaLabel": "Model"
+    },
+    "year": {
+      "label": "Year",
+      "placeholder": "e.g., 2019",
+      "invalid": "Enter a valid year (1960–{max})",
+      "ariaLabel": "Year"
     },
     "plate": {
       "label": "Plate",

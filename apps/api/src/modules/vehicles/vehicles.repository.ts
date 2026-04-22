@@ -24,6 +24,7 @@ export class VehiclesRepository {
         plate: dto.plate || null,
         color: dto.color || null,
         notes: dto.notes || null,
+        year: dto.year ?? null,
       })
       .select()
       .single();

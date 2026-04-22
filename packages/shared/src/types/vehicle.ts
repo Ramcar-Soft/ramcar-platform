@@ -28,6 +28,7 @@ export interface Vehicle {
   plate: string | null;
   color: string | null;
   notes: string | null;
+  year: number | null;
   createdAt: string;
   updatedAt: string;
 }
