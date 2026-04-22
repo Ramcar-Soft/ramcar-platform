@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Label, Textarea } from "@ramcar/ui";
 import { toast } from "sonner";
@@ -6,6 +6,9 @@ import { createVehicleSchema, type VehicleType, type Vehicle, type CreateVehicle
 import { useI18n, useTransport } from "../../adapters";
 import { VehicleTypeSelect } from "./vehicle-type-select";
 import { ColorSelect } from "../color-select/color-select";
+import { VehicleBrandSelect } from "../vehicle-brand-model/vehicle-brand-select";
+import { VehicleModelSelect } from "../vehicle-brand-model/vehicle-model-select";
+import { VehicleYearInput } from "../vehicle-brand-model/vehicle-year-input";
 
 interface VehicleFormProps {
   userId?: string;
@@ -19,6 +22,7 @@ interface VehicleFormProps {
     plate: string;
     color: string;
     notes: string;
+    year: number | null;
   }>;
   onDraftChange?: (draft: {
     vehicleType: VehicleType | "";
@@ -27,6 +31,7 @@ interface VehicleFormProps {
     plate: string;
     color: string;
     notes: string;
+    year: number | null;
   }) => void;
 }
 
@@ -36,20 +41,24 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
   const queryClient = useQueryClient();
 
   const [vehicleType, setVehicleType] = useState<VehicleType | "">(initialDraft?.vehicleType ?? "");
-  const [brand, setBrand] = useState(initialDraft?.brand ?? "");
-  const [model, setModel] = useState(initialDraft?.model ?? "");
+  const [brand, setBrand] = useState<string | null>(initialDraft?.brand ?? null);
+  const [model, setModel] = useState<string | null>(initialDraft?.model ?? null);
   const [plate, setPlate] = useState(initialDraft?.plate ?? "");
   const [color, setColor] = useState(initialDraft?.color ?? "");
   const [notes, setNotes] = useState(initialDraft?.notes ?? "");
+  const [year, setYear] = useState<number | null>(initialDraft?.year ?? null);
+
+  const modelInputRef = useRef<HTMLElement | null>(null);
 
   const notify = (field: string, value: unknown) => {
     onDraftChange?.({
       vehicleType,
-      brand,
-      model,
+      brand: brand ?? "",
+      model: model ?? "",
       plate,
       color,
       notes,
+      year,
       [field]: value,
     } as Parameters<typeof onDraftChange>[0]);
   };
@@ -81,6 +90,7 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
       plate: plate || undefined,
       color: color || undefined,
       notes: notes || undefined,
+      year: year ?? undefined,
     });
 
     if (!result.success) return;
@@ -110,19 +120,26 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
 
       <div className="space-y-2">
         <Label>{t("vehicles.brand.label")}</Label>
-        <Input
+        <VehicleBrandSelect
           value={brand}
-          onChange={(e) => { setBrand(e.target.value); notify("brand", e.target.value); }}
-          placeholder={t("vehicles.brand.placeholder")}
+          onChange={(next) => {
+            setBrand(next);
+            if (next !== brand) {
+              setModel(null);
+              notify("model", null);
+            }
+            notify("brand", next ?? "");
+          }}
+          modelInputRef={modelInputRef}
         />
       </div>
 
       <div className="space-y-2">
         <Label>{t("vehicles.model.label")}</Label>
-        <Input
+        <VehicleModelSelect
+          brand={brand}
           value={model}
-          onChange={(e) => { setModel(e.target.value); notify("model", e.target.value); }}
-          placeholder={t("vehicles.model.placeholder")}
+          onChange={(next) => { setModel(next); notify("model", next ?? ""); }}
         />
       </div>
 
@@ -144,6 +161,14 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
             setColor(v);
             notify("color", v);
           }}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>{t("vehicles.year.label")}</Label>
+        <VehicleYearInput
+          value={year}
+          onChange={(next) => { setYear(next); notify("year", next); }}
         />
       </div>
 

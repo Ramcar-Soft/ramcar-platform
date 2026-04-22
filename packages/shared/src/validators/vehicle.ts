@@ -10,6 +10,8 @@ const vehicleTypeEnum = z.enum([
   "other",
 ]);
 
+export const currentYear = () => new Date().getFullYear();
+
 const vehicleFields = {
   vehicleType: vehicleTypeEnum,
   brand: z.string().max(100).optional().or(z.literal("")),
@@ -17,6 +19,12 @@ const vehicleFields = {
   plate: z.string().max(20).optional().or(z.literal("")),
   color: z.string().max(50).optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
+  year: z
+    .number()
+    .int()
+    .min(1960, "Year must be 1960 or later")
+    .max(currentYear() + 1, "Year cannot be in the future beyond next model year")
+    .optional(),
 };
 
 export const createVehicleSchema = z.discriminatedUnion("ownerType", [

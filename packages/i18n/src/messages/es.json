@@ -246,11 +246,26 @@
     },
     "brand": {
       "label": "Marca",
-      "placeholder": "Ej: Toyota"
+      "placeholder": "Ej: Toyota",
+      "searchPlaceholder": "Buscar marca…",
+      "noResults": "Sin coincidencia — ¿usar lo escrito?",
+      "addCustom": "Usar \"{query}\" como marca",
+      "ariaLabel": "Marca"
     },
     "model": {
       "label": "Modelo",
-      "placeholder": "Ej: Corolla"
+      "placeholder": "Ej: Corolla",
+      "searchPlaceholder": "Buscar modelo…",
+      "disabled": "Selecciona una marca primero",
+      "noResults": "Sin coincidencia — ¿usar lo escrito?",
+      "addCustom": "Usar \"{query}\" como modelo",
+      "ariaLabel": "Modelo"
+    },
+    "year": {
+      "label": "Año",
+      "placeholder": "Ej: 2019",
+      "invalid": "Ingresa un año válido (1960–{max})",
+      "ariaLabel": "Año"
     },
     "plate": {
       "label": "Placa",

@@ -8,5 +8,13 @@
       "notes": "Pilot migration — spec 014. Includes all 10 components, 10 hooks, and shared primitives (image-capture, vehicle-form, visit-person-status-select, resident-select)."
     }
   ],
-  "allowList": []
+  "allowList": [],
+  "sharedPrimitives": [
+    {
+      "name": "vehicle-brand-model",
+      "package": "@ramcar/features/shared/vehicle-brand-model",
+      "addedAt": "2026-04-21",
+      "notes": "Spec 016. VehicleBrandSelect, VehicleModelSelect, VehicleYearInput — Mexico-market dataset, zero runtime I/O."
+    }
+  ]
 }
