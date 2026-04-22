@@ -105,6 +105,23 @@ export { Label } from "./components/ui/label";
 export { Textarea } from "./components/ui/textarea";
 export { Checkbox } from "./components/ui/checkbox";
 export { Toaster } from "./components/ui/sonner";
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverAnchor,
+} from "./components/ui/popover";
+export {
+  Command,
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandShortcut,
+  CommandSeparator,
+} from "./components/ui/command";
 
 // Hooks
 export { useIsMobile } from "./hooks/use-mobile";

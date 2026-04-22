@@ -11,7 +11,8 @@
     "./shared/image-capture": "./src/shared/image-capture/index.ts",
     "./shared/vehicle-form": "./src/shared/vehicle-form/index.ts",
     "./shared/visit-person-status-select": "./src/shared/visit-person-status-select/index.tsx",
-    "./shared/resident-select": "./src/shared/resident-select/index.tsx"
+    "./shared/resident-select": "./src/shared/resident-select/index.tsx",
+    "./shared/color-select": "./src/shared/color-select/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
