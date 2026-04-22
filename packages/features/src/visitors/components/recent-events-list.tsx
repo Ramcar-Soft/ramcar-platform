@@ -9,6 +9,7 @@ interface RecentEventsListProps {
 
 export function RecentEventsList({ events, isLoading }: RecentEventsListProps) {
   const { t } = useI18n();
+  const lastEvent = events?.[0];
 
   function formatRelativeTime(dateStr: string): string {
     const date = new Date(dateStr);
@@ -33,7 +34,7 @@ export function RecentEventsList({ events, isLoading }: RecentEventsListProps) {
     );
   }
 
-  if (!events || events.length === 0) {
+  if (!lastEvent || events.length === 0) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <span>{t("accessEvents.lastEvent.label")}:</span>
@@ -42,24 +43,18 @@ export function RecentEventsList({ events, isLoading }: RecentEventsListProps) {
     );
   }
 
+  const variant = lastEvent?.direction === "entry" ? "default" : "secondary";
   return (
     <div className="space-y-2">
-      {events.map((event, index) => {
-        const variant = event.direction === "entry" ? "default" : "secondary";
-        return (
-          <div key={event.id} className="flex items-center gap-2 text-sm">
-            {index === 0 && (
-              <span className="text-muted-foreground">{t("accessEvents.lastEvent.label")}:</span>
-            )}
-            <Badge variant={variant}>
-              {t(`accessEvents.direction.${event.direction}`)}
-            </Badge>
-            <span className="text-muted-foreground">
-              {formatRelativeTime(event.createdAt)}
-            </span>
-          </div>
-        );
-      })}
+      <div key={lastEvent.id} className="flex items-center gap-2 text-sm">
+        <span className="text-muted-foreground">{t("accessEvents.lastEvent.label")}:</span>
+        <Badge variant={variant}>
+          {t(`accessEvents.direction.${lastEvent.direction}`)}
+        </Badge>
+        <span className="text-muted-foreground">
+          {formatRelativeTime(lastEvent.createdAt)}
+        </span>
+      </div>
     </div>
   );
 }

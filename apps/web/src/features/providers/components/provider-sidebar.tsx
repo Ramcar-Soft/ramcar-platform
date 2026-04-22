@@ -151,8 +151,22 @@ export function ProviderSidebar({
           </div>
         ) : person ? (
           <div className="space-y-6">
-            {!showVehicleForm && (
+            {showVehicleForm ? (
+              <VehicleForm
+                visitPersonId={person.id}
+                onSaved={(vehicle) => {
+                  setJustCreatedVehicleId(vehicle.id);
+                  setShowVehicleForm(false);
+                }}
+                onCancel={handleCloseVehicleForm}
+              />
+            ) : (
               <>
+                <RecentEventsList
+                  events={recentEvents}
+                  isLoading={isLoadingRecentEvents}
+                />
+                <Separator />
                 <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant={statusVariantMap[person.status]}>
                     {tStatus(person.status)}
@@ -166,7 +180,15 @@ export function ProviderSidebar({
                     </span>
                   )}
                 </div>
-
+                <VisitPersonAccessEventForm
+                  vehicles={vehicles}
+                  isLoadingVehicles={isLoadingVehicles}
+                  onSave={onSave}
+                  onCancel={onClose}
+                  onAddVehicle={() => setShowVehicleForm(true)}
+                  isSaving={isSaving}
+                  initialVehicleId={justCreatedVehicleId}
+                />
                 {onUploadImage && (
                   <>
                     <ImageSection
@@ -179,34 +201,7 @@ export function ProviderSidebar({
                     <Separator />
                   </>
                 )}
-
-                <RecentEventsList
-                  events={recentEvents}
-                  isLoading={isLoadingRecentEvents}
-                />
-                <Separator />
               </>
-            )}
-
-            {showVehicleForm ? (
-              <VehicleForm
-                visitPersonId={person.id}
-                onSaved={(vehicle) => {
-                  setJustCreatedVehicleId(vehicle.id);
-                  setShowVehicleForm(false);
-                }}
-                onCancel={handleCloseVehicleForm}
-              />
-            ) : (
-              <VisitPersonAccessEventForm
-                vehicles={vehicles}
-                isLoadingVehicles={isLoadingVehicles}
-                onSave={onSave}
-                onCancel={onClose}
-                onAddVehicle={() => setShowVehicleForm(true)}
-                isSaving={isSaving}
-                initialVehicleId={justCreatedVehicleId}
-              />
             )}
           </div>
         ) : null}

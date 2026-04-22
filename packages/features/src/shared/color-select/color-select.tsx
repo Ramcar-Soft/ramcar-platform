@@ -43,7 +43,7 @@ export interface ColorSelectProps {
   ariaLabel?: string;
 }
 
-type SwatchVariant = "none" | "flat" | "legacy" | "chameleon" | "chrome";
+export type SwatchVariant = "none" | "flat" | "legacy" | "chameleon" | "chrome";
 
 interface TriggerDisplay {
   variant: SwatchVariant;
@@ -52,7 +52,13 @@ interface TriggerDisplay {
   isPlaceholder: boolean;
 }
 
-function swatchVariantForEntry(entry: ColorEntry): SwatchVariant {
+export interface ResolvedSwatch {
+  variant: SwatchVariant;
+  color: string | null;
+  label: string;
+}
+
+export function swatchVariantForEntry(entry: ColorEntry): SwatchVariant {
   if (entry.effect === "chameleon") return "chameleon";
   if (entry.effect === "chrome") return "chrome";
   return "flat";
@@ -84,7 +90,31 @@ export function computeTriggerDisplay(
   return { variant: "legacy", color: null, label: value, isPlaceholder: false };
 }
 
-function Swatch({ variant, color }: { variant: SwatchVariant; color: string | null }) {
+export function resolveSwatch(
+  colorValue: string | null | undefined,
+  t: (key: string) => string,
+): ResolvedSwatch {
+  if (colorValue == null || colorValue === "") {
+    return { variant: "none", color: null, label: "" };
+  }
+
+  const canonicalHex = normalizeHex(colorValue);
+  if (canonicalHex) {
+    const entry = lookupByHex(canonicalHex);
+    if (entry) {
+      return {
+        variant: swatchVariantForEntry(entry),
+        color: entry.hex,
+        label: t(`vehicles.color.options.${entry.key}`),
+      };
+    }
+    return { variant: "flat", color: canonicalHex, label: canonicalHex };
+  }
+
+  return { variant: "legacy", color: null, label: colorValue };
+}
+
+export function Swatch({ variant, color }: { variant: SwatchVariant; color: string | null }) {
   if (variant === "none") return null;
   const base = "h-4 w-4 rounded-full border border-border shrink-0";
 
