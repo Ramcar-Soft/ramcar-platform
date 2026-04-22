@@ -97,7 +97,7 @@ export function VehicleModelSelect({
           <CommandInput
             placeholder={t("vehicles.model.searchPlaceholder")}
             value={search}
-            onValueChange={(v) => {
+            onValueChange={(v: string) => {
               setSearch(v);
               if (!v.trim()) {
                 commit(null);
