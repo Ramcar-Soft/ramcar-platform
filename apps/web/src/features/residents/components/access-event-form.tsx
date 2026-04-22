@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
+import { formatVehicleLabel } from "@ramcar/features/shared/vehicle-label";
+import { Swatch, resolveSwatch } from "@ramcar/features/shared/color-select";
 import type { Direction, AccessMode, Vehicle } from "@ramcar/shared";
 
 interface AccessEventFormData {
@@ -33,11 +35,24 @@ interface AccessEventFormProps {
   initialVehicleId?: string | null;
 }
 
-function formatVehicleLabel(v: Vehicle): string {
-  const parts = [v.brand, v.model].filter(Boolean).join(" ");
-  const plate = v.plate ? ` — ${v.plate}` : "";
-  const color = v.color ? ` (${v.color})` : "";
-  return `${parts}${plate}${color}` || v.vehicleType;
+function VehicleOptionContent({
+  v,
+  tColor,
+}: {
+  v: Vehicle;
+  tColor: (key: string) => string;
+}) {
+  if (v.color == null) {
+    return <span>{formatVehicleLabel(v)}</span>;
+  }
+  const resolved = resolveSwatch(v.color, tColor);
+  return (
+    <span className="flex items-center gap-2">
+      <span>{formatVehicleLabel(v)}</span>
+      <Swatch variant={resolved.variant} color={resolved.color} />
+      <span>{resolved.label}</span>
+    </span>
+  );
 }
 
 export function AccessEventForm({
@@ -51,6 +66,8 @@ export function AccessEventForm({
 }: AccessEventFormProps) {
   const t = useTranslations("accessEvents");
   const tVehicles = useTranslations("vehicles");
+  const tRoot = useTranslations();
+  const tColor = (key: string): string => tRoot(key);
 
   const [direction, setDirection] = useState<Direction>("entry");
   const [accessMode, setAccessMode] = useState<AccessMode>("vehicle");
@@ -174,7 +191,7 @@ export function AccessEventForm({
                 <SelectContent>
                   {vehicles.map((v) => (
                     <SelectItem key={v.id} value={v.id}>
-                      {formatVehicleLabel(v)}
+                      <VehicleOptionContent v={v} tColor={tColor} />
                     </SelectItem>
                   ))}
                 </SelectContent>

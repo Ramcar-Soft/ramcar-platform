@@ -1,5 +1,5 @@
-export { ColorSelect } from "./color-select";
-export type { ColorSelectProps } from "./color-select";
+export { ColorSelect, Swatch, resolveSwatch } from "./color-select";
+export type { ColorSelectProps, SwatchVariant, ResolvedSwatch } from "./color-select";
 export {
   COLOR_CATALOG,
   COLOR_CATEGORIES,

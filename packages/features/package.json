@@ -13,7 +13,8 @@
     "./shared/visit-person-status-select": "./src/shared/visit-person-status-select/index.tsx",
     "./shared/resident-select": "./src/shared/resident-select/index.tsx",
     "./shared/color-select": "./src/shared/color-select/index.ts",
-    "./shared/vehicle-brand-model": "./src/shared/vehicle-brand-model/index.ts"
+    "./shared/vehicle-brand-model": "./src/shared/vehicle-brand-model/index.ts",
+    "./shared/vehicle-label": "./src/shared/vehicle-label/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

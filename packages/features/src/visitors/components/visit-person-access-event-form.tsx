@@ -11,6 +11,8 @@ import {
   SelectValue,
 } from "@ramcar/ui";
 import { useI18n } from "../../adapters/i18n";
+import { formatVehicleLabel } from "../../shared/vehicle-label";
+import { Swatch, resolveSwatch } from "../../shared/color-select";
 import type { Direction, AccessMode, Vehicle } from "../types";
 
 interface AccessEventFormData {
@@ -37,11 +39,18 @@ interface VisitPersonAccessEventFormProps {
   onDraftChange?: (draft: AccessEventFormData) => void;
 }
 
-function formatVehicleLabel(v: Vehicle): string {
-  const parts = [v.brand, v.model].filter(Boolean).join(" ");
-  const plate = v.plate ? ` — ${v.plate}` : "";
-  const color = v.color ? ` (${v.color})` : "";
-  return `${parts}${plate}${color}` || v.vehicleType;
+function VehicleOptionContent({ v, t }: { v: Vehicle; t: (key: string) => string }) {
+  if (v.color == null) {
+    return <span>{formatVehicleLabel(v)}</span>;
+  }
+  const resolved = resolveSwatch(v.color, t);
+  return (
+    <span className="flex items-center gap-2">
+      <span>{formatVehicleLabel(v)}</span>
+      <Swatch variant={resolved.variant} color={resolved.color} />
+      <span>{resolved.label}</span>
+    </span>
+  );
 }
 
 export function VisitPersonAccessEventForm({
@@ -148,7 +157,7 @@ export function VisitPersonAccessEventForm({
                 <SelectContent>
                   {vehicles.map((v) => (
                     <SelectItem key={v.id} value={v.id}>
-                      {formatVehicleLabel(v)}
+                      <VehicleOptionContent v={v} t={t} />
                     </SelectItem>
                   ))}
                 </SelectContent>

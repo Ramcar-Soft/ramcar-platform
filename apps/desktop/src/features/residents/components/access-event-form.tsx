@@ -10,6 +10,8 @@ import {
   SelectValue,
 } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
+import { formatVehicleLabel } from "@ramcar/features/shared/vehicle-label";
+import { Swatch, resolveSwatch } from "@ramcar/features/shared/color-select";
 import type { Direction, AccessMode, Vehicle } from "@ramcar/shared";
 
 interface AccessEventFormData {
@@ -29,11 +31,24 @@ interface AccessEventFormProps {
   initialVehicleId?: string | null;
 }
 
-function formatVehicleLabel(v: Vehicle): string {
-  const parts = [v.brand, v.model].filter(Boolean).join(" ");
-  const plate = v.plate ? ` — ${v.plate}` : "";
-  const color = v.color ? ` (${v.color})` : "";
-  return `${parts}${plate}${color}` || v.vehicleType;
+function VehicleOptionContent({
+  v,
+  tColor,
+}: {
+  v: Vehicle;
+  tColor: (key: string) => string;
+}) {
+  if (v.color == null) {
+    return <span>{formatVehicleLabel(v)}</span>;
+  }
+  const resolved = resolveSwatch(v.color, tColor);
+  return (
+    <span className="flex items-center gap-2">
+      <span>{formatVehicleLabel(v)}</span>
+      <Swatch variant={resolved.variant} color={resolved.color} />
+      <span>{resolved.label}</span>
+    </span>
+  );
 }
 
 export function AccessEventForm({
@@ -114,7 +129,12 @@ export function AccessEventForm({
                 </SelectTrigger>
                 <SelectContent>
                   {vehicles.map((v) => (
-                    <SelectItem key={v.id} value={v.id}>{formatVehicleLabel(v)}</SelectItem>
+                    <SelectItem key={v.id} value={v.id}>
+                      <VehicleOptionContent
+                        v={v}
+                        tColor={(key) => (t as unknown as (k: string) => string)(key)}
+                      />
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
