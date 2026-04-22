@@ -9,5 +9,18 @@ export { VisitPersonStatusSelect } from "./visit-person-status-select";
 
 export { ResidentSelect } from "./resident-select";
 
+export { ColorSelect } from "./color-select";
+export type { ColorSelectProps } from "./color-select";
+export {
+  COLOR_CATALOG,
+  COLOR_CATEGORIES,
+  type ColorCategory,
+  type ColorEffect,
+  type ColorEntry,
+  lookupByHex,
+  normalizeHex,
+  isHex,
+} from "./color-select";
+
 export { useKeyboardNavigation } from "./hooks/use-keyboard-navigation";
 export type { UseKeyboardNavigationOptions } from "./hooks/use-keyboard-navigation";

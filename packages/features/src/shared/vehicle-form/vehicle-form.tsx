@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { createVehicleSchema, type VehicleType, type Vehicle, type CreateVehicleInput } from "@ramcar/shared";
 import { useI18n, useTransport } from "../../adapters";
 import { VehicleTypeSelect } from "./vehicle-type-select";
+import { ColorSelect } from "../color-select/color-select";
 
 interface VehicleFormProps {
   userId?: string;
@@ -136,10 +137,13 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
 
       <div className="space-y-2">
         <Label>{t("vehicles.color.label")}</Label>
-        <Input
-          value={color}
-          onChange={(e) => { setColor(e.target.value); notify("color", e.target.value); }}
-          placeholder={t("vehicles.color.placeholder")}
+        <ColorSelect
+          value={color || null}
+          onChange={(hex) => {
+            const v = hex ?? "";
+            setColor(v);
+            notify("color", v);
+          }}
         />
       </div>
 
