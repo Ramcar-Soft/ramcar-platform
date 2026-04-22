@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -89,6 +89,9 @@ export function ProviderSidebar({
   const t = useTranslations("providers");
   const tStatus = useTranslations("visitPersons.status");
   const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
+
+  useEffect(() => { setJustCreatedVehicleId(null); }, [person?.id]);
 
   const handleCloseVehicleForm = () => setShowVehicleForm(false);
 
@@ -188,7 +191,10 @@ export function ProviderSidebar({
             {showVehicleForm ? (
               <VehicleForm
                 visitPersonId={person.id}
-                onSaved={handleCloseVehicleForm}
+                onSaved={(vehicle) => {
+                  setJustCreatedVehicleId(vehicle.id);
+                  setShowVehicleForm(false);
+                }}
                 onCancel={handleCloseVehicleForm}
               />
             ) : (
@@ -199,6 +205,7 @@ export function ProviderSidebar({
                 onCancel={onClose}
                 onAddVehicle={() => setShowVehicleForm(true)}
                 isSaving={isSaving}
+                initialVehicleId={justCreatedVehicleId}
               />
             )}
           </div>

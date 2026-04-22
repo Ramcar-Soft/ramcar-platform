@@ -26,6 +26,7 @@ interface AccessEventFormProps {
   onCancel: () => void;
   onAddVehicle?: () => void;
   isSaving: boolean;
+  initialVehicleId?: string | null;
 }
 
 function formatVehicleLabel(v: Vehicle): string {
@@ -42,17 +43,18 @@ export function AccessEventForm({
   onCancel,
   onAddVehicle,
   isSaving,
+  initialVehicleId,
 }: AccessEventFormProps) {
   const { t } = useTranslation();
 
   const [direction, setDirection] = useState<Direction>("entry");
   const [accessMode, setAccessMode] = useState<AccessMode>("vehicle");
-  const [vehicleId, setVehicleId] = useState<string>("");
+  const [vehicleId, setVehicleId] = useState<string>(initialVehicleId ?? "");
   const [notes, setNotes] = useState("");
 
-  // Auto-select first vehicle when none is selected
+  // Auto-select only when exactly one vehicle exists
   useEffect(() => {
-    if (accessMode === "vehicle" && vehicles?.length && !vehicleId) {
+    if (accessMode === "vehicle" && vehicles?.length === 1 && !vehicleId) {
       setVehicleId(vehicles[0].id);
     }
   }, [accessMode, vehicles, vehicleId]);

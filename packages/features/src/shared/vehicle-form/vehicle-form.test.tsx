@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { screen, cleanup, fireEvent } from "@testing-library/react";
+import { screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { Vehicle } from "@ramcar/shared";
 import { renderWithHarness } from "../../test/harness";
 import { VehicleForm } from "./vehicle-form";
 
@@ -103,5 +104,42 @@ describe("VehicleForm — year field (US4)", () => {
   it("leaves year blank (null) by default", () => {
     renderForm();
     expect(screen.getByRole("spinbutton")).toHaveValue(null);
+  });
+});
+
+describe("VehicleForm — submission forwards vehicle to onSaved", () => {
+  it("calls onSaved with the created vehicle object", async () => {
+    const user = userEvent.setup();
+    const mockVehicle: Vehicle = {
+      id: "v-test-1",
+      tenantId: "test-tenant-id",
+      userId: "test-user",
+      visitPersonId: null,
+      vehicleType: "car",
+      brand: null,
+      model: null,
+      plate: null,
+      color: null,
+      notes: null,
+      year: null,
+      createdAt: "2026-01-01T00:00:00Z",
+      updatedAt: "2026-01-01T00:00:00Z",
+    };
+    const onSaved = vi.fn();
+    // Pre-fill vehicleType via initialDraft so the Save button is enabled.
+    // userId must be a valid UUID so createVehicleSchema passes.
+    renderWithHarness(
+      <VehicleForm
+        userId="00000000-0000-0000-0000-000000000001"
+        onSaved={onSaved}
+        onCancel={vi.fn()}
+        initialDraft={{ vehicleType: "car" }}
+      />,
+      { transport: { post: async () => mockVehicle as never } },
+    );
+
+    await user.click(screen.getByRole("button", { name: "vehicles.form.save" }));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalledWith(mockVehicle));
   });
 });

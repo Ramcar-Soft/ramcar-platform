@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Label, Textarea } from "@ramcar/ui";
 import { toast } from "sonner";
 import { createVehicleSchema, type VehicleType, type Vehicle, type CreateVehicleInput } from "@ramcar/shared";
-import { useI18n, useTransport } from "../../adapters";
+import { useI18n, useTransport, useRole } from "../../adapters";
 import { VehicleTypeSelect } from "./vehicle-type-select";
 import { ColorSelect } from "../color-select/color-select";
 import { VehicleBrandSelect } from "../vehicle-brand-model/vehicle-brand-select";
@@ -13,7 +13,7 @@ import { VehicleYearInput } from "../vehicle-brand-model/vehicle-year-input";
 interface VehicleFormProps {
   userId?: string;
   visitPersonId?: string;
-  onSaved: () => void;
+  onSaved: (vehicle: Vehicle) => void;
   onCancel: () => void;
   initialDraft?: Partial<{
     vehicleType: VehicleType | "";
@@ -39,6 +39,7 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
   const { t } = useI18n();
   const transport = useTransport();
   const queryClient = useQueryClient();
+  const { tenantId } = useRole();
 
   const [vehicleType, setVehicleType] = useState<VehicleType | "">(initialDraft?.vehicleType ?? "");
   const [brand, setBrand] = useState<string | null>(initialDraft?.brand ?? null);
@@ -67,11 +68,11 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
     mutationFn: (data: CreateVehicleInput) =>
       transport.post<Vehicle>("/vehicles", data),
     onSuccess: (_data, variables) => {
-      if (variables.ownerType === "user") {
-        queryClient.invalidateQueries({ queryKey: ["residents", variables.userId, "vehicles"] });
-      } else {
-        queryClient.invalidateQueries({ queryKey: ["vehicles", "visit-person", variables.visitPersonId] });
-      }
+      const key =
+        variables.ownerType === "user"
+          ? ["vehicles", tenantId, "resident", variables.userId]
+          : ["vehicles", tenantId, "visit-person", variables.visitPersonId];
+      queryClient.invalidateQueries({ queryKey: key });
     },
   });
 
@@ -96,9 +97,9 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
     if (!result.success) return;
 
     createVehicle.mutate(result.data, {
-      onSuccess: () => {
+      onSuccess: (vehicle) => {
         toast.success(t("vehicles.messages.created"));
-        onSaved();
+        onSaved(vehicle);
       },
       onError: () => {
         toast.error(t("vehicles.messages.errorCreating"));
