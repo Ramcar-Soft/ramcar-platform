@@ -187,7 +187,15 @@
     },
     "empty": "No se encontraron residentes",
     "noResidents": "No hay residentes registrados en esta comunidad.",
-    "errorLoading": "Error al cargar residentes. Por favor, intenta de nuevo."
+    "errorLoading": "Error al cargar residentes. Por favor, intenta de nuevo.",
+    "select": {
+      "placeholder": "Seleccionar residente",
+      "searchPlaceholder": "Buscar por nombre, correo o teléfono…",
+      "empty": "No se encontraron residentes",
+      "loading": "Cargando residentes…",
+      "error": "Error al cargar residentes",
+      "ariaLabel": "Seleccionar residente"
+    }
   },
   "accessEvents": {
     "title": "Evento de Acceso",

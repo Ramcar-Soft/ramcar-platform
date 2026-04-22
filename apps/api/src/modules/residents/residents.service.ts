@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import type {
   ExtendedUserProfile,
   PaginatedResponse,
@@ -37,6 +37,18 @@ export class ResidentsService {
       actorUser,
       tenantId,
     );
+  }
+
+  async getById(
+    id: string,
+    actorUser: AuthUser,
+    tenantId: string,
+  ): Promise<ExtendedUserProfile> {
+    const profile = await this.usersService.getById(id, actorUser, tenantId);
+    if (profile.role !== "resident") {
+      throw new NotFoundException("Resident not found");
+    }
+    return profile;
   }
 
   async getVehicles(

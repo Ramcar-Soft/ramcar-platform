@@ -187,7 +187,15 @@
     },
     "empty": "No residents found",
     "noResidents": "No residents registered in this community.",
-    "errorLoading": "Failed to load residents. Please try again."
+    "errorLoading": "Failed to load residents. Please try again.",
+    "select": {
+      "placeholder": "Select a resident",
+      "searchPlaceholder": "Search by name, email, or phone…",
+      "empty": "No residents found",
+      "loading": "Loading residents…",
+      "error": "Failed to load residents",
+      "ariaLabel": "Select resident"
+    }
   },
   "accessEvents": {
     "title": "Access Event",

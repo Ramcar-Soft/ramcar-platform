@@ -261,6 +261,8 @@ All catalog create and edit flows MUST use a right-side `Sheet` (`@ramcar/ui`) �
 - N/A — no schema changes, no new queries. Existing `/api/users` endpoints are reused verbatim. (015-users-form-sidebar)
 - TypeScript 5.x (strict mode across the monorepo), React 18, Node 22 LTS + `@ramcar/features` (shared cross-app module), `@ramcar/ui` (shadcn primitives: `Select`, `SelectItem`), `@ramcar/i18n` (existing `vehicles.color.options.*` message catalog), `next-intl` v4 (web host), `react-i18next` (desktop host), both adapted through `useI18n()` inside the shared module (017-vehicle-select-color-swatch)
 - N/A — presentation-only change. Vehicles continue to persist `color` as hex or legacy text through the existing API/DB path; nothing on the data layer moves. (017-vehicle-select-color-swatch)
+- TypeScript 5.x (strict mode, repo-wide) (018-resident-select-combobox)
+- PostgreSQL via Supabase — **no schema changes**. Reuses existing `profiles` table via `ResidentsService.list` → `UsersRepository.list` (list) and `UsersRepository.getById` (resolver). (018-resident-select-combobox)
 
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr
