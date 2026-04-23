@@ -168,4 +168,15 @@ export class TenantsRepository {
       .insert({ user_id: userId, tenant_id: tenantId, assigned_by: assignedBy });
     if (error && !error.message.includes("duplicate")) throw error;
   }
+
+  async listUserTenantIds(userId: string): Promise<string[]> {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from("user_tenants")
+      .select("tenant_id")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    return (data ?? []).map((row) => row.tenant_id as string);
+  }
 }

@@ -98,13 +98,18 @@ description: "Task list for feature 020 — Tenants Catalog and Multi-Tenant Acc
 - [ ] T047 Wire `apps/desktop/src/features/auth/providers/auth-provider.tsx` (or renderer equivalent) to the same flow as T046; fall back to cached JWT claims when offline
 - [ ] T048 [P] Add Vitest tests for the auth slice (setTenantIds, hydrateActiveTenant with valid/invalid stored id, setActiveTenant persists to localStorage, clearAuth clears persistence) in `packages/store/src/slices/__tests__/auth-slice.test.ts`
 
+### App metadata writeback helper (FR-028a)
+
+- [X] T048a Create `apps/api/src/modules/users/utils/sync-user-app-metadata.ts` exporting `syncUserAppMetadata(supabase, userId, patch: { tenant_ids?: string[] | "*"; tenant_id?: string | null; role?: Role })` — reads current `auth.users.raw_app_meta_data` via `supabase.auth.admin.getUserById(userId)`, merges the `patch` on top (does NOT drop unrelated fields), and writes back via `supabase.auth.admin.updateUserById(userId, { app_metadata: merged })`. Throws on any admin-API failure so callers surface it as 5xx per FR-028a. This helper is the single choke point used by `CreateTenantUseCase` (T092a), `UsersService.syncUserTenants` (T113), and the resident branch of `UsersRepository.create/update` to prevent silent drift between `user_tenants` and `raw_app_meta_data`.
+- [X] T048b [P] Add Jest unit tests for `syncUserAppMetadata` (merge preserves `role` when only `tenant_ids` is patched; failure from `getUserById` or `updateUserById` throws; empty-array and wildcard `"*"` both accepted for `tenant_ids`) in `apps/api/src/modules/users/utils/sync-user-app-metadata.spec.ts`
+
 ### TenantAvatar primitive (@ramcar/ui)
 
 - [X] T049 Create `packages/ui/src/components/tenant-avatar.tsx` — props `{ name, slug, imagePath?, size?: "sm" | "md" | "lg", className? }`; inline `hashToHsl(slug)` FNV-1a per research.md §R-8; render shadcn `<Avatar>` + `<AvatarImage src={composedPublicUrl} style={{ objectFit: "cover" }}>` + `<AvatarFallback style={{ backgroundColor: hashToHsl(slug) }}>{initials}</AvatarFallback>`; compose URL as `${NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/tenant-images/${imagePath}` (framework-agnostic — env var available in both web and desktop via build-time injection)
 - [X] T050 [P] Re-export `TenantAvatar` from `packages/ui/src/index.ts`
 - [ ] T051 [P] Add Vitest tests for TenantAvatar (imagePath → img src composed; null → initials + deterministic color; same slug → same backgroundColor across renders; empty name → "?" fallback) in `packages/ui/src/components/__tests__/tenant-avatar.test.tsx`
 
-**Checkpoint**: Foundation ready. `pnpm typecheck`, `pnpm test`, `pnpm --filter @ramcar/api test`, and `pnpm db:migrate:dev` all succeed. User story work can now begin in parallel.
+**Checkpoint**: Foundation ready. `pnpm typecheck`, `pnpm test`, `pnpm --filter @ramcar/api test`, and `pnpm db:migrate:dev` all succeed. The `syncUserAppMetadata` helper (T048a) is available so US4 and US6 can call it from their mutation paths per FR-028a. User story work can now begin in parallel.
 
 ---
 
@@ -208,9 +213,10 @@ description: "Task list for feature 020 — Tenants Catalog and Multi-Tenant Acc
 ### Backend for User Story 4
 
 - [X] T092 [US4] Create `apps/api/src/modules/tenants/use-cases/create-tenant.use-case.ts` wrapping `TenantsService` — accepts `(dto, scope, actorId, actorRole)`; generates unique slug; calls repo `create` inside a Supabase transaction (or a two-step with rollback on failure) that also inserts a `user_tenants` row iff `actorRole === "admin"`, using `assigned_by = actorId`; adds the literal code comment `// TODO: enforce tenant limit per admin based on subscription tier` above the admin branch per FR-013
+- [X] T092a [US4] Extend `CreateTenantUseCase.execute` (`apps/api/src/modules/tenants/use-cases/create-tenant.use-case.ts`) to satisfy FR-028a: after inserting the admin's `user_tenants` row, re-read the admin's full assigned set from `user_tenants` (or compute `[...previous, tenant.id]` from the known prior set), then call `supabase.auth.admin.updateUserById(actorId, { app_metadata: { tenant_ids: <new-array> } })` via `SupabaseService.getClient().auth.admin`. Preserve any other existing `app_metadata` fields (`role`, `tenant_id`) — use a read-merge-write pattern. If the `updateUserById` call fails after the `user_tenants` insert succeeds, surface the failure (throw/5xx) so the caller retries; do not swallow the error. Super_admin branch is a no-op (no `user_tenants` row, no writeback). Applies to FR-028a paths (a).
 - [X] T093 [US4] Wire `TenantsService.create` to delegate to `CreateTenantUseCase`; controller `@Post()` handler calls the service (no business logic in the controller) — registered roles `super_admin`, `admin`
-- [ ] T094 [US4] [P] Add Jest unit test for `CreateTenantUseCase` — super_admin branch creates no `user_tenants` row; admin branch creates exactly one; slug-collision retry; failure rolls back tenant insert in `apps/api/src/modules/tenants/use-cases/create-tenant.use-case.spec.ts`
-- [ ] T095 [US4] [P] Extend the NestJS e2e from T060 to cover `POST /api/tenants` admin auto-assignment (admin creates → 201 + assert `user_tenants` row exists with `assigned_by`) in `apps/api/test/e2e/tenants.e2e-spec.ts`
+- [X] T094 [US4] [P] Add Jest unit test for `CreateTenantUseCase` — super_admin branch creates no `user_tenants` row AND does not call `auth.admin.updateUserById`; admin branch creates exactly one `user_tenants` row AND calls `auth.admin.updateUserById` with `{ app_metadata: { tenant_ids: [...previous, newId] } }` (assert mock was called with the merged array, not a replacement that drops prior fields); writeback failure after row insert surfaces the error (no silent drift per FR-028a); slug-collision retry; failure rolls back tenant insert in `apps/api/src/modules/tenants/use-cases/create-tenant.use-case.spec.ts`
+- [ ] T095 [US4] [P] Extend the NestJS e2e from T060 to cover `POST /api/tenants` admin auto-assignment: admin creates → 201 + assert `user_tenants` row exists with `assigned_by` + assert the admin's `auth.users.raw_app_meta_data.tenant_ids` (read via `supabase.auth.admin.getUserById`) now includes the new tenant id per FR-028a; in `apps/api/test/e2e/tenants.e2e-spec.ts`
 
 ### Frontend for User Story 4
 
@@ -260,11 +266,11 @@ description: "Task list for feature 020 — Tenants Catalog and Multi-Tenant Acc
 
 ### Backend for User Story 6
 
-- [ ] T113 [US6] Add `UsersService.syncUserTenants(userId, tenantIds, primaryTenantId, actorScope)` — asserts `role !== "resident"` (throws); if `actorScope.scope === "list"` asserts every `tenantIds[i]` is in `actorScope.tenantIds` (403 per FR-055); in a transaction: `UPDATE profiles SET tenant_id = $primary WHERE user_id = $userId`, `DELETE FROM user_tenants WHERE user_id = $userId AND tenant_id NOT IN ($tenantIds)`, `INSERT INTO user_tenants (user_id, tenant_id, assigned_by) VALUES ... ON CONFLICT DO NOTHING`; in `apps/api/src/modules/users/users.service.ts`
-- [ ] T114 [US6] Update `UsersService.create` and `update` to call `syncUserTenants` on the admin/guard branches of the `createUserSchema`/`updateUserSchema` discriminated union; reject `role='admin'` creation when `actor.role !== 'super_admin'` per FR-056
+- [ ] T113 [US6] Add `UsersService.syncUserTenants(userId, tenantIds, primaryTenantId, actorScope, actorId)` — asserts `role !== "resident"` (throws); if `actorScope.scope === "list"` asserts every `tenantIds[i]` is in `actorScope.tenantIds` (403 per FR-055); in a transaction: `UPDATE profiles SET tenant_id = $primary WHERE user_id = $userId`, `DELETE FROM user_tenants WHERE user_id = $userId AND tenant_id NOT IN ($tenantIds)`, `INSERT INTO user_tenants (user_id, tenant_id, assigned_by = $actorId) VALUES ... ON CONFLICT DO NOTHING`; **then per FR-028a** call `supabase.auth.admin.updateUserById(userId, { app_metadata: { tenant_ids: <finalSet>, tenant_id: $primary } })` merged with existing `app_metadata` (read-merge-write to preserve `role`); failure of `updateUserById` after DB writes MUST surface (no silent drift); in `apps/api/src/modules/users/users.service.ts`. Applies to FR-028a paths (c).
+- [ ] T114 [US6] Update `UsersService.create` and `update` to call `syncUserTenants` on the admin/guard branches of the `createUserSchema`/`updateUserSchema` discriminated union; reject `role='admin'` creation when `actor.role !== 'super_admin'` per FR-056. On `create`, `syncUserTenants` is invoked AFTER `UsersRepository.create` (which already calls `auth.admin.createUser` with `app_metadata.tenant_ids`); verify the post-create sync writes the final set a second time if `user_tenants` inserts succeeded — this guarantees FR-028a path (b) even when the repo-level write and the service-level sync diverge. Resident branch is unchanged (single tenant via `profiles.tenant_id`, no `user_tenants`); FR-028a writeback for residents (path: `tenant_ids = [profile.tenant_id]` one-element array) MUST be applied inside the existing `auth.admin.createUser` / `updateUserById` calls in `UsersRepository.create/update`.
 - [ ] T115 [US6] Update `UsersController` POST/PATCH handlers to apply the new discriminated Zod schemas via `ZodValidationPipe` and forward actor info to the service
-- [ ] T116 [US6] [P] Add Jest unit tests for `UsersService.syncUserTenants` (admin out-of-scope → 403; residents refused; diff insert+delete; primary sets profile tenant_id; actor-not-super_admin-creating-admin rejected) in `apps/api/src/modules/users/users.service.spec.ts`
-- [ ] T117 [US6] [P] Extend NestJS e2e with multi-tenant user create/update scenarios (super_admin 3-tenant create; admin constrained to own tenants; primary-must-be-in-set 422; admin-creating-admin 403) in `apps/api/test/e2e/users.e2e-spec.ts`
+- [ ] T116 [US6] [P] Add Jest unit tests for `UsersService.syncUserTenants` (admin out-of-scope → 403; residents refused; diff insert+delete; primary sets profile tenant_id; actor-not-super_admin-creating-admin rejected; **FR-028a: `auth.admin.updateUserById` mock called with the full final `tenant_ids` array after each mutation, merging not replacing other app_metadata fields; `updateUserById` failure after DB write propagates as 5xx**) in `apps/api/src/modules/users/users.service.spec.ts`
+- [ ] T117 [US6] [P] Extend NestJS e2e with multi-tenant user create/update scenarios (super_admin 3-tenant create; admin constrained to own tenants; primary-must-be-in-set 422; admin-creating-admin 403). For each successful create/update, assert via `supabase.auth.admin.getUserById(createdUserId)` that `raw_app_meta_data.tenant_ids` matches the final `user_tenants` set per FR-028a — including on edits that remove a tenant (the array shrinks). In `apps/api/test/e2e/users.e2e-spec.ts`
 
 ### Frontend for User Story 6
 
@@ -321,6 +327,7 @@ description: "Task list for feature 020 — Tenants Catalog and Multi-Tenant Acc
 - [ ] T137 [P] Translation audit — toggle `/es` ↔ `/en` for every new surface (catalog list, sidebar, form, filters, selector, user form multi-select, toast messages, error messages) and log any untranslated strings; fix in `packages/i18n/src/messages/{en,es}/{tenants,users}.json` until SC-006 holds
 - [ ] T138 [P] Run `pnpm check:shared-features` to confirm the new `packages/features/src/tenant-selector/` module complies with the shared-feature-module rules (no `next/*`, no `"use client";`, no `window.electron`, locale strings routed through `@ramcar/i18n`)
 - [ ] T139 [P] Regression audit for existing tenant-scoped features (Logbook, Access Log, Users catalog, Visitors/Providers, Vehicles) on a seeded resident account; verify row counts are unchanged vs. a pre-migration baseline per SC-008
+- [ ] T139a [P] FR-028a parity audit — script iterates every non-resident profile and asserts `auth.users.raw_app_meta_data.tenant_ids` matches the `user_tenants` set (for super_admin: literal `"*"`; for admin/guard: the sorted UUID array). Runs against the seeded DB from T078 and also as a repeatable diagnostic in `apps/api/test/integration/app-metadata-parity.sql` (or a TS equivalent that uses the admin API). Fails if any drift is observed between the two sources, proving FR-028a's no-silent-drift guarantee.
 - [ ] T140 Update `CLAUDE.md` Active Technologies + Recent Changes sections with a new entry `- 020-tenants-catalog: tenants catalog + user_tenants + TenantSelector + tenant-images public-read bucket + @CurrentTenant scope union + RLS rewrites across 7 tables`
 - [ ] T141 Run `pnpm build && pnpm lint && pnpm typecheck && pnpm test` across the monorepo; fix any residual type/lint/test errors
 - [ ] T142 Walk the quickstart.md scenarios end-to-end in a local environment; check off each acceptance scenario and success criterion (SC-001 through SC-009)
@@ -337,9 +344,9 @@ description: "Task list for feature 020 — Tenants Catalog and Multi-Tenant Acc
 - **Phase 3 US1** → depends on Phase 2; delivers the MVP (SuperAdmin create + list)
 - **Phase 4 US2** → depends on Phase 2 (all functional code lands in Phase 2; this phase is verification)
 - **Phase 5 US3** → depends on Phase 2; independent of Phase 3/4 code
-- **Phase 6 US4** → depends on Phase 3 (shares `TenantsService.create`) and Phase 2 foundation
+- **Phase 6 US4** → depends on Phase 3 (shares `TenantsService.create`), Phase 2 foundation, and T048a (`syncUserAppMetadata` helper for FR-028a writeback in `CreateTenantUseCase`)
 - **Phase 7 US5** → depends on Phase 3 (shares the controller/sidebar/hook shells)
-- **Phase 8 US6** → depends on Phase 2 (users module migrated to scope) and Phase 3 (`useTenants` hook for combobox options)
+- **Phase 8 US6** → depends on Phase 2 (users module migrated to scope, `syncUserAppMetadata` helper for FR-028a), and Phase 3 (`useTenants` hook for combobox options)
 - **Phase 9 US7** → depends on Phase 3 (catalog page must exist before redirect guard is meaningful)
 - **Phase 10 US8** → depends on Phase 3 (extends the catalog filters)
 - **Phase 11 Polish** → depends on all desired user-story phases
@@ -353,6 +360,7 @@ description: "Task list for feature 020 — Tenants Catalog and Multi-Tenant Acc
 - T030–T032 (decorator + guard + utils) are sequential (same three files, co-dependent)
 - T033–T042 (API module migrations + call-site cleanup) depend on T030–T032 — within this group T035/T036, T037, T038, T039, T040 touch different modules and CAN parallelize
 - T043–T048 (auth slice + wiring + tests) depend on T022 (types) — T046 and T047 touch different apps and can parallelize
+- T048a–T048b (app-metadata writeback helper for FR-028a) depend on T042 (API cutover compiles); consumed by T092a, T113, and the resident branch of T114
 - T049–T051 (TenantAvatar) depend on T022 (types only); fully parallelizable with the API work
 
 ### Within each user-story phase
@@ -451,6 +459,7 @@ US1 blocks US5, US7, US8 (shared page/components). US3 and US6 are independent o
 - The `@CurrentTenant()` contract change is a **breaking cutover**. Every call site must be migrated in the same PR (see T041). No shim is planned.
 - The 24h legacy-JWT fallback (T031) is a rollout-window safety net; a follow-up PR (not in this feature's scope) removes it per R-12.
 - The `tenant-images` bucket is public-read. Writes go through the NestJS API only (Constitution Principle VIII). The bucket's MIME + size policy is defense in depth, not the primary enforcement.
+- FR-028a requires every `user_tenants` mutation to also mirror the updated set into `auth.users.raw_app_meta_data.tenant_ids` via `supabase.auth.admin.updateUserById`. The `custom_access_token_hook` remains authoritative at token issue — the writeback is a lockstep guarantee (defense in depth + observability), not a replacement for the hook. Any `updateUserById` failure after a successful DB write MUST propagate as 5xx so no silent drift is possible. The single choke point is the `syncUserAppMetadata` helper (T048a).
 - The catalog itself lives only in `apps/web` — it's explicitly single-app per plan.md §Structure Decision. Only the `TenantSelector` is shared via `@ramcar/features`.
 - The `// TODO: enforce tenant limit per admin based on subscription tier` comment is non-negotiable per FR-013 — it must be present in source, not a runtime check.
 - Commit cadence: commit after each logical group (e.g., after T022 types regenerated; after T042 API cutover passes; after T051 primitive + tests). Per CLAUDE.md, do not commit or push unless the user explicitly asks.
