@@ -12,7 +12,6 @@ export class TenantsRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
   async list(scope: TenantScope, query: TenantListQuery) {
-    console.log('🚀 DEBUG:  ~ TenantsRepository ~ list ~ scope:', scope)
     const { search, status, page, page_size: pageSize, scope: queryScope, include_inactive } = query;
     const client = this.supabase.getClient();
 

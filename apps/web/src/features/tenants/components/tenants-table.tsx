@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Button,
   Table,
@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
   Skeleton,
+  cn,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
@@ -32,15 +33,26 @@ export function TenantsTable() {
   const [selectedTenantId, setSelectedTenantId] = useState<string | undefined>(undefined);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const highlightedRowRef = useRef<HTMLTableRowElement | null>(null);
 
   const { data, isLoading } = useTenants({ search, status, page });
   const tenants = data?.data ?? [];
 
-  const columns = useTenantsTableColumns((tenant) => {
+  const handleEdit = useCallback((tenant: Tenant) => {
     setSelectedTenantId(tenant.id);
     setSidebarMode("edit");
     setSidebarOpen(true);
-  });
+  }, []);
+
+  const columns = useTenantsTableColumns(handleEdit);
+
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [search, status, page, data?.data]);
+
+  useEffect(() => {
+    highlightedRowRef.current?.scrollIntoView({ block: "nearest" });
+  }, [highlightedIndex]);
 
   useKeyboardNavigation<Tenant>({
     searchInputRef,
@@ -48,7 +60,7 @@ export function TenantsTable() {
     disabled: sidebarOpen,
     highlightedIndex,
     setHighlightedIndex,
-    onSelectItem: () => {},
+    onSelectItem: handleEdit,
   });
 
   function handleFilterChange(partial: { search?: string; status?: "active" | "inactive" | "all" }) {
@@ -72,8 +84,13 @@ export function TenantsTable() {
         </Button>
       </div>
       <div className="flex items-center justify-between">
-        <TenantFilters search={search} status={status} onChange={handleFilterChange} />
-        
+        <TenantFilters
+          ref={searchInputRef}
+          search={search}
+          status={status}
+          onChange={handleFilterChange}
+        />
+
       </div>
 
       <div className="rounded-md border">
@@ -104,10 +121,28 @@ export function TenantsTable() {
                       </TableCell>
                     </TableRow>
                   )
-                : tenants.map((tenant) => (
-                    <TableRow key={tenant.id}>
+                : tenants.map((tenant, index) => (
+                    <TableRow
+                      key={tenant.id}
+                      ref={index === highlightedIndex ? highlightedRowRef : null}
+                      className={cn(
+                        "cursor-pointer transition-colors",
+                        index === highlightedIndex && "bg-accent",
+                      )}
+                      aria-selected={index === highlightedIndex}
+                      onClick={() => handleEdit(tenant)}
+                    >
                       {columns.map((col) => (
-                        <TableCell key={col.key}>{col.cell(tenant)}</TableCell>
+                        <TableCell
+                          key={col.key}
+                          onClick={
+                            col.key === "actions"
+                              ? (e) => e.stopPropagation()
+                              : undefined
+                          }
+                        >
+                          {col.cell(tenant)}
+                        </TableCell>
                       ))}
                     </TableRow>
                   ))}

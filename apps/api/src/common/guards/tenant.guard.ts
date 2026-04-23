@@ -35,14 +35,12 @@ export class TenantGuard implements CanActivate {
     request.tenantScope = scope;
 
     const targetTenantId =
-      request.params?.id ??
       request.params?.tenantId ??
       request.query?.tenant_id ??
-      request.body?.tenant_id ??
-      (Array.isArray(request.body?.tenant_ids) ? undefined : undefined);
+      request.body?.tenant_id;
 
-    if (targetTenantId) {
-      assertTargetAllowed(scope, targetTenantId as string);
+    if (typeof targetTenantId === "string" && targetTenantId.length > 0) {
+      assertTargetAllowed(scope, targetTenantId);
     }
 
     return true;
