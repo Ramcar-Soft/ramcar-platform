@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   Injectable,
   NotFoundException,
   StreamableFile,
@@ -11,54 +10,12 @@ import type {
   AccessEventListQueryInput,
   AccessEventListResponse,
   LogbookLocale,
-  Role,
   UpdateAccessEventInput,
 } from "@ramcar/shared";
-import { TenantsService } from "../tenants/tenants.service";
-import {
-  AccessEventsRepository,
-  type ListAccessEventsScope,
-} from "./access-events.repository";
+import { AccessEventsRepository } from "./access-events.repository";
 import { CSV_BOM, getHeaderRow, itemToRow } from "./access-events.csv";
 import type { CreateAccessEventDto } from "./dto/create-access-event.dto";
-
-interface AuthActor {
-  id: string;
-  app_metadata?: {
-    role?: string;
-    tenant_id?: string;
-  };
-}
-
-export function resolveTenantScope(
-  actorRole: Role,
-  actorTenantId: string,
-  requestedTenantId: string | undefined,
-  authorizedTenantIds: string[],
-): ListAccessEventsScope {
-  if (actorRole === "admin") {
-    if (!requestedTenantId || requestedTenantId === actorTenantId) {
-      return { kind: "single", tenantId: actorTenantId };
-    }
-    throw new ForbiddenException(
-      "Admins can only access access events for their own tenant",
-    );
-  }
-
-  if (actorRole === "super_admin") {
-    if (!requestedTenantId) {
-      return { kind: "many", tenantIds: authorizedTenantIds };
-    }
-    if (authorizedTenantIds.includes(requestedTenantId)) {
-      return { kind: "single", tenantId: requestedTenantId };
-    }
-    throw new ForbiddenException(
-      "Requested tenant is not in the authorized set",
-    );
-  }
-
-  throw new ForbiddenException("Role not permitted to list access events");
-}
+import type { TenantScope } from "../../common/utils/tenant-scope";
 
 function dateToUtc(dateStr: string, isEndOfDay: boolean): string {
   return isEndOfDay ? `${dateStr}T23:59:59.999Z` : `${dateStr}T00:00:00.000Z`;
@@ -77,52 +34,43 @@ function getTodayUTC(): { dateFromUTC: string; dateToUTC: string } {
 
 @Injectable()
 export class AccessEventsService {
-  constructor(
-    private readonly repository: AccessEventsRepository,
-    private readonly tenantsService: TenantsService,
-  ) {}
+  constructor(private readonly repository: AccessEventsRepository) {}
 
   async create(
     dto: CreateAccessEventDto,
-    tenantId: string,
+    scope: TenantScope,
     registeredBy: string,
   ): Promise<AccessEvent> {
+    const tenantId =
+      scope.scope === "single"
+        ? scope.tenantId
+        : scope.scope === "list"
+          ? (scope.tenantIds[0] ?? "")
+          : "";
     const row = await this.repository.create(dto, tenantId, registeredBy);
     return this.mapRow(row);
   }
 
-  async findRecentByUserId(
-    userId: string,
-    tenantId: string,
-  ): Promise<AccessEvent[]> {
-    const rows = await this.repository.findRecentByUserId(userId, tenantId);
+  async findRecentByUserId(userId: string, scope: TenantScope): Promise<AccessEvent[]> {
+    const rows = await this.repository.findRecentByUserId(userId, scope);
     return rows.map((row) => this.mapRow(row));
   }
 
-  async findLastByUserId(
-    userId: string,
-    tenantId: string,
-  ): Promise<AccessEvent | null> {
-    const row = await this.repository.findLastByUserId(userId, tenantId);
+  async findLastByUserId(userId: string, scope: TenantScope): Promise<AccessEvent | null> {
+    const row = await this.repository.findLastByUserId(userId, scope);
     if (!row) return null;
     return this.mapRow(row);
   }
 
-  async findRecentByVisitPersonId(
-    visitPersonId: string,
-    tenantId: string,
-  ): Promise<AccessEvent[]> {
-    const rows = await this.repository.findRecentByVisitPersonId(
-      visitPersonId,
-      tenantId,
-    );
+  async findRecentByVisitPersonId(visitPersonId: string, scope: TenantScope): Promise<AccessEvent[]> {
+    const rows = await this.repository.findRecentByVisitPersonId(visitPersonId, scope);
     return rows.map((row) => this.mapRow(row));
   }
 
   async update(
     id: string,
     dto: UpdateAccessEventInput,
-    tenantId: string,
+    scope: TenantScope,
   ): Promise<AccessEvent> {
     const updateData: Record<string, unknown> = {};
     if (dto.direction !== undefined) updateData.direction = dto.direction;
@@ -134,35 +82,15 @@ export class AccessEventsService {
     }
     if (dto.notes !== undefined) updateData.notes = dto.notes || null;
 
-    const row = await this.repository.update(id, tenantId, updateData);
+    const row = await this.repository.update(id, scope, updateData);
     if (!row) throw new NotFoundException("Access event not found");
     return this.mapRow(row);
   }
 
   async list(
     query: AccessEventListQueryInput,
-    actorUser: AuthActor,
+    scope: TenantScope,
   ): Promise<AccessEventListResponse> {
-    const actorRole = (actorUser.app_metadata?.role ?? "resident") as Role;
-    const actorTenantId = actorUser.app_metadata?.tenant_id ?? "";
-
-    let authorizedTenantIds: string[] = [];
-    if (actorRole === "super_admin") {
-      const tenants = await this.tenantsService.findAll(actorUser, actorTenantId);
-      authorizedTenantIds = tenants.map((t) => t.id);
-    } else if (actorRole === "admin") {
-      authorizedTenantIds = actorTenantId ? [actorTenantId] : [];
-    }
-
-    const scope = resolveTenantScope(
-      actorRole,
-      actorTenantId,
-      query.tenantId,
-      authorizedTenantIds,
-    );
-
-    // Compute date window. Defaults to "today" in UTC when no range is provided.
-    // When only `dateFrom` is set the day is interpreted as [start, end-of-day].
     const today = getTodayUTC();
     const dateFromUTC = query.dateFrom
       ? dateToUtc(query.dateFrom, false)
@@ -170,8 +98,8 @@ export class AccessEventsService {
     const dateToUTC = query.dateTo
       ? dateToUtc(query.dateTo, true)
       : query.dateFrom
-      ? dateToUtc(query.dateFrom, true)
-      : today.dateToUTC;
+        ? dateToUtc(query.dateFrom, true)
+        : today.dateToUTC;
 
     const searchTerm = query.search?.trim();
 
@@ -213,29 +141,8 @@ export class AccessEventsService {
 
   async exportCsv(
     query: AccessEventExportQueryInput,
-    actorUser: AuthActor,
+    scope: TenantScope,
   ): Promise<StreamableFile> {
-    const actorRole = (actorUser.app_metadata?.role ?? "resident") as Role;
-    const actorTenantId = actorUser.app_metadata?.tenant_id ?? "";
-
-    let authorizedTenantIds: string[] = [];
-    if (actorRole === "super_admin") {
-      const tenants = await this.tenantsService.findAll(
-        actorUser,
-        actorTenantId,
-      );
-      authorizedTenantIds = tenants.map((t) => t.id);
-    } else if (actorRole === "admin") {
-      authorizedTenantIds = actorTenantId ? [actorTenantId] : [];
-    }
-
-    const scope = resolveTenantScope(
-      actorRole,
-      actorTenantId,
-      query.tenantId,
-      authorizedTenantIds,
-    );
-
     const today = getTodayUTC();
     const dateFromUTC = query.dateFrom
       ? dateToUtc(query.dateFrom, false)
@@ -247,11 +154,10 @@ export class AccessEventsService {
         : today.dateToUTC;
 
     const locale = (query.locale ?? "en") as LogbookLocale;
-    const showTenant = scope.kind === "many";
+    const showTenant = scope.scope === "all" || (scope.scope === "list" && scope.tenantIds.length > 1);
     const personType = query.personType;
     const searchTerm = query.search?.trim();
 
-    // Filename: logbook-<subpage>-<yyyy-mm-dd>.csv (today in UTC).
     const now = new Date();
     const fileDate = `${now.getUTCFullYear()}-${String(
       now.getUTCMonth() + 1,
@@ -277,8 +183,6 @@ export class AccessEventsService {
 
     const headerRow = getHeaderRow(personType, locale, showTenant);
 
-    // Node Readable wrapping the async generator. Yields BOM + header first,
-    // then CSV chunks one batch at a time, then ends when the iterator is done.
     async function* generate(): AsyncGenerator<string> {
       yield CSV_BOM + headerRow;
       for await (const batch of iterator) {

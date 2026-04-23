@@ -6,13 +6,12 @@ import { SupabaseService } from "../../infrastructure/supabase/supabase.service"
 export class AuthService {
   constructor(private readonly supabase: SupabaseService) {}
 
-  async getProfile(userId: string, tenantId: string): Promise<UserProfile> {
+  async getProfile(userId: string): Promise<UserProfile> {
     const { data, error } = await this.supabase
       .getClient()
       .from("profiles")
       .select("id, user_id, tenant_id, email, full_name, role")
       .eq("user_id", userId)
-      .eq("tenant_id", tenantId)
       .single();
 
     if (error || !data) {

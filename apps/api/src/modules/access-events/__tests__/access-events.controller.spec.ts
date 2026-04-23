@@ -6,30 +6,19 @@ import { UsersService } from "../../users/users.service";
 import { JwtAuthGuard } from "../../../common/guards/jwt-auth.guard";
 import { TenantGuard } from "../../../common/guards/tenant.guard";
 import { RolesGuard } from "../../../common/guards/roles.guard";
+import type { TenantScope } from "../../../common/utils/tenant-scope";
 
 const mockEmptyListResponse = {
   data: [],
   meta: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
 };
 
-// Use valid UUIDs since the Zod schema validates tenantId as uuid
 const TENANT_UUID_1 = "00000000-0000-0000-0000-000000000001";
 const TENANT_UUID_2 = "00000000-0000-0000-0000-000000000002";
 const TENANT_UUID_UNAUTH = "00000000-0000-0000-0000-000000000099";
 
-function makeAdminUser(tenantId = TENANT_UUID_1) {
-  return {
-    id: "00000000-0000-0000-0000-000000000010",
-    app_metadata: { role: "admin", tenant_id: tenantId },
-  };
-}
-
-function makeSuperAdminUser() {
-  return {
-    id: "00000000-0000-0000-0000-000000000020",
-    app_metadata: { role: "super_admin", tenant_id: "" },
-  };
-}
+const adminScope: TenantScope = { role: "admin", scope: "list", tenantIds: [TENANT_UUID_1] };
+const superAdminScope: TenantScope = { role: "super_admin", scope: "all" };
 
 describe("AccessEventsController", () => {
   let controller: AccessEventsController;
@@ -64,42 +53,38 @@ describe("AccessEventsController", () => {
 
   describe("list", () => {
     it("calls service.list for admin without tenantId and returns result", async () => {
-      const adminUser = makeAdminUser();
       const result = await controller.list(
         { personType: "visitor", page: "1", pageSize: "25" },
-        adminUser,
+        adminScope,
       );
 
       expect(mockService.list).toHaveBeenCalledTimes(1);
       expect(mockService.list).toHaveBeenCalledWith(
         expect.objectContaining({ personType: "visitor" }),
-        adminUser,
+        adminScope,
       );
       expect(result).toEqual(mockEmptyListResponse);
     });
 
-    it("calls service.list for admin with same tenantId (no cross-tenant attempt)", async () => {
-      const adminUser = makeAdminUser(TENANT_UUID_1);
-
+    it("calls service.list for admin with query params", async () => {
       await controller.list(
         { personType: "visitor", page: "1", pageSize: "25", tenantId: TENANT_UUID_1 },
-        adminUser,
+        adminScope,
       );
 
       expect(mockService.list).toHaveBeenCalledWith(
         expect.objectContaining({ tenantId: TENANT_UUID_1, personType: "visitor" }),
-        adminUser,
+        adminScope,
       );
     });
 
     it("re-throws ForbiddenException from service when admin attempts cross-tenant access", async () => {
-      const adminUser = makeAdminUser(TENANT_UUID_1);
       mockService.list.mockRejectedValue(new ForbiddenException());
 
       await expect(
         controller.list(
           { personType: "visitor", page: "1", pageSize: "25", tenantId: TENANT_UUID_2 },
-          adminUser,
+          adminScope,
         ),
       ).rejects.toThrow(ForbiddenException);
 
@@ -107,35 +92,30 @@ describe("AccessEventsController", () => {
     });
 
     it("calls service.list for super_admin without tenantId", async () => {
-      const superAdmin = makeSuperAdminUser();
-
       await controller.list(
         { personType: "visitor", page: "1", pageSize: "25" },
-        superAdmin,
+        superAdminScope,
       );
 
       expect(mockService.list).toHaveBeenCalledWith(
         expect.objectContaining({ personType: "visitor" }),
-        superAdmin,
+        superAdminScope,
       );
     });
 
     it("calls service.list for super_admin with a specific tenantId", async () => {
-      const superAdmin = makeSuperAdminUser();
-
       await controller.list(
         { personType: "visitor", page: "1", pageSize: "25", tenantId: TENANT_UUID_1 },
-        superAdmin,
+        superAdminScope,
       );
 
       expect(mockService.list).toHaveBeenCalledWith(
         expect.objectContaining({ tenantId: TENANT_UUID_1 }),
-        superAdmin,
+        superAdminScope,
       );
     });
 
     it("re-throws ForbiddenException from service when super_admin requests unauthorized tenant", async () => {
-      const superAdmin = makeSuperAdminUser();
       mockService.list.mockRejectedValue(new ForbiddenException());
 
       await expect(
@@ -146,14 +126,12 @@ describe("AccessEventsController", () => {
             pageSize: "25",
             tenantId: TENANT_UUID_UNAUTH,
           },
-          superAdmin,
+          superAdminScope,
         ),
       ).rejects.toThrow(ForbiddenException);
     });
 
     it("forwards all query params to service.list", async () => {
-      const adminUser = makeAdminUser();
-
       await controller.list(
         {
           personType: "service_provider",
@@ -163,7 +141,7 @@ describe("AccessEventsController", () => {
           dateTo: "2026-04-22",
           search: "john",
         },
-        adminUser,
+        adminScope,
       );
 
       expect(mockService.list).toHaveBeenCalledWith(
@@ -175,7 +153,7 @@ describe("AccessEventsController", () => {
           dateTo: "2026-04-22",
           search: "john",
         }),
-        adminUser,
+        adminScope,
       );
     });
   });

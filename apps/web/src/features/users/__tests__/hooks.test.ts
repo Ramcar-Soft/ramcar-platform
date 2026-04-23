@@ -102,17 +102,6 @@ describe("useGetUser hook", () => {
   });
 });
 
-describe("useTenants hook", () => {
-  it("calls apiClient.get for tenants", async () => {
-    mockGet.mockResolvedValue({ data: [{ id: "t1", name: "Tenant 1" }] });
-    const { useTenants } = await import("../hooks/use-tenants");
-    const result = useTenants();
-    const data = await (result as any).queryFn();
-    expect(mockGet).toHaveBeenCalledWith("/tenants");
-    expect(data).toEqual([{ id: "t1", name: "Tenant 1" }]);
-  });
-});
-
 describe("useUserGroups hook", () => {
   it("calls apiClient.get for user-groups", async () => {
     mockGet.mockResolvedValue({ data: [{ id: "g1", name: "Group 1" }] });

@@ -40,6 +40,7 @@
     "dashboard": "Dashboard",
     "catalogs": "Catalogs",
     "catalogs_users": "Users",
+    "catalogs_tenants": "Tenants",
     "logbook": "Access Log",
     "logbook_visitors": "Visitors",
     "logbook_providers": "Providers",
@@ -109,6 +110,12 @@
       "observations": "Observations",
       "selectRole": "Select a role",
       "selectTenant": "Select a tenant",
+      "tenantsMultiLabel": "Assigned tenants",
+      "tenantsSearchPlaceholder": "Search tenants…",
+      "tenantsEmpty": "No tenants found",
+      "tenantPrimaryLabel": "Primary tenant",
+      "tenantSetPrimary": "Set as primary",
+      "tenantRemove": "Remove",
       "selectPhoneType": "Select phone type",
       "password": "Password",
       "confirmPassword": "Confirm Password",
@@ -170,6 +177,11 @@
     "sidebar": {
       "createTitle": "Create User",
       "editTitle": "Edit User"
+    },
+    "validation": {
+      "atLeastOneTenant": "Select at least one tenant",
+      "primaryMustBeSelected": "The primary tenant must be one of the assigned tenants",
+      "tooManyTenants": "A user cannot be assigned to more than 50 tenants"
     },
     "empty": "No users found",
     "errorLoading": "Failed to load users. Please try again."
@@ -624,6 +636,72 @@
       "generating": "Generating…",
       "error": "Export failed. Please try again.",
       "noRows": "No rows to export"
+    }
+  },
+  "tenants": {
+    "nav": {
+      "label": "Tenants"
+    },
+    "table": {
+      "columns": {
+        "name": "Name",
+        "address": "Address",
+        "status": "Status",
+        "createdAt": "Created",
+        "actions": "Actions"
+      },
+      "emptyState": "No tenants found"
+    },
+    "filters": {
+      "searchPlaceholder": "Search tenants…",
+      "statusAll": "All",
+      "statusActive": "Active",
+      "statusInactive": "Inactive"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "create": "New Tenant"
+    },
+    "toast": {
+      "createSuccess": "Tenant created successfully",
+      "loadFailed": "Failed to load tenants",
+      "imageUpdateSuccess": "Tenant image updated",
+      "imageRemoveSuccess": "Tenant image removed",
+      "imageUploadFailed": "Image upload failed"
+    },
+    "sidebar": {
+      "createTitle": "New Tenant",
+      "editTitle": "Edit Tenant",
+      "description": "Manage residential community settings"
+    },
+    "form": {
+      "name": "Name",
+      "nameRequired": "Name is required",
+      "address": "Address",
+      "addressRequired": "Address is required",
+      "status": "Status",
+      "statusLabel": "Status",
+      "image": {
+        "label": "Logo",
+        "upload": "Upload image",
+        "replace": "Replace",
+        "remove": "Remove",
+        "currentLabel": "Current logo"
+      },
+      "submit": "Save",
+      "cancel": "Cancel"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameTooLong": "Name must not exceed 255 characters",
+      "addressRequired": "Address is required",
+      "atLeastOneField": "At least one field is required",
+      "imageTooLarge": "Image must be under 2 MB",
+      "imageWrongType": "Only JPEG, PNG, and WebP are allowed",
+      "nameExists": "A tenant with this name already exists"
     }
   }
 }

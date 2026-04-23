@@ -19,6 +19,7 @@ import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentTenant } from "../../common/decorators/current-tenant.decorator";
 import { imageTypeEnum } from "@ramcar/shared";
 import { VisitPersonImagesService } from "./visit-person-images.service";
+import type { TenantScope } from "../../common/utils/tenant-scope";
 
 @Controller()
 @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
@@ -34,26 +35,26 @@ export class VisitPersonImagesController {
     @Param("id") visitPersonId: string,
     @Body("imageType") imageTypeRaw: string,
     @UploadedFile() file: { buffer: Buffer; mimetype: string; size: number; originalname: string },
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const imageType = imageTypeEnum.parse(imageTypeRaw);
-    return this.imagesService.upload(tenantId, visitPersonId, imageType, file);
+    return this.imagesService.upload(scope, visitPersonId, imageType, file);
   }
 
   @Get("visit-persons/:id/images")
   async findByVisitPerson(
     @Param("id") visitPersonId: string,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
-    return this.imagesService.findByVisitPersonId(visitPersonId, tenantId);
+    return this.imagesService.findByVisitPersonId(visitPersonId, scope);
   }
 
   @Delete("visit-person-images/:id")
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param("id") id: string,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
-    await this.imagesService.deleteById(id, tenantId);
+    await this.imagesService.deleteById(id, scope);
   }
 }

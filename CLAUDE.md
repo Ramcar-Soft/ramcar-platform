@@ -265,5 +265,8 @@ All catalog create and edit flows MUST use a right-side `Sheet` (`@ramcar/ui`) �
 - PostgreSQL via Supabase — **no schema changes**. Reuses existing `profiles` table via `ResidentsService.list` → `UsersRepository.list` (list) and `UsersRepository.getById` (resolver). (018-resident-select-combobox)
 - PostgreSQL via Supabase. **No new tables** for this feature. Read-only query over `access_events` joined to `profiles` (for guard name and the resident-being-visited name), `visit_persons` (for visitor/provider name, code, company, status, resident_id), and `vehicles` (for plate/brand). Two potential schema adjustments require planning-phase decisions and are handled in Phase 0 (tenant time zone column, resident unit column). (019-logbook-bitacora)
 
+- TypeScript 5.x (strict mode across the monorepo), Node.js 22 LTS + Next.js 16 (App Router), NestJS v11, TanStack Query v5, Supabase JS v2, @ramcar/ui (TenantAvatar), @ramcar/store (authSlice: tenantIds/activeTenantId/activeTenantName), @ramcar/shared (tenant Zod schemas), @ramcar/features (tenant-selector shared module) (020-tenants-catalog)
+- PostgreSQL via Supabase: `public.tenants` extended (address, status, config, image_path); `public.user_tenants` NEW join table; RLS rewrites on 7 tables; custom access token hook; `tenant-images` public-read Storage bucket. (020-tenants-catalog)
+
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr

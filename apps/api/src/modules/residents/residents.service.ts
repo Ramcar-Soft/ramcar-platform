@@ -7,6 +7,7 @@ import type {
 import { UsersService } from "../users/users.service";
 import { VehiclesService } from "../vehicles/vehicles.service";
 import type { ResidentFiltersDto } from "./dto/resident-filters.dto";
+import type { TenantScope } from "../../common/utils/tenant-scope";
 
 interface AuthUser {
   id: string;
@@ -26,7 +27,7 @@ export class ResidentsService {
   async list(
     filters: ResidentFiltersDto,
     actorUser: AuthUser,
-    tenantId: string,
+    scope: TenantScope,
   ): Promise<PaginatedResponse<ExtendedUserProfile>> {
     return this.usersService.list(
       {
@@ -35,16 +36,16 @@ export class ResidentsService {
         status: filters.status ?? "active",
       },
       actorUser,
-      tenantId,
+      scope,
     );
   }
 
   async getById(
     id: string,
     actorUser: AuthUser,
-    tenantId: string,
+    scope: TenantScope,
   ): Promise<ExtendedUserProfile> {
-    const profile = await this.usersService.getById(id, actorUser, tenantId);
+    const profile = await this.usersService.getById(id, actorUser, scope);
     if (profile.role !== "resident") {
       throw new NotFoundException("Resident not found");
     }
@@ -53,8 +54,8 @@ export class ResidentsService {
 
   async getVehicles(
     residentId: string,
-    tenantId: string,
+    scope: TenantScope,
   ): Promise<Vehicle[]> {
-    return this.vehiclesService.findByUserId(residentId, tenantId);
+    return this.vehiclesService.findByUserId(residentId, scope);
   }
 }

@@ -18,6 +18,7 @@ import { useAppStore } from "@ramcar/store";
 import { getAssignableRoles } from "@ramcar/shared";
 import type { Role } from "@ramcar/shared";
 import type { ExtendedUserProfile, PhoneType, UserGroup } from "../types";
+import { TenantMultiSelect } from "./tenant-multi-select";
 
 interface UserFormProps {
   mode: "create" | "edit";
@@ -34,6 +35,8 @@ export interface UserFormData {
   email: string;
   role: string;
   tenantId: string;
+  tenantIds: string[];
+  primaryTenantId: string;
   address: string;
   username: string;
   phone: string;
@@ -58,15 +61,34 @@ export function UserForm({
   const t = useTranslations("users");
   const currentUser = useAppStore((s) => s.user);
   const actorRole = (currentUser?.role ?? "resident") as Role;
-  const assignableRoles = getAssignableRoles(actorRole);
+  const actorTenantIds = useAppStore((s) => s.tenantIds);
+  const allAssignableRoles = getAssignableRoles(actorRole);
+  const assignableRoles = allAssignableRoles.filter(
+    (r) => r !== "admin" || actorRole === "super_admin",
+  );
 
   const isEdit = mode === "edit";
+
+  const initialTenantIds = initialData?.tenantIds ?? [];
+  const initialRole = initialData?.role ?? "";
+  const initialPrimary =
+    initialTenantIds.length > 0
+      ? (initialData?.tenantId && initialTenantIds.includes(initialData.tenantId)
+          ? initialData.tenantId
+          : initialTenantIds[0])
+      : initialData?.tenantId ?? "";
 
   const [formData, setFormData] = useState<UserFormData>(() => ({
     fullName: initialData?.fullName ?? "",
     email: initialData?.email ?? "",
-    role: initialData?.role ?? "",
+    role: initialRole,
     tenantId: initialData?.tenantId ?? currentUser?.tenantId ?? "",
+    tenantIds:
+      initialRole === "admin" || initialRole === "guard"
+        ? initialTenantIds
+        : [],
+    primaryTenantId:
+      initialRole === "admin" || initialRole === "guard" ? initialPrimary : "",
     address: initialData?.address ?? "",
     username: initialData?.username ?? "",
     phone: initialData?.phone ?? "",
@@ -111,13 +133,28 @@ export function UserForm({
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       errs.email = "Invalid email";
     if (!formData.role) errs.role = "Required";
-    if (!formData.tenantId) errs.tenantId = "Required";
-    if (!formData.address.trim()) errs.address = "Required";
-    else if (formData.username.length < 3)
-      errs.username = "Min 3 characters";
-    else if (!/^[a-zA-Z0-9_]*$/.test(formData.username))
-      errs.username = "Only letters, numbers, underscores";
-    if (!formData.phone.trim()) errs.phone = "Required";
+
+    const role = formData.role;
+    if (role === "resident") {
+      if (!formData.tenantId) errs.tenantId = "Required";
+    } else if (role === "admin" || role === "guard") {
+      if (formData.tenantIds.length === 0) {
+        errs.tenantIds = t("validation.atLeastOneTenant");
+      } else if (!formData.primaryTenantId) {
+        errs.primaryTenantId = t("validation.primaryMustBeSelected");
+      } else if (!formData.tenantIds.includes(formData.primaryTenantId)) {
+        errs.primaryTenantId = t("validation.primaryMustBeSelected");
+      }
+    }
+
+    if (role === "resident" && !formData.address.trim()) {
+      errs.address = "Required";
+    }
+    if (formData.username.length > 0) {
+      if (formData.username.length < 3) errs.username = "Min 3 characters";
+      else if (!/^[a-zA-Z0-9_]+$/.test(formData.username))
+        errs.username = "Only letters, numbers, underscores";
+    }
     if (!isEdit && formData.password && formData.password.length > 0) {
       if (formData.password.length < 8)
         errs.password = "Min 8 characters";
@@ -132,7 +169,13 @@ export function UserForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    const submitData: Partial<UserFormData> = { ...formData };
+
+    const submitData: Record<string, unknown> = {
+      ...formData,
+      phone: !!formData.phone.trim() ? formData.phone : undefined,
+      username: !!formData.username.trim() ? formData.phone : undefined,
+    };
+
     if (isEdit || !submitData.password) {
       delete submitData.password;
       delete submitData.confirmPassword;
@@ -140,8 +183,25 @@ export function UserForm({
     if (roleLocked) {
       delete submitData.role;
     }
+
+    const role = formData.role;
+    if (role === "admin" || role === "guard") {
+      submitData.tenant_ids = formData.tenantIds;
+      submitData.primary_tenant_id = formData.primaryTenantId;
+      delete submitData.tenantId;
+      delete submitData.tenantIds;
+      delete submitData.primaryTenantId;
+    } else if (role === "resident") {
+      delete submitData.tenantIds;
+      delete submitData.primaryTenantId;
+    } else {
+      delete submitData.tenantId;
+      delete submitData.tenantIds;
+      delete submitData.primaryTenantId;
+    }
+
     try {
-      await onSubmit(submitData as UserFormData);
+      await onSubmit(submitData as unknown as UserFormData);
       clearDraft();
     } catch {
       // Submission failed — keep draft for recovery
@@ -212,31 +272,60 @@ export function UserForm({
         </div>
 
         <div className="space-y-2">
-          <Label>{t("form.tenant")} *</Label>
-          <Select
-            value={formData.tenantId}
-            onValueChange={(v) => updateField("tenantId", v)}
-            disabled={!isSuperAdmin && mode === "create"}
-          >
-            <SelectTrigger aria-invalid={!!errors.tenantId}>
-              <SelectValue placeholder={t("form.selectTenant")} />
-            </SelectTrigger>
-            <SelectContent>
-              {tenants.map((tenant) => (
-                <SelectItem key={tenant.id} value={tenant.id}>
-                  {tenant.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.tenantId && (
-            <p className="text-sm text-destructive">{errors.tenantId}</p>
+          <Label>
+            {formData.role === "admin" || formData.role === "guard"
+              ? t("form.tenantsMultiLabel")
+              : t("form.tenant")}{" "}
+            {formData.role === "super_admin" ? "" : "*"}
+          </Label>
+          {formData.role === "admin" || formData.role === "guard" ? (
+            <TenantMultiSelect
+              value={formData.tenantIds}
+              primary={formData.primaryTenantId}
+              onChange={(nextIds, nextPrimary) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  tenantIds: nextIds,
+                  primaryTenantId: nextPrimary,
+                }))
+              }
+              options={tenants}
+              allowedIds={isSuperAdmin ? undefined : actorTenantIds}
+              disabled={isPending}
+              error={errors.tenantIds ?? errors.primaryTenantId}
+            />
+          ) : formData.role === "super_admin" ? (
+            <p className="text-sm text-muted-foreground">
+              {t("form.tenant")}: ★
+            </p>
+          ) : (
+            <>
+              <Select
+                value={formData.tenantId}
+                onValueChange={(v) => updateField("tenantId", v)}
+                disabled={!isSuperAdmin && mode === "create"}
+              >
+                <SelectTrigger aria-invalid={!!errors.tenantId}>
+                  <SelectValue placeholder={t("form.selectTenant")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {tenants.map((tenant) => (
+                    <SelectItem key={tenant.id} value={tenant.id}>
+                      {tenant.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.tenantId && (
+                <p className="text-sm text-destructive">{errors.tenantId}</p>
+              )}
+            </>
           )}
         </div>
 
         <div className="space-y-2 sm:col-span-1">
           <div className="space-y-2">
-            <Label htmlFor="phone">{t("form.phone")} *</Label>
+            <Label htmlFor="phone">{t("form.phone")}</Label>
             <Input
               id="phone"
               value={formData.phone}
@@ -286,7 +375,10 @@ export function UserForm({
         </div>
 
         <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="address">{t("form.address")} *</Label>
+          <Label htmlFor="address">
+            {t("form.address")}
+            {formData.role === "resident" ? " *" : ""}
+          </Label>
           <Input
             id="address"
             value={formData.address}

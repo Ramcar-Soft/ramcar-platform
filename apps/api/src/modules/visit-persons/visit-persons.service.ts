@@ -5,6 +5,13 @@ import { VisitPersonsRepository } from "./visit-persons.repository";
 import type { CreateVisitPersonDto } from "./dto/create-visit-person.dto";
 import type { UpdateVisitPersonDto } from "./dto/update-visit-person.dto";
 import type { VisitPersonFiltersDto } from "./dto/visit-person-filters.dto";
+import type { TenantScope } from "../../common/utils/tenant-scope";
+
+function scopeToTenantId(scope: TenantScope): string {
+  if (scope.scope === "single") return scope.tenantId;
+  if (scope.scope === "list") return scope.tenantIds[0] ?? "";
+  return "";
+}
 
 @Injectable()
 export class VisitPersonsService {
@@ -15,27 +22,28 @@ export class VisitPersonsService {
 
   async create(
     dto: CreateVisitPersonDto,
-    tenantId: string,
+    scope: TenantScope,
     registeredBy: string,
   ): Promise<VisitPerson> {
+    const tenantId = scopeToTenantId(scope);
     const row = await this.repository.create(dto, tenantId, registeredBy);
     return this.enrichWithResidentName(this.mapRow(row));
   }
 
-  async findById(id: string, tenantId: string): Promise<VisitPerson> {
-    const row = await this.repository.findById(id, tenantId);
+  async findById(id: string, scope: TenantScope): Promise<VisitPerson> {
+    const row = await this.repository.findById(id, scope);
     if (!row) throw new NotFoundException("Visit person not found");
     return this.enrichWithResidentName(this.mapRow(row));
   }
 
   async list(
     filters: VisitPersonFiltersDto,
-    tenantId: string,
+    scope: TenantScope,
   ): Promise<{
     data: VisitPerson[];
     meta: { page: number; pageSize: number; total: number; totalPages: number };
   }> {
-    const { data, count } = await this.repository.list(filters, tenantId);
+    const { data, count } = await this.repository.list(filters, scope);
     const persons = data.map((row) => this.mapRow(row));
 
     const residentIds = persons
@@ -65,9 +73,9 @@ export class VisitPersonsService {
   async update(
     id: string,
     dto: UpdateVisitPersonDto,
-    tenantId: string,
+    scope: TenantScope,
   ): Promise<VisitPerson> {
-    const row = await this.repository.update(id, dto, tenantId);
+    const row = await this.repository.update(id, dto, scope);
     if (!row) throw new NotFoundException("Visit person not found");
     return this.enrichWithResidentName(this.mapRow(row));
   }

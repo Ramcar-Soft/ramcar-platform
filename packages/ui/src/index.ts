@@ -123,6 +123,9 @@ export {
   CommandSeparator,
 } from "./components/ui/command";
 
+// Tenant components
+export { TenantAvatar } from "./components/tenant-avatar";
+
 // Hooks
 export { useIsMobile } from "./hooks/use-mobile";
 

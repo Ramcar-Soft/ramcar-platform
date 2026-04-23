@@ -6,6 +6,12 @@
       "migratedAt": "2026-04-17",
       "package": "@ramcar/features/visitors",
       "notes": "Pilot migration — spec 014. Includes all 10 components, 10 hooks, and shared primitives (image-capture, vehicle-form, visit-person-status-select, resident-select)."
+    },
+    {
+      "name": "tenant-selector",
+      "migratedAt": "2026-04-23",
+      "package": "@ramcar/features/tenant-selector",
+      "notes": "Spec 020. TenantSelector Popover+Command combobox — TopBar picker for multi-tenant admin/guard users. No next/*, no 'use client', i18n and transport adapter-injected."
     }
   ],
   "allowList": [],

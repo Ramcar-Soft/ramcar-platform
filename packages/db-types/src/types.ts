@@ -112,6 +112,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_access_events_visit_person"
+            columns: ["visit_person_id"]
+            isOneToOne: false
+            referencedRelation: "visit_persons"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -178,24 +185,39 @@ export type Database = {
       }
       tenants: {
         Row: {
+          address: string
+          config: Json
           created_at: string
           id: string
+          image_path: string | null
           name: string
           slug: string
+          status: string
+          time_zone: string
           updated_at: string
         }
         Insert: {
+          address?: string
+          config?: Json
           created_at?: string
           id?: string
+          image_path?: string | null
           name: string
           slug: string
+          status?: string
+          time_zone?: string
           updated_at?: string
         }
         Update: {
+          address?: string
+          config?: Json
           created_at?: string
           id?: string
+          image_path?: string | null
           name?: string
           slug?: string
+          status?: string
+          time_zone?: string
           updated_at?: string
         }
         Relationships: []
@@ -221,6 +243,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_tenants: {
+        Row: {
+          assigned_by: string
+          created_at: string
+          id: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by: string
+          created_at?: string
+          id?: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string
+          created_at?: string
+          id?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tenants_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           blacklist_reason: string | null
@@ -238,6 +292,7 @@ export type Database = {
           user_id: string | null
           vehicle_type: string
           visit_person_id: string | null
+          year: number | null
         }
         Insert: {
           blacklist_reason?: string | null
@@ -255,6 +310,7 @@ export type Database = {
           user_id?: string | null
           vehicle_type: string
           visit_person_id?: string | null
+          year?: number | null
         }
         Update: {
           blacklist_reason?: string | null
@@ -272,8 +328,16 @@ export type Database = {
           user_id?: string | null
           vehicle_type?: string
           visit_person_id?: string | null
+          year?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_vehicles_visit_person"
+            columns: ["visit_person_id"]
+            isOneToOne: false
+            referencedRelation: "visit_persons"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "vehicles_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -290,12 +354,164 @@ export type Database = {
           },
         ]
       }
+      visit_person_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_type: string
+          storage_path: string
+          tenant_id: string
+          visit_person_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_type: string
+          storage_path: string
+          tenant_id: string
+          visit_person_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_type?: string
+          storage_path?: string
+          tenant_id?: string
+          visit_person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visit_person_images_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_person_images_visit_person_id_fkey"
+            columns: ["visit_person_id"]
+            isOneToOne: false
+            referencedRelation: "visit_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visit_persons: {
+        Row: {
+          code: string
+          company: string | null
+          created_at: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string | null
+          registered_by: string
+          resident_id: string | null
+          status: string
+          tenant_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          company?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          registered_by: string
+          resident_id?: string | null
+          status?: string
+          tenant_id: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          company?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          registered_by?: string
+          resident_id?: string | null
+          status?: string
+          tenant_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visit_persons_registered_by_fkey"
+            columns: ["registered_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_persons_resident_id_fkey"
+            columns: ["resident_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_persons_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      custom_access_token_hook: { Args: { event: Json }; Returns: Json }
+      search_access_events: {
+        Args: {
+          p_date_from: string
+          p_date_to_exclusive: string
+          p_limit: number
+          p_offset: number
+          p_person_type: string
+          p_resident_id: string
+          p_search: string
+          p_tenant_ids: string[]
+        }
+        Returns: {
+          access_mode: string
+          created_at: string
+          direction: string
+          guard_full_name: string
+          id: string
+          notes: string
+          person_type: string
+          registered_by: string
+          res_address: string
+          res_full_name: string
+          tenant_id: string
+          tenant_name: string
+          total_count: number
+          user_id: string
+          vehicle_brand: string
+          vehicle_id: string
+          vehicle_model: string
+          vehicle_plate: string
+          visit_person_id: string
+          vp_code: string
+          vp_company: string
+          vp_full_name: string
+          vp_phone: string
+          vp_resident_full_name: string
+          vp_resident_id: string
+          vp_status: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -40,6 +40,7 @@
     "dashboard": "Panel",
     "catalogs": "Catálogos",
     "catalogs_users": "Usuarios",
+    "catalogs_tenants": "Fraccionamientos",
     "logbook": "Bitácora",
     "logbook_visitors": "Visitantes",
     "logbook_providers": "Proveedores",
@@ -109,6 +110,12 @@
       "observations": "Observaciones",
       "selectRole": "Seleccionar rol",
       "selectTenant": "Seleccionar condominio",
+      "tenantsMultiLabel": "Condominios asignados",
+      "tenantsSearchPlaceholder": "Buscar condominios…",
+      "tenantsEmpty": "No se encontraron condominios",
+      "tenantPrimaryLabel": "Condominio principal",
+      "tenantSetPrimary": "Marcar como principal",
+      "tenantRemove": "Quitar",
       "selectPhoneType": "Seleccionar tipo de teléfono",
       "password": "Contraseña",
       "confirmPassword": "Confirmar Contraseña",
@@ -171,6 +178,11 @@
       "createTitle": "Crear Usuario",
       "editTitle": "Editar Usuario"
     },
+    "validation": {
+      "atLeastOneTenant": "Selecciona al menos un condominio",
+      "primaryMustBeSelected": "El condominio principal debe ser uno de los condominios asignados",
+      "tooManyTenants": "Un usuario no puede asignarse a más de 50 condominios"
+    },
     "empty": "No se encontraron usuarios",
     "errorLoading": "Error al cargar usuarios. Por favor, intenta de nuevo."
   },
@@ -186,7 +198,7 @@
       "edit": "Editar"
     },
     "empty": "No se encontraron residentes",
-    "noResidents": "No hay residentes registrados en esta comunidad.",
+    "noResidents": "No hay residentes registrados en esta fraccionamiento.",
     "errorLoading": "Error al cargar residentes. Por favor, intenta de nuevo.",
     "select": {
       "placeholder": "Seleccionar residente",
@@ -624,6 +636,72 @@
       "generating": "Generando…",
       "error": "La exportación falló. Por favor intenta de nuevo.",
       "noRows": "No hay filas para exportar"
+    }
+  },
+  "tenants": {
+    "nav": {
+      "label": "Fraccionamientos"
+    },
+    "table": {
+      "columns": {
+        "name": "Nombre",
+        "address": "Dirección",
+        "status": "Estado",
+        "createdAt": "Creado",
+        "actions": "Acciones"
+      },
+      "emptyState": "No se encontraron fraccionamientos"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar fraccionamientos…",
+      "statusAll": "Todos",
+      "statusActive": "Activo",
+      "statusInactive": "Inactivo"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "actions": {
+      "create": "Crear Fraccionamiento"
+    },
+    "toast": {
+      "createSuccess": "Fraccionamiento creada exitosamente",
+      "loadFailed": "Error al cargar las fraccionamientos",
+      "imageUpdateSuccess": "Imagen de fraccionamiento actualizada",
+      "imageRemoveSuccess": "Imagen de fraccionamiento eliminada",
+      "imageUploadFailed": "Error al subir la imagen"
+    },
+    "sidebar": {
+      "createTitle": "Crear Fraccionamiento",
+      "editTitle": "Editar Fraccionamiento",
+      "description": "Gestiona la configuración de la fraccionamiento residencial"
+    },
+    "form": {
+      "name": "Nombre",
+      "nameRequired": "El nombre es obligatorio",
+      "address": "Dirección",
+      "addressRequired": "La dirección es obligatoria",
+      "status": "Estado",
+      "statusLabel": "Estado",
+      "image": {
+        "label": "Logotipo",
+        "upload": "Subir imagen",
+        "replace": "Reemplazar",
+        "remove": "Eliminar",
+        "currentLabel": "Logotipo actual"
+      },
+      "submit": "Guardar",
+      "cancel": "Cancelar"
+    },
+    "validation": {
+      "nameRequired": "El nombre es obligatorio",
+      "nameTooLong": "El nombre no puede superar 255 caracteres",
+      "addressRequired": "La dirección es obligatoria",
+      "atLeastOneField": "Al menos un campo es requerido",
+      "imageTooLarge": "La imagen debe ser menor de 2 MB",
+      "imageWrongType": "Solo se permiten JPEG, PNG y WebP",
+      "nameExists": "Ya existe un fraccionamiento con este nombre"
     }
   }
 }

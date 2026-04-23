@@ -22,7 +22,7 @@
     "db:migrate:dev": "dotenvx run -f .env.development -- supabase db push",
     "db:migrate:prod": "dotenvx run -f .env -- supabase db push",
     "db:new": "supabase migration new",
-    "db:types": "dotenvx run -f .env.local -- supabase gen types typescript --local > packages/db-types/src/types.ts",
+    "db:types": "dotenvx run --quiet -f .env.local -- supabase gen types typescript --local > packages/db-types/src/types.ts",
     "db:reset": "dotenvx run -f .env.local -- supabase db reset",
     "prepare": "husky",
     "check:shared-features": "tsx scripts/check-shared-features.ts"

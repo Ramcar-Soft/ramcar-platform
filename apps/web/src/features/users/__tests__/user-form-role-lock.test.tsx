@@ -33,6 +33,7 @@ import { UserForm } from "../components/user-form";
 function makeUser(overrides: Partial<ExtendedUserProfile> = {}): ExtendedUserProfile {
   return {
     id: "p1", userId: "u1", tenantId: "t1", tenantName: "T",
+    tenantIds: ["t1"],
     fullName: "Self", email: "self@x.com", role: "admin", address: "addr",
     username: "self", phone: "5551", phoneType: null, status: "active",
     userGroupIds: [], userGroups: [], observations: null,

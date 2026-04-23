@@ -3,6 +3,7 @@ import { SupabaseService } from "../../infrastructure/supabase/supabase.service"
 import type { CreateVisitPersonDto } from "./dto/create-visit-person.dto";
 import type { UpdateVisitPersonDto } from "./dto/update-visit-person.dto";
 import type { VisitPersonFiltersDto } from "./dto/visit-person-filters.dto";
+import { applyTenantScope, type TenantScope } from "../../common/utils/tenant-scope";
 
 @Injectable()
 export class VisitPersonsRepository {
@@ -34,25 +35,26 @@ export class VisitPersonsRepository {
     return data;
   }
 
-  async findById(id: string, tenantId: string) {
-    const { data, error } = await this.supabase
+  async findById(id: string, scope: TenantScope) {
+    let query = this.supabase
       .getClient()
       .from("visit_persons")
       .select()
-      .eq("tenant_id", tenantId)
-      .eq("id", id)
-      .single();
+      .eq("id", id);
 
+    query = applyTenantScope(query, scope) as typeof query;
+    const { data, error } = await query.maybeSingle();
     if (error) throw error;
     return data;
   }
 
-  async list(filters: VisitPersonFiltersDto, tenantId: string) {
+  async list(filters: VisitPersonFiltersDto, scope: TenantScope) {
     let query = this.supabase
       .getClient()
       .from("visit_persons")
-      .select("*", { count: "exact" })
-      .eq("tenant_id", tenantId);
+      .select("*", { count: "exact" });
+
+    query = applyTenantScope(query, scope) as typeof query;
 
     if (filters.type) {
       query = query.eq("type", filters.type);
@@ -82,7 +84,7 @@ export class VisitPersonsRepository {
     return { data: data ?? [], count: count ?? 0 };
   }
 
-  async update(id: string, dto: UpdateVisitPersonDto, tenantId: string) {
+  async update(id: string, dto: UpdateVisitPersonDto, scope: TenantScope) {
     const updateData: Record<string, unknown> = {};
     if (dto.fullName !== undefined) updateData.full_name = dto.fullName;
     if (dto.status !== undefined) updateData.status = dto.status;
@@ -91,14 +93,14 @@ export class VisitPersonsRepository {
     if (dto.residentId !== undefined) updateData.resident_id = dto.residentId;
     if (dto.notes !== undefined) updateData.notes = dto.notes || null;
 
-    const { data, error } = await this.supabase
+    let query = this.supabase
       .getClient()
       .from("visit_persons")
       .update(updateData)
-      .eq("tenant_id", tenantId)
-      .eq("id", id)
-      .select()
-      .single();
+      .eq("id", id);
+
+    query = applyTenantScope(query, scope) as typeof query;
+    const { data, error } = await query.select().single();
 
     if (error) throw error;
     return data;

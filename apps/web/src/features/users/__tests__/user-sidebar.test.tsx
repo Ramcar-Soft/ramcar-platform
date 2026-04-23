@@ -66,8 +66,27 @@ vi.mock("../hooks/use-update-user", () => ({
   }),
 }));
 
-vi.mock("../hooks/use-tenants", () => ({
-  useTenants: () => ({ data: [{ id: "t1", name: "Tenant A" }], isLoading: false }),
+vi.mock("@/features/tenants/hooks/use-tenants", () => ({
+  useTenants: () => ({
+    data: {
+      data: [
+        {
+          id: "t1",
+          name: "Tenant A",
+          slug: "tenant-a",
+          address: "",
+          status: "active",
+          config: {},
+          image_path: null,
+          time_zone: "UTC",
+          created_at: "2026-01-01",
+          updated_at: "2026-01-01",
+        },
+      ],
+      meta: { page: 1, page_size: 100, total: 1, total_pages: 1 },
+    },
+    isLoading: false,
+  }),
 }));
 
 vi.mock("../hooks/use-user-groups", () => ({
@@ -97,6 +116,7 @@ import { UserSidebar } from "../components/user-sidebar";
 function makeUser(overrides: Partial<ExtendedUserProfile> = {}): ExtendedUserProfile {
   return {
     id: "p1", userId: "u1", tenantId: "t1", tenantName: "Tenant A",
+    tenantIds: ["t1"],
     fullName: "Alice", email: "alice@x.com", role: "admin", address: "123 St",
     username: "alice", phone: "555-1", phoneType: null, status: "active",
     userGroupIds: [], userGroups: [], observations: null,
@@ -163,7 +183,7 @@ describe("UserSidebar — create mode", () => {
     );
 
     act(() => {
-      capturedOnSubmit?.({ fullName: "New", email: "new@x.com", role: "guard", tenantId: "t1", address: "a", username: "new", phone: "1", userGroupIds: [] });
+      capturedOnSubmit?.({ fullName: "New", email: "new@x.com", role: "guard", tenantId: "t1", tenantIds: ["t1"], primaryTenantId: "t1", address: "a", username: "new", phone: "1", userGroupIds: [] });
     });
 
     expect(mockCreateMutate).toHaveBeenCalledTimes(1);
@@ -237,7 +257,7 @@ describe("UserSidebar — edit mode", () => {
     );
 
     act(() => {
-      capturedOnSubmit?.({ fullName: "Alice Updated", email: "alice@x.com", role: "admin", tenantId: "t1", address: "a", username: "alice", phone: "1", userGroupIds: [] });
+      capturedOnSubmit?.({ fullName: "Alice Updated", email: "alice@x.com", role: "admin", tenantId: "t1", tenantIds: ["t1"], primaryTenantId: "t1", address: "a", username: "alice", phone: "1", userGroupIds: [] });
     });
 
     expect(mockUpdateMutate).toHaveBeenCalledTimes(1);

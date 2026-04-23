@@ -13,6 +13,7 @@ import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { CurrentTenant } from "../../common/decorators/current-tenant.decorator";
 import { ResidentsService } from "./residents.service";
 import { residentFiltersSchema } from "./dto/resident-filters.dto";
+import type { TenantScope } from "../../common/utils/tenant-scope";
 
 @Controller("residents")
 @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
@@ -24,13 +25,13 @@ export class ResidentsController {
   async list(
     @Query() query: Record<string, string>,
     @CurrentUser() user: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const filters = residentFiltersSchema.parse(query);
     return this.residentsService.list(
       filters,
       user as { id: string; app_metadata?: { role?: string; tenant_id?: string } },
-      tenantId,
+      scope,
     );
   }
 
@@ -38,20 +39,20 @@ export class ResidentsController {
   async getById(
     @Param("id") id: string,
     @CurrentUser() user: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     return this.residentsService.getById(
       id,
       user as { id: string; app_metadata?: { role?: string; tenant_id?: string } },
-      tenantId,
+      scope,
     );
   }
 
   @Get(":id/vehicles")
   async getVehicles(
     @Param("id") id: string,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
-    return this.residentsService.getVehicles(id, tenantId);
+    return this.residentsService.getVehicles(id, scope);
   }
 }

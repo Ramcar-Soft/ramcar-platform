@@ -19,6 +19,7 @@ import { VisitPersonsService } from "./visit-persons.service";
 import { createVisitPersonSchema } from "./dto/create-visit-person.dto";
 import { updateVisitPersonSchema } from "./dto/update-visit-person.dto";
 import { visitPersonFiltersSchema } from "./dto/visit-person-filters.dto";
+import type { TenantScope } from "../../common/utils/tenant-scope";
 
 @Controller("visit-persons")
 @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
@@ -32,38 +33,38 @@ export class VisitPersonsController {
   @Get()
   async list(
     @Query() query: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const filters = visitPersonFiltersSchema.parse(query);
-    return this.visitPersonsService.list(filters, tenantId);
+    return this.visitPersonsService.list(filters, scope);
   }
 
   @Get(":id")
   async findById(
     @Param("id") id: string,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
-    return this.visitPersonsService.findById(id, tenantId);
+    return this.visitPersonsService.findById(id, scope);
   }
 
   @Post()
   async create(
     @Body() body: unknown,
     @CurrentUser() user: { id: string },
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const dto = createVisitPersonSchema.parse(body);
     const profileId = await this.usersService.getProfileIdByAuthUserId(user.id);
-    return this.visitPersonsService.create(dto, tenantId, profileId);
+    return this.visitPersonsService.create(dto, scope, profileId);
   }
 
   @Patch(":id")
   async update(
     @Param("id") id: string,
     @Body() body: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const dto = updateVisitPersonSchema.parse(body);
-    return this.visitPersonsService.update(id, dto, tenantId);
+    return this.visitPersonsService.update(id, dto, scope);
   }
 }

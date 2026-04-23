@@ -20,6 +20,7 @@ import { userFiltersSchema } from "./dto/user-filters.dto";
 import { createUserSchema } from "./dto/create-user.dto";
 import { updateUserSchema } from "./dto/update-user.dto";
 import { toggleStatusSchema } from "@ramcar/shared";
+import type { TenantScope } from "../../common/utils/tenant-scope";
 
 @Controller("users")
 @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
@@ -31,13 +32,13 @@ export class UsersController {
   async list(
     @Query() query: Record<string, string>,
     @CurrentUser() user: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const filters = userFiltersSchema.parse(query);
     return this.usersService.list(
       filters,
       user as { id: string; app_metadata?: { role?: string; tenant_id?: string } },
-      tenantId,
+      scope,
     );
   }
 
@@ -45,12 +46,12 @@ export class UsersController {
   async getById(
     @Param("id") id: string,
     @CurrentUser() user: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     return this.usersService.getById(
       id,
       user as { id: string; app_metadata?: { role?: string; tenant_id?: string } },
-      tenantId,
+      scope,
     );
   }
 
@@ -58,13 +59,13 @@ export class UsersController {
   async create(
     @Body() body: unknown,
     @CurrentUser() user: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const dto = createUserSchema.parse(body);
     return this.usersService.create(
       dto,
       user as { id: string; app_metadata?: { role?: string; tenant_id?: string } },
-      tenantId,
+      scope,
     );
   }
 
@@ -73,14 +74,14 @@ export class UsersController {
     @Param("id") id: string,
     @Body() body: unknown,
     @CurrentUser() user: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const dto = updateUserSchema.parse(body);
     return this.usersService.update(
       id,
       dto,
       user as { id: string; app_metadata?: { role?: string; tenant_id?: string } },
-      tenantId,
+      scope,
     );
   }
 
@@ -89,14 +90,14 @@ export class UsersController {
     @Param("id") id: string,
     @Body() body: unknown,
     @CurrentUser() user: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const { status } = toggleStatusSchema.parse(body);
     return this.usersService.toggleStatus(
       id,
       status,
       user as { id: string; app_metadata?: { role?: string; tenant_id?: string } },
-      tenantId,
+      scope,
     );
   }
 }

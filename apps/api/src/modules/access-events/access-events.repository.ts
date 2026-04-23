@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import type { AccessEventListItem, VisitPersonStatus } from "@ramcar/shared";
 import { SupabaseService } from "../../infrastructure/supabase/supabase.service";
 import type { CreateAccessEventDto } from "./dto/create-access-event.dto";
+import type { TenantScope } from "../../common/utils/tenant-scope";
 
 export interface ListAccessEventsFilters {
   personType: string;
@@ -13,9 +14,7 @@ export interface ListAccessEventsFilters {
   search?: string;
 }
 
-export type ListAccessEventsScope =
-  | { kind: "single"; tenantId: string }
-  | { kind: "many"; tenantIds: string[] };
+export type { TenantScope as ListAccessEventsScope };
 
 @Injectable()
 export class AccessEventsRepository {
@@ -45,7 +44,8 @@ export class AccessEventsRepository {
     return data;
   }
 
-  async findRecentByUserId(userId: string, tenantId: string, limit = 3) {
+  async findRecentByUserId(userId: string, scope: TenantScope, limit = 3) {
+    const tenantId = scope.scope === "single" ? scope.tenantId : scope.scope === "list" ? (scope.tenantIds[0] ?? "") : "";
     const { data, error } = await this.supabase
       .getClient()
       .from("access_events")
@@ -60,7 +60,8 @@ export class AccessEventsRepository {
     return data;
   }
 
-  async findLastByUserId(userId: string, tenantId: string) {
+  async findLastByUserId(userId: string, scope: TenantScope) {
+    const tenantId = scope.scope === "single" ? scope.tenantId : scope.scope === "list" ? (scope.tenantIds[0] ?? "") : "";
     const { data, error } = await this.supabase
       .getClient()
       .from("access_events")
@@ -78,9 +79,10 @@ export class AccessEventsRepository {
 
   async findRecentByVisitPersonId(
     visitPersonId: string,
-    tenantId: string,
+    scope: TenantScope,
     limit = 3,
   ) {
+    const tenantId = scope.scope === "single" ? scope.tenantId : scope.scope === "list" ? (scope.tenantIds[0] ?? "") : "";
     const { data, error } = await this.supabase
       .getClient()
       .from("access_events")
@@ -96,9 +98,10 @@ export class AccessEventsRepository {
 
   async update(
     id: string,
-    tenantId: string,
+    scope: TenantScope,
     updateData: Record<string, unknown>,
   ) {
+    const tenantId = scope.scope === "single" ? scope.tenantId : scope.scope === "list" ? (scope.tenantIds[0] ?? "") : "";
     const { data, error } = await this.supabase
       .getClient()
       .from("access_events")
@@ -122,7 +125,7 @@ export class AccessEventsRepository {
    */
   async list(
     filters: ListAccessEventsFilters,
-    scope: ListAccessEventsScope,
+    scope: TenantScope,
   ): Promise<{ data: AccessEventListItem[]; total: number }> {
     const client = this.supabase.getClient();
     const { personType, page, pageSize, dateFromUTC, dateToUTC, residentId } =
@@ -148,10 +151,12 @@ export class AccessEventsRepository {
       .gte("created_at", dateFromUTC)
       .lte("created_at", dateToUTC);
 
-    if (scope.kind === "single") {
+    if (scope.scope === "all") {
+      // super_admin: no tenant filter
+    } else if (scope.scope === "single") {
       query = query.eq("tenant_id", scope.tenantId);
     } else if (scope.tenantIds.length > 0) {
-      query = query.in("tenant_id", scope.tenantIds);
+      query = query.in("tenant_id", [...scope.tenantIds]);
     } else {
       // No authorized tenants → empty result
       return { data: [], total: 0 };
@@ -198,7 +203,7 @@ export class AccessEventsRepository {
     filters: Omit<ListAccessEventsFilters, "page" | "pageSize"> & {
       search?: string;
     },
-    scope: ListAccessEventsScope,
+    scope: TenantScope,
     batchSize = 500,
   ): AsyncGenerator<AccessEventListItem[]> {
     let offset = 0;
@@ -239,10 +244,14 @@ export class AccessEventsRepository {
 
   async searchList(
     filters: ListAccessEventsFilters & { search: string },
-    scope: ListAccessEventsScope,
+    scope: TenantScope,
   ): Promise<{ data: AccessEventListItem[]; total: number }> {
     const tenantIds =
-      scope.kind === "single" ? [scope.tenantId] : scope.tenantIds;
+      scope.scope === "single"
+        ? [scope.tenantId]
+        : scope.scope === "list"
+          ? [...scope.tenantIds]
+          : [];
     const offset = (filters.page - 1) * filters.pageSize;
 
     const { data, error } = await this.supabase

@@ -5,6 +5,7 @@ import { TenantGuard } from "../../../common/guards/tenant.guard";
 import { RolesGuard } from "../../../common/guards/roles.guard";
 import { ResidentsController } from "../residents.controller";
 import { ResidentsService } from "../residents.service";
+import type { TenantScope } from "../../../common/utils/tenant-scope";
 
 const allowAllGuard = { canActivate: () => true };
 
@@ -14,8 +15,12 @@ const mockResidentsService = {
   getVehicles: jest.fn(),
 };
 
-function makeAuthUser(role = "admin", tenantId = "tenant-1") {
-  return { id: "actor-1", app_metadata: { role, tenant_id: tenantId } };
+function makeAuthUser(role = "admin", _tenantId = "tenant-1") {
+  return { id: "actor-1", app_metadata: { role, tenant_id: _tenantId } };
+}
+
+function makeScope(tenantId = "tenant-1"): TenantScope {
+  return { role: "admin", scope: "list", tenantIds: [tenantId] };
 }
 
 function makeResidentProfile(overrides: Record<string, unknown> = {}) {
@@ -52,21 +57,18 @@ describe("ResidentsController.getById", () => {
     const profile = makeResidentProfile();
     mockResidentsService.getById.mockResolvedValue(profile);
 
-    const result = await controller.getById("resident-1", makeAuthUser(), "tenant-1");
+    const scope = makeScope();
+    const result = await controller.getById("resident-1", makeAuthUser(), scope);
 
     expect(result).toEqual(profile);
-    expect(mockResidentsService.getById).toHaveBeenCalledWith(
-      "resident-1",
-      makeAuthUser(),
-      "tenant-1",
-    );
+    expect(mockResidentsService.getById).toHaveBeenCalledWith("resident-1", makeAuthUser(), scope);
   });
 
   it("propagates NotFoundException when id does not exist", async () => {
     mockResidentsService.getById.mockRejectedValue(new NotFoundException("Resident not found"));
 
     await expect(
-      controller.getById("nonexistent", makeAuthUser(), "tenant-1"),
+      controller.getById("nonexistent", makeAuthUser(), makeScope()),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -74,7 +76,7 @@ describe("ResidentsController.getById", () => {
     mockResidentsService.getById.mockRejectedValue(new NotFoundException("Resident not found"));
 
     await expect(
-      controller.getById("resident-1", makeAuthUser("admin", "tenant-2"), "tenant-1"),
+      controller.getById("resident-1", makeAuthUser("admin", "tenant-2"), makeScope("tenant-1")),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -82,7 +84,7 @@ describe("ResidentsController.getById", () => {
     mockResidentsService.getById.mockRejectedValue(new NotFoundException("Resident not found"));
 
     await expect(
-      controller.getById("guard-profile-id", makeAuthUser(), "tenant-1"),
+      controller.getById("guard-profile-id", makeAuthUser(), makeScope()),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -90,7 +92,7 @@ describe("ResidentsController.getById", () => {
     const profile = makeResidentProfile({ status: "inactive" });
     mockResidentsService.getById.mockResolvedValue(profile);
 
-    const result = await controller.getById("resident-1", makeAuthUser(), "tenant-1");
+    const result = await controller.getById("resident-1", makeAuthUser(), makeScope());
 
     expect(result.status).toBe("inactive");
   });

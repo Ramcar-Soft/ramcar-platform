@@ -2,32 +2,31 @@ import { Injectable } from "@nestjs/common";
 import type { Vehicle } from "@ramcar/shared";
 import { VehiclesRepository } from "./vehicles.repository";
 import type { CreateVehicleDto } from "./dto/create-vehicle.dto";
+import type { TenantScope } from "../../common/utils/tenant-scope";
+
+function scopeToTenantId(scope: TenantScope): string {
+  if (scope.scope === "single") return scope.tenantId;
+  if (scope.scope === "list") return scope.tenantIds[0] ?? "";
+  return "";
+}
 
 @Injectable()
 export class VehiclesService {
   constructor(private readonly repository: VehiclesRepository) {}
 
-  async create(
-    dto: CreateVehicleDto,
-    tenantId: string,
-  ): Promise<Vehicle> {
+  async create(dto: CreateVehicleDto, scope: TenantScope): Promise<Vehicle> {
+    const tenantId = scopeToTenantId(scope);
     const row = await this.repository.create(dto, tenantId);
     return this.mapRow(row);
   }
 
-  async findByUserId(
-    userId: string,
-    tenantId: string,
-  ): Promise<Vehicle[]> {
-    const rows = await this.repository.findByUserId(userId, tenantId);
+  async findByUserId(userId: string, scope: TenantScope): Promise<Vehicle[]> {
+    const rows = await this.repository.findByUserId(userId, scope);
     return rows.map((row) => this.mapRow(row));
   }
 
-  async findByVisitPersonId(
-    visitPersonId: string,
-    tenantId: string,
-  ): Promise<Vehicle[]> {
-    const rows = await this.repository.findByVisitPersonId(visitPersonId, tenantId);
+  async findByVisitPersonId(visitPersonId: string, scope: TenantScope): Promise<Vehicle[]> {
+    const rows = await this.repository.findByVisitPersonId(visitPersonId, scope);
     return rows.map((row) => this.mapRow(row));
   }
 

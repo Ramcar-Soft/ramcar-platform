@@ -25,6 +25,7 @@ import {
 import { UsersService } from "../users/users.service";
 import { AccessEventsService } from "./access-events.service";
 import { createAccessEventSchema } from "./dto/create-access-event.dto";
+import type { TenantScope } from "../../common/utils/tenant-scope";
 
 @Controller("access-events")
 @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
@@ -35,20 +36,16 @@ export class AccessEventsController {
     private readonly usersService: UsersService,
   ) {}
 
-  // NOTE: `@Get("export")` MUST be declared before `@Get()` so NestJS does not
-  // accidentally route `GET /access-events/export` to a handler that expects
-  // the path to be a dynamic param.
   @Get("export")
   @Roles("super_admin", "admin")
   @Header("Cache-Control", "no-store")
   async export(
     @Query() query: Record<string, string>,
-    @CurrentUser()
-    user: { id: string; app_metadata?: { role?: string; tenant_id?: string } },
+    @CurrentTenant() scope: TenantScope,
     @Res({ passthrough: true }) res: Response,
   ) {
     const dto = accessEventExportQuerySchema.parse(query);
-    const file = await this.accessEventsService.exportCsv(dto, user);
+    const file = await this.accessEventsService.exportCsv(dto, scope);
     res.set({
       "Content-Type": "text/csv; charset=utf-8",
       "Cache-Control": "no-store",
@@ -60,58 +57,54 @@ export class AccessEventsController {
   @Roles("super_admin", "admin")
   async list(
     @Query() query: Record<string, string>,
-    @CurrentUser()
-    user: { id: string; app_metadata?: { role?: string; tenant_id?: string } },
+    @CurrentTenant() scope: TenantScope,
   ) {
     const dto = accessEventListQuerySchema.parse(query);
-    return this.accessEventsService.list(dto, user);
+    return this.accessEventsService.list(dto, scope);
   }
 
   @Post()
   async create(
     @Body() body: unknown,
     @CurrentUser() user: { id: string },
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const dto = createAccessEventSchema.parse(body);
     const profileId = await this.usersService.getProfileIdByAuthUserId(user.id);
-    return this.accessEventsService.create(dto, tenantId, profileId);
+    return this.accessEventsService.create(dto, scope, profileId);
   }
 
   @Patch(":id")
   async update(
     @Param("id") id: string,
     @Body() body: unknown,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
     const dto = updateAccessEventSchema.parse(body);
-    return this.accessEventsService.update(id, dto, tenantId);
+    return this.accessEventsService.update(id, dto, scope);
   }
 
   @Get("recent/:userId")
   async findRecentByUserId(
     @Param("userId") userId: string,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
-    return this.accessEventsService.findRecentByUserId(userId, tenantId);
+    return this.accessEventsService.findRecentByUserId(userId, scope);
   }
 
   @Get("recent-visit-person/:visitPersonId")
   async findRecentByVisitPersonId(
     @Param("visitPersonId") visitPersonId: string,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
-    return this.accessEventsService.findRecentByVisitPersonId(
-      visitPersonId,
-      tenantId,
-    );
+    return this.accessEventsService.findRecentByVisitPersonId(visitPersonId, scope);
   }
 
   @Get("last/:userId")
   async findLastByUserId(
     @Param("userId") userId: string,
-    @CurrentTenant() tenantId: string,
+    @CurrentTenant() scope: TenantScope,
   ) {
-    return this.accessEventsService.findLastByUserId(userId, tenantId);
+    return this.accessEventsService.findLastByUserId(userId, scope);
   }
 }
