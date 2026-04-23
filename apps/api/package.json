@@ -29,6 +29,7 @@
     "@ramcar/db-types": "workspace:*",
     "@ramcar/shared": "workspace:*",
     "@supabase/supabase-js": "^2.102.1",
+    "jose": "^5.10.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

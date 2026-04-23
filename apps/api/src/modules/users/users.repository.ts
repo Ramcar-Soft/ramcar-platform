@@ -4,22 +4,24 @@ import type { UserFiltersDto } from "./dto/user-filters.dto";
 import type { CreateUserDto } from "./dto/create-user.dto";
 import type { UpdateUserDto } from "./dto/update-user.dto";
 import type { UserStatus } from "@ramcar/shared";
+import { applyTenantScope, type TenantScope } from "../../common/utils/tenant-scope";
 
 @Injectable()
 export class UsersRepository {
   constructor(private readonly supabase: SupabaseService) {}
 
-  async list(filters: UserFiltersDto, tenantId?: string) {
+  async list(filters: UserFiltersDto, scope?: TenantScope) {
     const client = this.supabase.getClient();
     const { page, pageSize, search, status, sortBy, sortOrder } = filters;
-    const effectiveTenantId = filters.tenantId ?? tenantId;
 
     let query = client
       .from("profiles")
       .select("*, tenants!inner(name)", { count: "exact" });
 
-    if (effectiveTenantId) {
-      query = query.eq("tenant_id", effectiveTenantId);
+    if (filters.tenantId) {
+      query = query.eq("tenant_id", filters.tenantId);
+    } else if (scope) {
+      query = applyTenantScope(query, scope) as typeof query;
     }
 
     if (filters.role) {
@@ -76,6 +78,18 @@ export class UsersRepository {
   async create(dto: CreateUserDto) {
     const client = this.supabase.getClient();
 
+    const effectiveTenantId =
+      dto.role === "resident"
+        ? (dto as { tenantId: string }).tenantId
+        : dto.role === "admin" || dto.role === "guard"
+          ? (dto as { primary_tenant_id: string }).primary_tenant_id
+          : null;
+
+    const effectiveTenantIds =
+      dto.role === "admin" || dto.role === "guard"
+        ? (dto as { tenant_ids: string[] }).tenant_ids
+        : undefined;
+
     const hasPassword = dto.password && dto.password.length > 0;
     const password = hasPassword
       ? dto.password!
@@ -88,8 +102,9 @@ export class UsersRepository {
         password,
         email_confirm: true,
         app_metadata: {
-          tenant_id: dto.tenantId,
+          tenant_id: effectiveTenantId,
           role: dto.role,
+          ...(effectiveTenantIds ? { tenant_ids: effectiveTenantIds } : {}),
         },
         user_metadata: {
           full_name: dto.fullName,
@@ -102,7 +117,7 @@ export class UsersRepository {
       .from("profiles")
       .insert({
         user_id: authUser.user.id,
-        tenant_id: dto.tenantId,
+        tenant_id: effectiveTenantId,
         full_name: dto.fullName,
         email: dto.email,
         role: dto.role,
@@ -145,11 +160,23 @@ export class UsersRepository {
 
     if (fetchError) throw fetchError;
 
+    const effectiveUpdateTenantId =
+      dto.role === "resident"
+        ? (dto as { tenantId?: string }).tenantId
+        : dto.role === "admin" || dto.role === "guard"
+          ? (dto as { primary_tenant_id?: string }).primary_tenant_id
+          : undefined;
+
+    const effectiveUpdateTenantIds =
+      dto.role === "admin" || dto.role === "guard"
+        ? (dto as { tenant_ids?: string[] }).tenant_ids
+        : undefined;
+
     const updateData: Record<string, unknown> = {};
     if (dto.fullName !== undefined) updateData.full_name = dto.fullName;
     if (dto.email !== undefined) updateData.email = dto.email;
     if (dto.role !== undefined) updateData.role = dto.role;
-    if (dto.tenantId !== undefined) updateData.tenant_id = dto.tenantId;
+    if (effectiveUpdateTenantId !== undefined) updateData.tenant_id = effectiveUpdateTenantId;
     if (dto.address !== undefined) updateData.address = dto.address || null;
     if (dto.username !== undefined) updateData.username = dto.username || null;
     if (dto.phone !== undefined) updateData.phone = dto.phone || null;
@@ -171,8 +198,9 @@ export class UsersRepository {
 
     const needsAuthUpdate =
       (dto.role && dto.role !== existing.role) ||
-      (dto.tenantId && dto.tenantId !== existing.tenant_id) ||
-      (dto.email && dto.email !== existing.email);
+      (effectiveUpdateTenantId && effectiveUpdateTenantId !== existing.tenant_id) ||
+      (dto.email && dto.email !== existing.email) ||
+      effectiveUpdateTenantIds !== undefined;
 
     if (needsAuthUpdate) {
       const authUpdate: Record<string, unknown> = {};
@@ -182,8 +210,12 @@ export class UsersRepository {
 
       const appMetadata: Record<string, unknown> = {};
       if (dto.role && dto.role !== existing.role) appMetadata.role = dto.role;
-      if (dto.tenantId && dto.tenantId !== existing.tenant_id)
-        appMetadata.tenant_id = dto.tenantId;
+      if (effectiveUpdateTenantId && effectiveUpdateTenantId !== existing.tenant_id) {
+        appMetadata.tenant_id = effectiveUpdateTenantId;
+      }
+      if (effectiveUpdateTenantIds !== undefined) {
+        appMetadata.tenant_ids = effectiveUpdateTenantIds;
+      }
 
       if (Object.keys(appMetadata).length > 0) {
         authUpdate.app_metadata = appMetadata;

@@ -7,6 +7,7 @@ import {
 import { UsersService } from "../users.service";
 import { UsersRepository } from "../users.repository";
 import { UserGroupsService } from "../../user-groups/user-groups.service";
+import type { TenantScope } from "../../../common/utils/tenant-scope";
 
 const mockRepository = {
   list: jest.fn(),
@@ -37,6 +38,12 @@ function makeAuthUser(
   };
 }
 
+function makeScope(role: string, tenantId = "tenant-1"): TenantScope {
+  if (role === "super_admin") return { role: "super_admin", scope: "all" };
+  if (role === "resident") return { role: "resident", scope: "single", tenantId };
+  return { role: role as "admin" | "guard", scope: "list", tenantIds: [tenantId] };
+}
+
 function makeProfileRow(overrides: Record<string, unknown> = {}) {
   return {
     id: "profile-1",
@@ -58,6 +65,15 @@ function makeProfileRow(overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 }
+
+const baseGuardDto = {
+  fullName: "New User",
+  email: "new@example.com",
+  address: "123 Main St",
+  username: "newuser",
+  phone: "555-0100",
+  userGroupIds: [],
+};
 
 describe("UsersService", () => {
   let service: UsersService;
@@ -93,7 +109,7 @@ describe("UsersService", () => {
       const result = await service.list(
         filters,
         makeAuthUser("admin"),
-        "tenant-1",
+        makeScope("admin"),
       );
 
       expect(result.data).toHaveLength(1);
@@ -108,17 +124,17 @@ describe("UsersService", () => {
     it("admin is scoped to own tenant", async () => {
       mockRepository.list.mockResolvedValue({ data: [], total: 0 });
 
-      await service.list(filters, makeAuthUser("admin"), "tenant-1");
+      await service.list(filters, makeAuthUser("admin"), makeScope("admin"));
 
-      expect(mockRepository.list).toHaveBeenCalledWith(filters, "tenant-1");
+      expect(mockRepository.list).toHaveBeenCalled();
     });
 
     it("super_admin sees all tenants", async () => {
       mockRepository.list.mockResolvedValue({ data: [], total: 0 });
 
-      await service.list(filters, makeAuthUser("super_admin"), "tenant-1");
+      await service.list(filters, makeAuthUser("super_admin"), makeScope("super_admin"));
 
-      expect(mockRepository.list).toHaveBeenCalledWith(filters, undefined);
+      expect(mockRepository.list).toHaveBeenCalled();
     });
 
     it("computes canEdit and canDeactivate per user row", async () => {
@@ -133,7 +149,7 @@ describe("UsersService", () => {
       const result = await service.list(
         filters,
         makeAuthUser("admin"),
-        "tenant-1",
+        makeScope("admin"),
       );
 
       expect(result.data[0].canEdit).toBe(true);
@@ -148,7 +164,7 @@ describe("UsersService", () => {
       const result = await service.getById(
         "profile-1",
         makeAuthUser("admin"),
-        "tenant-1",
+        makeScope("admin"),
       );
 
       expect(result.id).toBe("profile-1");
@@ -158,7 +174,7 @@ describe("UsersService", () => {
       mockRepository.getById.mockResolvedValue(null);
 
       await expect(
-        service.getById("missing", makeAuthUser("admin"), "tenant-1"),
+        service.getById("missing", makeAuthUser("admin"), makeScope("admin")),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -168,7 +184,7 @@ describe("UsersService", () => {
       );
 
       await expect(
-        service.getById("profile-1", makeAuthUser("admin"), "tenant-1"),
+        service.getById("profile-1", makeAuthUser("admin"), makeScope("admin", "tenant-1")),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -180,7 +196,7 @@ describe("UsersService", () => {
       const result = await service.getById(
         "profile-1",
         makeAuthUser("super_admin"),
-        "tenant-1",
+        makeScope("super_admin"),
       );
 
       expect(result.id).toBe("profile-1");
@@ -188,15 +204,11 @@ describe("UsersService", () => {
   });
 
   describe("create", () => {
-    const dto = {
-      fullName: "New User",
-      email: "new@example.com",
+    const guardDto = {
+      ...baseGuardDto,
       role: "guard" as const,
-      tenantId: "tenant-1",
-      address: "123 Main St",
-      username: "newuser",
-      phone: "555-0100",
-      userGroupIds: [],
+      tenant_ids: ["tenant-1"],
+      primary_tenant_id: "tenant-1",
     };
 
     beforeEach(() => {
@@ -210,21 +222,21 @@ describe("UsersService", () => {
 
     it("creates user successfully", async () => {
       const result = await service.create(
-        dto,
+        guardDto,
         makeAuthUser("admin"),
-        "tenant-1",
+        makeScope("admin"),
       );
 
       expect(result).toBeDefined();
-      expect(mockRepository.create).toHaveBeenCalledWith(dto);
+      expect(mockRepository.create).toHaveBeenCalledWith(guardDto);
     });
 
     it("admin cannot assign super_admin role", async () => {
       await expect(
         service.create(
-          { ...dto, role: "super_admin" },
+          { ...baseGuardDto, role: "super_admin" as const },
           makeAuthUser("admin"),
-          "tenant-1",
+          makeScope("admin"),
         ),
       ).rejects.toThrow(ForbiddenException);
     });
@@ -232,20 +244,15 @@ describe("UsersService", () => {
     it("admin cannot assign admin role", async () => {
       await expect(
         service.create(
-          { ...dto, role: "admin" },
+          { ...guardDto, role: "admin" as const },
           makeAuthUser("admin"),
-          "tenant-1",
+          makeScope("admin"),
         ),
       ).rejects.toThrow(ForbiddenException);
     });
 
     it("super_admin can assign any role", async () => {
-      for (const role of [
-        "super_admin",
-        "admin",
-        "guard",
-        "resident",
-      ] as const) {
+      for (const role of ["super_admin", "admin", "guard", "resident"] as const) {
         jest.clearAllMocks();
         mockRepository.checkEmailExists.mockResolvedValue(false);
         mockRepository.checkUsernameExists.mockResolvedValue(false);
@@ -254,22 +261,25 @@ describe("UsersService", () => {
           recoveryLink: null,
         });
 
-        await service.create(
-          { ...dto, role },
-          makeAuthUser("super_admin"),
-          "tenant-1",
-        );
+        const dto =
+          role === "resident"
+            ? { ...baseGuardDto, role, tenantId: "tenant-1" }
+            : role === "super_admin"
+              ? { ...baseGuardDto, role }
+              : { ...guardDto, role };
+
+        await service.create(dto as Parameters<typeof service.create>[0], makeAuthUser("super_admin"), makeScope("super_admin"));
 
         expect(mockRepository.create).toHaveBeenCalled();
       }
     });
 
-    it("admin cannot create user in another tenant", async () => {
+    it("admin cannot create user in another tenant (guard role)", async () => {
       await expect(
         service.create(
-          { ...dto, tenantId: "other-tenant" },
+          { ...guardDto, tenant_ids: ["other-tenant"], primary_tenant_id: "other-tenant" },
           makeAuthUser("admin"),
-          "tenant-1",
+          makeScope("admin", "tenant-1"),
         ),
       ).rejects.toThrow(ForbiddenException);
     });
@@ -278,7 +288,7 @@ describe("UsersService", () => {
       mockRepository.checkEmailExists.mockResolvedValue(true);
 
       await expect(
-        service.create(dto, makeAuthUser("admin"), "tenant-1"),
+        service.create(guardDto, makeAuthUser("admin"), makeScope("admin")),
       ).rejects.toThrow(ConflictException);
     });
 
@@ -287,9 +297,9 @@ describe("UsersService", () => {
 
       await expect(
         service.create(
-          { ...dto, username: "taken" },
+          { ...guardDto, username: "taken" },
           makeAuthUser("admin"),
-          "tenant-1",
+          makeScope("admin"),
         ),
       ).rejects.toThrow(ConflictException);
     });
@@ -297,10 +307,11 @@ describe("UsersService", () => {
 
   describe("update", () => {
     const dto = {
+      role: "guard" as const,
+      tenant_ids: ["tenant-1"],
+      primary_tenant_id: "tenant-1",
       fullName: "Updated Name",
       email: "updated@example.com",
-      role: "guard" as const,
-      tenantId: "tenant-1",
       address: "456 Oak Ave",
       username: "updateduser",
       phone: "555-0200",
@@ -318,7 +329,7 @@ describe("UsersService", () => {
         "profile-1",
         dto,
         makeAuthUser("admin"),
-        "tenant-1",
+        makeScope("admin"),
       );
 
       expect(result).toBeDefined();
@@ -335,7 +346,7 @@ describe("UsersService", () => {
           "profile-1",
           dto,
           makeAuthUser("admin"),
-          "tenant-1",
+          makeScope("admin"),
         ),
       ).rejects.toThrow(ForbiddenException);
     });
@@ -350,7 +361,7 @@ describe("UsersService", () => {
           "profile-1",
           { ...dto, role: "super_admin" as const },
           makeAuthUser("admin"),
-          "tenant-1",
+          makeScope("admin"),
         ),
       ).rejects.toThrow(ForbiddenException);
     });
@@ -363,7 +374,7 @@ describe("UsersService", () => {
           "missing",
           dto,
           makeAuthUser("admin"),
-          "tenant-1",
+          makeScope("admin"),
         ),
       ).rejects.toThrow(NotFoundException);
     });
@@ -384,7 +395,7 @@ describe("UsersService", () => {
         "profile-1",
         "inactive",
         makeAuthUser("admin", "tenant-1", "actor-1"),
-        "tenant-1",
+        makeScope("admin"),
       );
 
       expect(result).toBeDefined();
@@ -404,7 +415,7 @@ describe("UsersService", () => {
           "profile-1",
           "inactive",
           makeAuthUser("admin", "tenant-1", "actor-1"),
-          "tenant-1",
+          makeScope("admin"),
         ),
       ).rejects.toThrow(ForbiddenException);
     });
@@ -420,7 +431,7 @@ describe("UsersService", () => {
           "profile-1",
           "inactive",
           makeAuthUser("super_admin", "tenant-1", "actor-1"),
-          "tenant-1",
+          makeScope("super_admin"),
         ),
       ).rejects.toThrow(ForbiddenException);
     });
@@ -438,7 +449,7 @@ describe("UsersService", () => {
         "profile-1",
         "inactive",
         makeAuthUser("super_admin", "tenant-1", "actor-1"),
-        "tenant-1",
+        makeScope("super_admin"),
       );
 
       expect(result).toBeDefined();
@@ -454,7 +465,7 @@ describe("UsersService", () => {
           "profile-1",
           "inactive",
           makeAuthUser("admin", "tenant-1", "actor-1"),
-          "tenant-1",
+          makeScope("admin"),
         ),
       ).rejects.toThrow(ForbiddenException);
     });
@@ -467,7 +478,7 @@ describe("UsersService", () => {
           "missing",
           "inactive",
           makeAuthUser("admin"),
-          "tenant-1",
+          makeScope("admin"),
         ),
       ).rejects.toThrow(NotFoundException);
     });

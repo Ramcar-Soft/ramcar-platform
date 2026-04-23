@@ -13,9 +13,16 @@ interface UploadedFile {
 }
 import { SupabaseService } from "../../infrastructure/supabase/supabase.service";
 import { VisitPersonImagesRepository } from "./visit-person-images.repository";
+import type { TenantScope } from "../../common/utils/tenant-scope";
 
 const BUCKET = "visit-person-images";
-const SIGNED_URL_TTL = 3600; // 60 minutes
+const SIGNED_URL_TTL = 3600;
+
+function scopeToTenantId(scope: TenantScope): string {
+  if (scope.scope === "single") return scope.tenantId;
+  if (scope.scope === "list") return scope.tenantIds[0] ?? "";
+  return "";
+}
 
 @Injectable()
 export class VisitPersonImagesService {
@@ -25,7 +32,7 @@ export class VisitPersonImagesService {
   ) {}
 
   async upload(
-    tenantId: string,
+    scope: TenantScope,
     visitPersonId: string,
     imageType: string,
     file: UploadedFile,
@@ -37,11 +44,12 @@ export class VisitPersonImagesService {
       throw new BadRequestException("File must be under 5MB");
     }
 
-    // Replace existing image of the same type
+    const tenantId = scopeToTenantId(scope);
+
     const existing = await this.repository.findByPersonAndType(
       visitPersonId,
       imageType,
-      tenantId,
+      scope,
     );
 
     if (existing) {
@@ -49,7 +57,7 @@ export class VisitPersonImagesService {
         .getClient()
         .storage.from(BUCKET)
         .remove([existing.storage_path as string]);
-      await this.repository.deleteById(existing.id as string, tenantId);
+      await this.repository.deleteById(existing.id as string, scope);
     }
 
     const timestamp = Date.now();
@@ -77,17 +85,14 @@ export class VisitPersonImagesService {
 
   async findByVisitPersonId(
     visitPersonId: string,
-    tenantId: string,
+    scope: TenantScope,
   ): Promise<VisitPersonImage[]> {
-    const rows = await this.repository.findByVisitPersonId(
-      visitPersonId,
-      tenantId,
-    );
+    const rows = await this.repository.findByVisitPersonId(visitPersonId, scope);
     return Promise.all(rows.map((row) => this.mapRowWithSignedUrl(row)));
   }
 
-  async deleteById(id: string, tenantId: string): Promise<void> {
-    const row = await this.repository.findById(id, tenantId);
+  async deleteById(id: string, scope: TenantScope): Promise<void> {
+    const row = await this.repository.findById(id, scope);
     if (!row) throw new NotFoundException("Image not found");
 
     await this.supabase
@@ -95,7 +100,7 @@ export class VisitPersonImagesService {
       .storage.from(BUCKET)
       .remove([row.storage_path as string]);
 
-    await this.repository.deleteById(id, tenantId);
+    await this.repository.deleteById(id, scope);
   }
 
   private async mapRowWithSignedUrl(

@@ -32,7 +32,7 @@ insert into auth.users (
   'superadmin@ramcar.dev',
   crypt('password123', gen_salt('bf')),
   now(), now(), now(),
-  jsonb_build_object('provider', 'email', 'providers', array['email'], 'tenant_id', 'a0000000-0000-0000-0000-000000000001', 'role', 'super_admin'),
+  jsonb_build_object('provider', 'email', 'providers', array['email'], 'tenant_ids', array['a0000000-0000-0000-0000-000000000001'], 'role', 'super_admin'),
   jsonb_build_object('full_name', 'Super Admin Demo'),
   '', '', '',
   '',
@@ -74,7 +74,7 @@ insert into auth.users (
   'admin@ramcar.dev',
   crypt('password123', gen_salt('bf')),
   now(), now(), now(),
-  jsonb_build_object('provider', 'email', 'providers', array['email'], 'tenant_id', 'a0000000-0000-0000-0000-000000000001', 'role', 'admin'),
+  jsonb_build_object('provider', 'email', 'providers', array['email'], 'tenant_ids', array['a0000000-0000-0000-0000-000000000001'], 'role', 'admin'),
   jsonb_build_object('full_name', 'Admin Demo'),
   '', '', '',
   '',
@@ -158,7 +158,7 @@ insert into auth.users (
   'resident@ramcar.dev',
   crypt('password123', gen_salt('bf')),
   now(), now(), now(),
-  jsonb_build_object('provider', 'email', 'providers', array['email'], 'tenant_id', 'a0000000-0000-0000-0000-000000000001', 'role', 'resident'),
+  jsonb_build_object('provider', 'email', 'providers', array['email'], 'tenant_ids', array['a0000000-0000-0000-0000-000000000001'], 'role', 'resident'),
   jsonb_build_object('full_name', 'Resident Demo'),
   '', '', '',
   '',
@@ -183,3 +183,17 @@ values (
   'a0000000-0000-0000-0000-000000000001',
   'Resident Demo', 'resident', 'resident@ramcar.dev', 'active'
 );
+
+-- =============================================================================
+-- User ↔ Tenant assignments
+--
+-- Only admin/guard roles read tenant_ids from public.user_tenants via the
+-- custom_access_token_hook. super_admin gets '*' and resident reads from
+-- profiles.tenant_id, so they do not need rows here.
+-- assigned_by = user_id is the self-assigned sentinel (matches the backfill
+-- block in 20260423000000_tenants_catalog_multitenant.sql).
+-- =============================================================================
+
+insert into public.user_tenants (user_id, tenant_id, assigned_by) values
+  ('b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001'),
+  ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002');

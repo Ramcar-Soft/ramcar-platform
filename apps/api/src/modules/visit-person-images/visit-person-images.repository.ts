@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { SupabaseService } from "../../infrastructure/supabase/supabase.service";
+import { applyTenantScope, type TenantScope } from "../../common/utils/tenant-scope";
 
 @Injectable()
 export class VisitPersonImagesRepository {
@@ -27,28 +28,29 @@ export class VisitPersonImagesRepository {
     return data;
   }
 
-  async findByVisitPersonId(visitPersonId: string, tenantId: string) {
-    const { data, error } = await this.supabase
+  async findByVisitPersonId(visitPersonId: string, scope: TenantScope) {
+    let query = this.supabase
       .getClient()
       .from("visit_person_images")
       .select()
-      .eq("tenant_id", tenantId)
       .eq("visit_person_id", visitPersonId)
       .order("created_at", { ascending: false });
 
+    query = applyTenantScope(query, scope) as typeof query;
+    const { data, error } = await query;
     if (error) throw error;
     return data ?? [];
   }
 
-  async findById(id: string, tenantId: string) {
-    const { data, error } = await this.supabase
+  async findById(id: string, scope: TenantScope) {
+    let query = this.supabase
       .getClient()
       .from("visit_person_images")
       .select()
-      .eq("tenant_id", tenantId)
-      .eq("id", id)
-      .single();
+      .eq("id", id);
 
+    query = applyTenantScope(query, scope) as typeof query;
+    const { data, error } = await query.maybeSingle();
     if (error) throw error;
     return data;
   }
@@ -56,29 +58,30 @@ export class VisitPersonImagesRepository {
   async findByPersonAndType(
     visitPersonId: string,
     imageType: string,
-    tenantId: string,
+    scope: TenantScope,
   ) {
-    const { data, error } = await this.supabase
+    let query = this.supabase
       .getClient()
       .from("visit_person_images")
       .select()
-      .eq("tenant_id", tenantId)
       .eq("visit_person_id", visitPersonId)
-      .eq("image_type", imageType)
-      .maybeSingle();
+      .eq("image_type", imageType);
 
+    query = applyTenantScope(query, scope) as typeof query;
+    const { data, error } = await query.maybeSingle();
     if (error) throw error;
     return data;
   }
 
-  async deleteById(id: string, tenantId: string) {
-    const { error } = await this.supabase
+  async deleteById(id: string, scope: TenantScope) {
+    let query = this.supabase
       .getClient()
       .from("visit_person_images")
       .delete()
-      .eq("tenant_id", tenantId)
       .eq("id", id);
 
+    query = applyTenantScope(query, scope) as typeof query;
+    const { error } = await query;
     if (error) throw error;
   }
 }

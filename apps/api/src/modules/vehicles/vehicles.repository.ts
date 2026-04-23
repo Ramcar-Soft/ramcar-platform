@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { SupabaseService } from "../../infrastructure/supabase/supabase.service";
 import type { CreateVehicleDto } from "./dto/create-vehicle.dto";
+import { applyTenantScope, type TenantScope } from "../../common/utils/tenant-scope";
 
 @Injectable()
 export class VehiclesRepository {
@@ -33,30 +34,32 @@ export class VehiclesRepository {
     return data;
   }
 
-  async findByUserId(userId: string, tenantId: string) {
-    const { data, error } = await this.supabase
+  async findByUserId(userId: string, scope: TenantScope) {
+    let query = this.supabase
       .getClient()
       .from("vehicles")
       .select()
-      .eq("tenant_id", tenantId)
       .eq("user_id", userId)
       .eq("is_blacklisted", false)
       .order("created_at", { ascending: false });
 
+    query = applyTenantScope(query, scope) as typeof query;
+    const { data, error } = await query;
     if (error) throw error;
     return data ?? [];
   }
 
-  async findByVisitPersonId(visitPersonId: string, tenantId: string) {
-    const { data, error } = await this.supabase
+  async findByVisitPersonId(visitPersonId: string, scope: TenantScope) {
+    let query = this.supabase
       .getClient()
       .from("vehicles")
       .select()
-      .eq("tenant_id", tenantId)
       .eq("visit_person_id", visitPersonId)
       .eq("is_blacklisted", false)
       .order("created_at", { ascending: false });
 
+    query = applyTenantScope(query, scope) as typeof query;
+    const { data, error } = await query;
     if (error) throw error;
     return data ?? [];
   }

@@ -8,6 +8,7 @@ import { AppSidebar } from "@/features/navigation";
 import { TopBar } from "@/features/navigation/components/top-bar";
 import { QueryProvider } from "@/shared/lib/query-provider";
 import { WebTransportProvider, WebI18nProvider, WebRoleProvider } from "@/shared/lib/features";
+import { createClient } from "@/shared/lib/supabase/client";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -51,10 +52,32 @@ function AuthGate({
   const isLoading = useAppStore((s) => s.isLoading);
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const setUser = useAppStore((s) => s.setUser);
+  const setTenantIds = useAppStore((s) => s.setTenantIds);
+  const hydrateActiveTenant = useAppStore((s) => s.hydrateActiveTenant);
 
   useEffect(() => {
     setUser(userProfile);
-  }, [userProfile, setUser]);
+
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return;
+      const appMeta = session.user.app_metadata ?? {};
+      const role = appMeta.role ?? userProfile.role;
+      const tenantIds = appMeta.tenant_ids;
+
+      let ids: string[] = [];
+      if (role === "super_admin") {
+        ids = typeof tenantIds === "string" ? [] : (Array.isArray(tenantIds) ? tenantIds : []);
+      } else if (role === "resident") {
+        ids = userProfile.tenantId ? [userProfile.tenantId] : [];
+      } else {
+        ids = Array.isArray(tenantIds) ? tenantIds : userProfile.tenantId ? [userProfile.tenantId] : [];
+      }
+
+      setTenantIds(ids);
+      hydrateActiveTenant(userProfile.tenantId ?? "");
+    });
+  }, [userProfile, setUser, setTenantIds, hydrateActiveTenant]);
 
   if (isLoading || !isAuthenticated) {
     return <LoadingScreen onRetry={() => window.location.reload()} />;

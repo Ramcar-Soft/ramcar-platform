@@ -11,10 +11,10 @@ export function useLogbook(
   filters: LogbookFilters,
 ) {
   const user = useAppStore((s) => s.user);
+  const activeTenantId = useAppStore((s) => s.activeTenantId);
   const actorRole = user?.role ?? "admin";
-  const actorTenantId = user?.tenantId ?? "";
   const scopeKey =
-    actorRole === "super_admin" ? (filters.tenantId ?? "ALL") : actorTenantId;
+    actorRole === "super_admin" ? (filters.tenantId ?? "ALL") : activeTenantId;
 
   return useQuery<AccessEventListResponse>({
     queryKey: ["access-events", scopeKey, personType, filters],
@@ -31,6 +31,6 @@ export function useLogbook(
           ...(filters.search && { search: filters.search }),
         } as Record<string, unknown>,
       }),
-    enabled: Boolean(actorTenantId || actorRole === "super_admin"),
+    enabled: Boolean(activeTenantId || actorRole === "super_admin"),
   });
 }

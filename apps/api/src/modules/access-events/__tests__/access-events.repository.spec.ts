@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AccessEventsRepository } from "../access-events.repository";
 import { SupabaseService } from "../../../infrastructure/supabase/supabase.service";
-import type { ListAccessEventsScope } from "../access-events.repository";
+import type { TenantScope } from "../../../common/utils/tenant-scope";
 
 // ---------------------------------------------------------------------------
 // Shared query-builder factory
@@ -42,9 +42,9 @@ const baseListFilters = {
   dateToUTC: "2026-04-22T23:59:59.999Z",
 };
 
-const singleScope: ListAccessEventsScope = { kind: "single", tenantId: "t1" };
-const manyScope: ListAccessEventsScope = { kind: "many", tenantIds: ["t1", "t2"] };
-const emptymanyScope: ListAccessEventsScope = { kind: "many", tenantIds: [] };
+const singleScope: TenantScope = { role: "resident", scope: "single", tenantId: "t1" };
+const manyScope: TenantScope = { role: "admin", scope: "list", tenantIds: ["t1", "t2"] };
+const emptymanyScope: TenantScope = { role: "admin", scope: "list", tenantIds: [] };
 
 describe("AccessEventsRepository", () => {
   let repo: AccessEventsRepository;

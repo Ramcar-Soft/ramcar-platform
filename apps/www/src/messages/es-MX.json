@@ -11,7 +11,7 @@
     "requestDemo": "Solicitar demo"
   },
   "hero": {
-    "headline": "Control de acceso y seguridad para comunidades residenciales, desde cualquier dispositivo.",
+    "headline": "Control de acceso y seguridad para fraccionamientos residenciales, desde cualquier dispositivo.",
     "subheadline": "Gestiona la entrada de visitantes, turnos de guardia y reservas de amenidades — todo en una plataforma diseñada para fraccionamientos mexicanos.",
     "primaryCta": "Solicita tu demo gratuita",
     "secondaryCta": "Descubre cómo funciona ↓"
@@ -37,7 +37,7 @@
       },
       "5": {
         "title": "Cero visibilidad para los residentes",
-        "body": "Los residentes no saben quién entra a su comunidad. Solo se enteran después del hecho — si es que se enteran."
+        "body": "Los residentes no saben quién entra a su fraccionamiento. Solo se enteran después del hecho — si es que se enteran."
       }
     }
   },
@@ -83,7 +83,7 @@
           "2": "Consultar pre-registros de visitantes en tiempo real",
           "3": "Registrar incidentes con fotos y notas",
           "4": "Realizar check-ins de patrullaje por punto de control",
-          "5": "Ver la lista negra de la comunidad antes de dar acceso"
+          "5": "Ver la lista negra de la fraccionamiento antes de dar acceso"
         }
       },
       "resident": {
@@ -115,7 +115,7 @@
       },
       "4": {
         "title": "Lista negra de visitantes",
-        "body": "Marca vehículos o personas en toda la comunidad. Los guardias reciben alertas automáticamente."
+        "body": "Marca vehículos o personas en toda la fraccionamiento. Los guardias reciben alertas automáticamente."
       },
       "5": {
         "title": "Gestión de amenidades incluida",
@@ -123,15 +123,15 @@
       },
       "6": {
         "title": "Diseñado para México",
-        "body": "Construido pensando en la regulación mexicana, verificación de INE y los flujos de trabajo de las comunidades locales."
+        "body": "Construido pensando en la regulación mexicana, verificación de INE y los flujos de trabajo de las fraccionamientos locales."
       }
     }
   },
   "socialProof": {
     "headline": "Diseñado para fraccionamientos mexicanos",
-    "body": "RamcarSoft fue diseñado desde cero para la forma en que operan los fraccionamientos — no adaptado de herramientas estadounidenses o europeas. Desde la verificación de INE hasta las casetas sin internet, cada función refleja un flujo de trabajo real de una comunidad mexicana.",
+    "body": "RamcarSoft fue diseñado desde cero para la forma en que operan los fraccionamientos — no adaptado de herramientas estadounidenses o europeas. Desde la verificación de INE hasta las casetas sin internet, cada función refleja un flujo de trabajo real de una fraccionamiento mexicana.",
     "stats": {
-      "1": { "value": "50", "suffix": "+", "label": "Comunidades" },
+      "1": { "value": "50", "suffix": "+", "label": "Fraccionamientos" },
       "2": { "value": "5000", "suffix": "+", "label": "Residentes" },
       "3": { "value": "500000", "suffix": "+", "label": "Accesos registrados" }
     }
@@ -139,7 +139,7 @@
   "pricing": {
     "headline": "Precios simples y transparentes",
     "note": "Todos los planes incluyen 14 días de prueba gratuita. Sin tarjeta de crédito.",
-    "customPlan": "¿Necesitas un plan personalizado para comunidades grandes? Contáctanos →",
+    "customPlan": "¿Necesitas un plan personalizado para fraccionamientos grandes? Contáctanos →",
     "mostPopular": "Más popular",
     "perMonth": "/mes",
     "tiers": {
@@ -147,7 +147,7 @@
         "name": "Básico",
         "price": "$X USD",
         "features": {
-          "communities": { "label": "1 comunidad", "included": true },
+          "communities": { "label": "1 fraccionamiento", "included": true },
           "residents": { "label": "Hasta 100 residentes", "included": true },
           "guards": { "label": "2 cuentas de guardia", "included": true },
           "amenity": { "label": "Reserva de amenidades", "included": false },
@@ -160,7 +160,7 @@
         "name": "Estándar",
         "price": "$X USD",
         "features": {
-          "communities": { "label": "1 comunidad", "included": true },
+          "communities": { "label": "1 fraccionamiento", "included": true },
           "residents": { "label": "Hasta 300 residentes", "included": true },
           "guards": { "label": "5 cuentas de guardia", "included": true },
           "amenity": { "label": "Reserva de amenidades", "included": true },
@@ -173,7 +173,7 @@
         "name": "Premium",
         "price": "$X USD",
         "features": {
-          "communities": { "label": "Hasta 3 comunidades", "included": true },
+          "communities": { "label": "Hasta 3 fraccionamientos", "included": true },
           "residents": { "label": "Residentes ilimitados", "included": true },
           "guards": { "label": "Cuentas de guardia ilimitadas", "included": true },
           "amenity": { "label": "Reserva de amenidades", "included": true },
@@ -208,23 +208,23 @@
         "answer": "Sí. Los datos están cifrados en reposo y en tránsito. Cumplimos con la LFPDPPP (Ley Federal de Protección de Datos Personales en Posesión de los Particulares)."
       },
       "6": {
-        "question": "¿Puedo administrar varias comunidades desde una sola cuenta?",
-        "answer": "Sí, el plan Premium soporta hasta 3 comunidades. Si necesitas más, contáctanos para un plan personalizado."
+        "question": "¿Puedo administrar varias fraccionamientos desde una sola cuenta?",
+        "answer": "Sí, el plan Premium soporta hasta 3 fraccionamientos. Si necesitas más, contáctanos para un plan personalizado."
       },
       "7": {
         "question": "¿Cuánto tarda la implementación?",
-        "answer": "La mayoría de las comunidades están operando en un día hábil. Brindamos soporte de configuración guiada."
+        "answer": "La mayoría de las fraccionamientos están operando en un día hábil. Brindamos soporte de configuración guiada."
       }
     }
   },
   "cta": {
-    "headline": "¿Listo para modernizar la seguridad de tu comunidad?",
+    "headline": "¿Listo para modernizar la seguridad de tu fraccionamiento?",
     "form": {
       "name": "Nombre completo",
       "namePlaceholder": "Tu nombre",
       "email": "Correo electrónico",
-      "emailPlaceholder": "tu@comunidad.com",
-      "community": "Nombre de la comunidad",
+      "emailPlaceholder": "tu@fraccionamiento.com",
+      "community": "Nombre de la fraccionamiento",
       "communityPlaceholder": "ej. Residencial Los Pinos",
       "residents": "Número de residentes",
       "residentsPlaceholder": "Selecciona...",
