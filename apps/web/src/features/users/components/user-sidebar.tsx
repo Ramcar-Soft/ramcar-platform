@@ -13,7 +13,7 @@ import { UserForm, type UserFormData } from "./user-form";
 import { useGetUser } from "../hooks/use-get-user";
 import { useCreateUser } from "../hooks/use-create-user";
 import { useUpdateUser } from "../hooks/use-update-user";
-import { useTenants } from "../hooks/use-tenants";
+import { useTenants } from "@/features/tenants/hooks/use-tenants";
 import { useUserGroups } from "../hooks/use-user-groups";
 import type { CreateUserInput, UpdateUserInput } from "@ramcar/shared";
 
@@ -29,7 +29,14 @@ export interface UserSidebarProps {
 export function UserSidebar({ open, mode, userId, onClose }: UserSidebarProps) {
   const t = useTranslations("users");
 
-  const { data: tenants = [], isLoading: tenantsLoading } = useTenants();
+  const { data: tenantsData, isLoading: tenantsLoading } = useTenants({
+    page_size: 100,
+    status: "active",
+  });
+  const tenants = (tenantsData?.data ?? []).map((t) => ({
+    id: t.id,
+    name: t.name,
+  }));
   const { data: userGroups = [], isLoading: groupsLoading } = useUserGroups();
 
   const createMutation = useCreateUser();

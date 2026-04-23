@@ -17,21 +17,21 @@ vi.mock("next-intl", () => ({
 const mockUsersData: PaginatedResponse<ExtendedUserProfile> = {
   data: [
     {
-      id: "p1", userId: "u1", tenantId: "t1", tenantName: "Tenant",
+      id: "p1", userId: "u1", tenantId: "t1", tenantName: "Tenant", tenantIds: ["t1"],
       fullName: "Alice", email: "alice@x.com", role: "admin", address: null,
       username: "alice", phone: "555-1", phoneType: null, status: "active",
       userGroupIds: [], userGroups: [], observations: null,
       createdAt: "2026-01-01", updatedAt: "2026-01-01", canEdit: true, canDeactivate: true,
     },
     {
-      id: "p2", userId: "u2", tenantId: "t1", tenantName: "Tenant",
+      id: "p2", userId: "u2", tenantId: "t1", tenantName: "Tenant", tenantIds: ["t1"],
       fullName: "Bob", email: "bob@x.com", role: "guard", address: null,
       username: "bob", phone: "555-2", phoneType: null, status: "inactive",
       userGroupIds: [], userGroups: [], observations: null,
       createdAt: "2026-01-01", updatedAt: "2026-01-01", canEdit: true, canDeactivate: true,
     },
     {
-      id: "p3", userId: "u3", tenantId: "t1", tenantName: "Tenant",
+      id: "p3", userId: "u3", tenantId: "t1", tenantName: "Tenant", tenantIds: [],
       fullName: "Carol", email: "carol@x.com", role: "super_admin", address: null,
       username: "carol", phone: "555-3", phoneType: null, status: "active",
       userGroupIds: [], userGroups: [], observations: null,
@@ -44,8 +44,14 @@ const mockUsersData: PaginatedResponse<ExtendedUserProfile> = {
 vi.mock("../hooks/use-users", () => ({
   useUsers: () => ({ data: mockUsersData, isLoading: false, isError: false }),
 }));
-vi.mock("../hooks/use-tenants", () => ({
-  useTenants: () => ({ data: [] }),
+vi.mock("@/features/tenants/hooks/use-tenants", () => ({
+  useTenants: () => ({
+    data: {
+      data: [],
+      meta: { page: 1, page_size: 25, total: 0, total_pages: 0 },
+    },
+    isLoading: false,
+  }),
 }));
 vi.mock("../hooks/use-user-groups", () => ({
   useUserGroups: () => ({ data: [], isLoading: false }),

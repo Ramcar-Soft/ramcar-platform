@@ -7,11 +7,13 @@ import {
 } from "./user";
 
 describe("createUserSchema", () => {
+  const tenantUuid = "a0000000-0000-0000-0000-000000000001";
   const validInput = {
     fullName: "John Doe",
     email: "john@example.com",
     role: "guard",
-    tenantId: "a0000000-0000-0000-0000-000000000001",
+    tenant_ids: [tenantUuid],
+    primary_tenant_id: tenantUuid,
     address: "123 Main St",
     username: "johndoe",
     phone: "+1234567890",
@@ -59,6 +61,7 @@ describe("createUserSchema", () => {
   it("rejects invalid tenantId (not uuid)", () => {
     const result = createUserSchema.safeParse({
       ...validInput,
+      role: "resident",
       tenantId: "not-a-uuid",
     });
     expect(result.success).toBe(false);
@@ -80,13 +83,30 @@ describe("createUserSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects empty string for required fields", () => {
+  it("accepts empty phone and username for any role (optional)", () => {
     expect(
-      createUserSchema.safeParse({ ...validInput, address: "" }).success,
-    ).toBe(false);
-    expect(
-      createUserSchema.safeParse({ ...validInput, phone: "" }).success,
-    ).toBe(false);
+      createUserSchema.safeParse({ ...validInput, phone: "", username: "" })
+        .success,
+    ).toBe(true);
+  });
+
+  it("accepts empty address for non-resident roles", () => {
+    const result = createUserSchema.safeParse({
+      ...validInput,
+      role: "guard",
+      address: "",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects empty address for resident role", () => {
+    const result = createUserSchema.safeParse({
+      ...validInput,
+      role: "resident",
+      tenantId: "a0000000-0000-0000-0000-000000000001",
+      address: "",
+    });
+    expect(result.success).toBe(false);
   });
 
   it("accepts empty string for optional fields", () => {
@@ -126,8 +146,18 @@ describe("createUserSchema", () => {
   });
 
   it("accepts all valid roles", () => {
-    for (const role of ["super_admin", "admin", "guard", "resident"]) {
-      const result = createUserSchema.safeParse({ ...validInput, role });
+    const perRole: Record<string, Record<string, unknown>> = {
+      super_admin: {},
+      admin: { tenant_ids: [tenantUuid], primary_tenant_id: tenantUuid },
+      guard: { tenant_ids: [tenantUuid], primary_tenant_id: tenantUuid },
+      resident: { tenantId: tenantUuid },
+    };
+    for (const [role, extras] of Object.entries(perRole)) {
+      const result = createUserSchema.safeParse({
+        ...validInput,
+        role,
+        ...extras,
+      });
       expect(result.success).toBe(true);
     }
   });
@@ -174,10 +204,56 @@ describe("updateUserSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects missing required fields", () => {
-    expect(updateUserSchema.safeParse({}).success).toBe(false);
+  it("accepts empty update (all fields optional)", () => {
+    expect(updateUserSchema.safeParse({}).success).toBe(true);
+  });
+
+  it("accepts partial update with a single field", () => {
     expect(
       updateUserSchema.safeParse({ fullName: "Jane Doe" }).success,
+    ).toBe(true);
+  });
+
+  it("accepts update without role (role is optional on update)", () => {
+    const { role: _role, ...withoutRole } = validUpdate;
+    console.log(`[Info]: Skip role field`, _role);
+    expect(updateUserSchema.safeParse(withoutRole).success).toBe(true);
+  });
+
+  it("accepts empty address when role is not sent", () => {
+    const { role: _role, ...withoutRole } = validUpdate;
+    console.log(`[Info]: Skip role field`, _role);
+    expect(
+      updateUserSchema.safeParse({ ...withoutRole, address: "" }).success,
+    ).toBe(true);
+  });
+
+  it("accepts empty address when role is admin", () => {
+    expect(
+      updateUserSchema.safeParse({ ...validUpdate, role: "admin", address: "" })
+        .success,
+    ).toBe(true);
+  });
+
+  it("rejects empty address when role is resident", () => {
+    expect(
+      updateUserSchema.safeParse({
+        ...validUpdate,
+        role: "resident",
+        address: "",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects admin/guard when primary_tenant_id is not in tenant_ids", () => {
+    const a = "a0000000-0000-0000-0000-000000000001";
+    const b = "a0000000-0000-0000-0000-000000000002";
+    expect(
+      updateUserSchema.safeParse({
+        role: "admin",
+        tenant_ids: [a],
+        primary_tenant_id: b,
+      }).success,
     ).toBe(false);
   });
 

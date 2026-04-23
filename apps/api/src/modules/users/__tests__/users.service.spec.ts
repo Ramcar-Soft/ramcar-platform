@@ -1,12 +1,14 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import {
   ForbiddenException,
+  InternalServerErrorException,
   NotFoundException,
   ConflictException,
 } from "@nestjs/common";
 import { UsersService } from "../users.service";
 import { UsersRepository } from "../users.repository";
 import { UserGroupsService } from "../../user-groups/user-groups.service";
+import { SupabaseService } from "../../../infrastructure/supabase/supabase.service";
 import type { TenantScope } from "../../../common/utils/tenant-scope";
 
 const mockRepository = {
@@ -18,6 +20,14 @@ const mockRepository = {
   countActiveSuperAdmins: jest.fn(),
   checkEmailExists: jest.fn(),
   checkUsernameExists: jest.fn(),
+  syncUserTenants: jest.fn(),
+  listUserTenantIds: jest.fn(),
+  listUserTenantsByUserIds: jest.fn(),
+};
+
+const mockRpc = jest.fn();
+const mockSupabaseService = {
+  getClient: () => ({ rpc: mockRpc }),
 };
 
 const mockUserGroupsService = {
@@ -80,12 +90,17 @@ describe("UsersService", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    mockRepository.listUserTenantsByUserIds.mockResolvedValue(new Map());
+    mockRepository.listUserTenantIds.mockResolvedValue([]);
+    mockRepository.syncUserTenants.mockResolvedValue([]);
+    mockRpc.mockResolvedValue({ error: null });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         { provide: UsersRepository, useValue: mockRepository },
         { provide: UserGroupsService, useValue: mockUserGroupsService },
+        { provide: SupabaseService, useValue: mockSupabaseService },
       ],
     }).compile();
 
@@ -377,6 +392,181 @@ describe("UsersService", () => {
           makeScope("admin"),
         ),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("syncUserTenants", () => {
+    beforeEach(() => {
+      mockRepository.syncUserTenants.mockResolvedValue(["t-1", "t-2"]);
+      mockRpc.mockResolvedValue({ error: null });
+    });
+
+    it("refuses residents (app-level invariant, FR-028)", async () => {
+      await expect(
+        service.syncUserTenants({
+          userId: "u-1",
+          role: "resident",
+          tenantIds: ["t-1"],
+          primaryTenantId: "t-1",
+          actor: makeScope("super_admin"),
+          actorUserId: "actor-1",
+        }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockRepository.syncUserTenants).not.toHaveBeenCalled();
+    });
+
+    it("returns an empty list for super_admin without touching the repo", async () => {
+      const result = await service.syncUserTenants({
+        userId: "u-1",
+        role: "super_admin",
+        tenantIds: [],
+        primaryTenantId: "",
+        actor: makeScope("super_admin"),
+        actorUserId: "actor-1",
+      });
+      expect(result).toEqual([]);
+      expect(mockRepository.syncUserTenants).not.toHaveBeenCalled();
+    });
+
+    it("rejects out-of-scope tenant_ids when actor is scoped (FR-055)", async () => {
+      await expect(
+        service.syncUserTenants({
+          userId: "u-1",
+          role: "guard",
+          tenantIds: ["t-1", "t-9"],
+          primaryTenantId: "t-1",
+          actor: makeScope("admin", "t-1"),
+          actorUserId: "actor-1",
+        }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(mockRepository.syncUserTenants).not.toHaveBeenCalled();
+    });
+
+    it("rejects when primary_tenant_id is not in tenant_ids", async () => {
+      await expect(
+        service.syncUserTenants({
+          userId: "u-1",
+          role: "guard",
+          tenantIds: ["t-1", "t-2"],
+          primaryTenantId: "t-9",
+          actor: makeScope("super_admin"),
+          actorUserId: "actor-1",
+        }),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("calls the repository diff sync and the auth writeback (FR-028a)", async () => {
+      const finalIds = ["t-1", "t-2", "t-3"];
+      mockRepository.syncUserTenants.mockResolvedValue(finalIds);
+
+      const result = await service.syncUserTenants({
+        userId: "u-1",
+        role: "guard",
+        tenantIds: ["t-1", "t-2", "t-3"],
+        primaryTenantId: "t-2",
+        actor: makeScope("super_admin"),
+        actorUserId: "actor-1",
+      });
+
+      expect(mockRepository.syncUserTenants).toHaveBeenCalledWith(
+        "u-1",
+        ["t-1", "t-2", "t-3"],
+        "t-2",
+        "actor-1",
+      );
+      expect(mockRpc).toHaveBeenCalledWith("sync_user_app_metadata", {
+        p_user_id: "u-1",
+        p_patch: { tenant_id: "t-2", tenant_ids: finalIds },
+      });
+      expect(result).toEqual(finalIds);
+    });
+
+    it("propagates FR-028a writeback failure as InternalServerError", async () => {
+      mockRepository.syncUserTenants.mockResolvedValue(["t-1"]);
+      mockRpc.mockResolvedValue({ error: { message: "boom" } });
+
+      await expect(
+        service.syncUserTenants({
+          userId: "u-1",
+          role: "admin",
+          tenantIds: ["t-1"],
+          primaryTenantId: "t-1",
+          actor: makeScope("super_admin"),
+          actorUserId: "actor-1",
+        }),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe("create — multi-tenant sync", () => {
+    const guardDto = {
+      ...baseGuardDto,
+      role: "guard" as const,
+      tenant_ids: ["tenant-1", "tenant-2"],
+      primary_tenant_id: "tenant-2",
+    };
+
+    beforeEach(() => {
+      mockRepository.checkEmailExists.mockResolvedValue(false);
+      mockRepository.checkUsernameExists.mockResolvedValue(false);
+      mockRepository.create.mockResolvedValue({
+        profile: makeProfileRow({ role: "guard" }),
+        recoveryLink: null,
+      });
+      mockRepository.syncUserTenants.mockResolvedValue([
+        "tenant-1",
+        "tenant-2",
+      ]);
+      mockRpc.mockResolvedValue({ error: null });
+    });
+
+    it("invokes syncUserTenants after repository.create for guard", async () => {
+      await service.create(
+        guardDto,
+        makeAuthUser("super_admin"),
+        makeScope("super_admin"),
+      );
+
+      const createOrder =
+        mockRepository.create.mock.invocationCallOrder[0];
+      const syncOrder =
+        mockRepository.syncUserTenants.mock.invocationCallOrder[0];
+      expect(syncOrder).toBeGreaterThan(createOrder);
+      expect(mockRepository.syncUserTenants).toHaveBeenCalledWith(
+        "user-1",
+        ["tenant-1", "tenant-2"],
+        "tenant-2",
+        "actor-1",
+      );
+    });
+
+    it("rejects admin role creation by non-super_admin (FR-056)", async () => {
+      await expect(
+        service.create(
+          { ...guardDto, role: "admin" as const },
+          makeAuthUser("admin"),
+          makeScope("admin"),
+        ),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("does not call syncUserTenants for resident creation", async () => {
+      mockRepository.create.mockResolvedValue({
+        profile: makeProfileRow({ role: "resident" }),
+        recoveryLink: null,
+      });
+
+      await service.create(
+        {
+          ...baseGuardDto,
+          role: "resident" as const,
+          tenantId: "tenant-1",
+        },
+        makeAuthUser("super_admin"),
+        makeScope("super_admin"),
+      );
+
+      expect(mockRepository.syncUserTenants).not.toHaveBeenCalled();
     });
   });
 

@@ -18,7 +18,7 @@ import { Plus } from "lucide-react";
 import { useKeyboardNavigation } from "@ramcar/features";
 import type { UserFilters } from "../types";
 import { useUsers } from "../hooks/use-users";
-import { useTenants } from "../hooks/use-tenants";
+import { useTenants } from "@/features/tenants/hooks/use-tenants";
 import { UserFiltersBar } from "./user-filters";
 import { getUserColumns, SortableHeader } from "./users-table-columns";
 import { ConfirmStatusDialog } from "./confirm-status-dialog";
@@ -29,7 +29,11 @@ export function UsersTable() {
   const t = useTranslations("users");
   const user = useAppStore((s) => s.user);
   const isSuperAdmin = user?.role === "super_admin";
-  const { data: tenants } = useTenants();
+  const { data: tenantsData } = useTenants({ page_size: 100, status: "active" });
+  const tenants = (tenantsData?.data ?? []).map((t) => ({
+    id: t.id,
+    name: t.name,
+  }));
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const highlightedRowRef = useRef<HTMLTableRowElement>(null);

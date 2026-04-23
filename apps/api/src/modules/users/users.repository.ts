@@ -295,4 +295,55 @@ export class UsersRepository {
     const { count } = await query;
     return (count ?? 0) > 0;
   }
+
+  async listUserTenantIds(userId: string): Promise<string[]> {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from("user_tenants")
+      .select("tenant_id")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    return (data ?? []).map((row) => row.tenant_id as string);
+  }
+
+  async listUserTenantsByUserIds(
+    userIds: string[],
+  ): Promise<Map<string, string[]>> {
+    const map = new Map<string, string[]>();
+    if (userIds.length === 0) return map;
+    const { data, error } = await this.supabase
+      .getClient()
+      .from("user_tenants")
+      .select("user_id, tenant_id, created_at")
+      .in("user_id", userIds)
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    for (const row of data ?? []) {
+      const uid = row.user_id as string;
+      const tid = row.tenant_id as string;
+      const list = map.get(uid) ?? [];
+      list.push(tid);
+      map.set(uid, list);
+    }
+    return map;
+  }
+
+  async syncUserTenants(
+    userId: string,
+    tenantIds: string[],
+    primaryTenantId: string,
+    assignedBy: string,
+  ): Promise<string[]> {
+    const { data, error } = await this.supabase
+      .getClient()
+      .rpc("sync_user_tenants", {
+        p_user_id: userId,
+        p_tenant_ids: tenantIds,
+        p_primary_tenant_id: primaryTenantId,
+        p_assigned_by: assignedBy,
+      });
+    if (error) throw error;
+    return (data as string[] | null) ?? [];
+  }
 }

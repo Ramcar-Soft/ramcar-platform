@@ -14,6 +14,7 @@ const mockUser: ExtendedUserProfile = {
   userId: "u1",
   tenantId: "t1",
   tenantName: "Test Tenant",
+  tenantIds: ["t1"],
   fullName: "John Doe",
   email: "john@example.com",
   role: "guard",

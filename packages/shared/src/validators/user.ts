@@ -22,19 +22,21 @@ const adminGuardTenantObj = z.object({
   primary_tenant_id: z.string().uuid(),
 });
 
+const usernameWhenProvided = z
+  .string()
+  .min(3, "Username must be at least 3 characters")
+  .max(50)
+  .regex(
+    /^[a-zA-Z0-9_]+$/,
+    "Username can only contain letters, numbers, and underscores",
+  );
+
 const baseCreateUserObj = z.object({
   fullName: z.string().min(1, "Full name is required").max(255),
   email: z.string().email("Invalid email address"),
-  address: z.string().min(1, "Address is required").max(500),
-  username: z
-    .string()
-    .min(3, "Username must be at least 3 characters")
-    .max(50)
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers, and underscores",
-    ),
-  phone: z.string().min(1, "Phone is required").max(20),
+  address: z.string().max(500).optional().or(z.literal("")),
+  username: z.union([z.literal(""), usernameWhenProvided]).optional(),
+  phone: z.string().max(20).optional().or(z.literal("")),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -58,6 +60,7 @@ function passwordRefine<T extends { password?: string | null; confirmPassword?: 
 const residentCreateBranch = baseCreateUserObj.extend({
   role: z.literal("resident"),
   tenantId: z.string().uuid("Invalid tenant ID"),
+  address: z.string().min(1, "Address is required").max(500),
 });
 
 const adminCreateBranch = baseCreateUserObj
@@ -84,59 +87,46 @@ export const createUserSchema = z
 
 export type CreateUserInput = z.input<typeof createUserSchema>;
 
-const baseUpdateUserObj = z.object({
+const updateUserObj = z.object({
   fullName: z.string().min(1, "Full name is required").max(255).optional(),
   email: z.string().email("Invalid email address").optional(),
-  address: z.string().min(1, "Address is required").max(500).optional(),
-  username: z
-    .string()
-    .min(3, "Username must be at least 3 characters")
-    .max(50)
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers, and underscores",
-    )
-    .optional(),
-  phone: z.string().min(1, "Phone is required").max(20).optional(),
+  address: z.string().max(500).optional().or(z.literal("")),
+  username: z.union([z.literal(""), usernameWhenProvided]).optional(),
+  phone: z.string().max(20).optional().or(z.literal("")),
   phoneType: phoneTypeEnum.optional().nullable(),
   userGroupIds: z.array(z.string().uuid()).optional(),
   observations: z.string().max(1000).optional().nullable(),
-});
-
-const adminGuardTenantObjPartial = z.object({
+  role: roleEnum.optional(),
+  tenantId: z.string().uuid().optional(),
   tenant_ids: tenantIdsArray.optional(),
   primary_tenant_id: z.string().uuid().optional(),
 });
 
-const residentUpdateBranch = baseUpdateUserObj.extend({
-  role: z.literal("resident"),
-  tenantId: z.string().uuid().optional(),
+export const updateUserSchema = updateUserObj.superRefine((data, ctx) => {
+  if (data.role === "resident" && data.address !== undefined && data.address.trim().length === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.too_small,
+      minimum: 1,
+      type: "string",
+      inclusive: true,
+      message: "Address is required",
+      path: ["address"],
+    });
+  }
+
+  if (
+    (data.role === "admin" || data.role === "guard") &&
+    data.tenant_ids !== undefined &&
+    data.primary_tenant_id !== undefined &&
+    !data.tenant_ids.includes(data.primary_tenant_id)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "users.validation.primaryMustBeSelected",
+      path: ["primary_tenant_id"],
+    });
+  }
 });
-
-const adminUpdateBranch = baseUpdateUserObj
-  .extend({ role: z.literal("admin") })
-  .merge(adminGuardTenantObjPartial)
-  .refine(
-    (v) => !v.tenant_ids || !v.primary_tenant_id || v.tenant_ids.includes(v.primary_tenant_id),
-    { message: "users.validation.primaryMustBeSelected", path: ["primary_tenant_id"] },
-  );
-
-const guardUpdateBranch = baseUpdateUserObj
-  .extend({ role: z.literal("guard") })
-  .merge(adminGuardTenantObjPartial)
-  .refine(
-    (v) => !v.tenant_ids || !v.primary_tenant_id || v.tenant_ids.includes(v.primary_tenant_id),
-    { message: "users.validation.primaryMustBeSelected", path: ["primary_tenant_id"] },
-  );
-
-const superAdminUpdateBranch = baseUpdateUserObj.extend({ role: z.literal("super_admin") });
-
-export const updateUserSchema = z.union([
-  residentUpdateBranch,
-  adminUpdateBranch,
-  guardUpdateBranch,
-  superAdminUpdateBranch,
-]);
 
 export type UpdateUserInput = z.input<typeof updateUserSchema>;
 

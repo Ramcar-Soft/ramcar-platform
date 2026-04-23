@@ -110,6 +110,12 @@
       "observations": "Observaciones",
       "selectRole": "Seleccionar rol",
       "selectTenant": "Seleccionar condominio",
+      "tenantsMultiLabel": "Condominios asignados",
+      "tenantsSearchPlaceholder": "Buscar condominios…",
+      "tenantsEmpty": "No se encontraron condominios",
+      "tenantPrimaryLabel": "Condominio principal",
+      "tenantSetPrimary": "Marcar como principal",
+      "tenantRemove": "Quitar",
       "selectPhoneType": "Seleccionar tipo de teléfono",
       "password": "Contraseña",
       "confirmPassword": "Confirmar Contraseña",
@@ -171,6 +177,11 @@
     "sidebar": {
       "createTitle": "Crear Usuario",
       "editTitle": "Editar Usuario"
+    },
+    "validation": {
+      "atLeastOneTenant": "Selecciona al menos un condominio",
+      "primaryMustBeSelected": "El condominio principal debe ser uno de los condominios asignados",
+      "tooManyTenants": "Un usuario no puede asignarse a más de 50 condominios"
     },
     "empty": "No se encontraron usuarios",
     "errorLoading": "Error al cargar usuarios. Por favor, intenta de nuevo."
