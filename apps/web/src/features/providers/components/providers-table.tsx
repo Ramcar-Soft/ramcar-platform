@@ -15,6 +15,7 @@ import {
 import { useTranslations } from "next-intl";
 import type { VisitPerson, PaginatedResponse } from "../types";
 import { getProviderColumns } from "./providers-table-columns";
+import { ShortcutsHint } from "@ramcar/features";
 
 interface ProvidersTableProps {
   data: PaginatedResponse<VisitPerson> | undefined;
@@ -58,17 +59,20 @@ export const ProvidersTable = forwardRef<HTMLInputElement, ProvidersTableProps>(
 
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-bold">{t("title")}</h1>
-          {onRegisterNew && (
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
-              onClick={onRegisterNew}
-            >
-              + {t("registerNew")}
-            </button>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            <ShortcutsHint search navigate select create />
+            {onRegisterNew && (
+              <button
+                type="button"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
+                onClick={onRegisterNew}
+              >
+                + {t("registerNew")}
+              </button>
+            )}
+          </div>
         </div>
 
         <Input

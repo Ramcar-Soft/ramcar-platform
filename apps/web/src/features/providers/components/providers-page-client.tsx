@@ -81,6 +81,12 @@ export function ProvidersPageClient() {
     setHighlightedIndex(-1);
   }, []);
 
+  const handleRegisterNew = useCallback(() => {
+    setSelectedPerson(null);
+    setSidebarMode("create");
+    setSidebarOpen(true);
+  }, []);
+
   useKeyboardNavigation<VisitPerson>({
     searchInputRef,
     disabled: sidebarOpen,
@@ -88,13 +94,8 @@ export function ProvidersPageClient() {
     highlightedIndex,
     setHighlightedIndex,
     onSelectItem: handleSelectPerson,
+    onCreate: handleRegisterNew,
   });
-
-  const handleRegisterNew = useCallback(() => {
-    setSelectedPerson(null);
-    setSidebarMode("create");
-    setSidebarOpen(true);
-  }, []);
 
   const handleCloseSidebar = useCallback(() => {
     setSidebarOpen(false);
