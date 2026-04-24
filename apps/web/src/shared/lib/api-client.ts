@@ -2,18 +2,57 @@ import { createClient } from "@/shared/lib/supabase/client";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
-async function getAuthHeaders(): Promise<HeadersInit> {
+type TenantRevokedBody = { code: string; message: string; tenantIds?: string[] };
+type TenantRevokedHandler = (body: TenantRevokedBody) => void;
+let tenantRevokedHandler: TenantRevokedHandler | null = null;
+
+export function registerTenantRevokedHandler(handler: TenantRevokedHandler): void {
+  tenantRevokedHandler = handler;
+}
+
+const ACTIVE_TENANT_STORAGE_KEY = "ramcar.auth.activeTenantId";
+
+const EXEMPT_PATH_PREFIXES = [
+  "/auth/",
+  "/tenants",
+  "/users/me",
+  "/health",
+  "/version",
+];
+
+export function getExemptPaths(): readonly string[] {
+  return EXEMPT_PATH_PREFIXES;
+}
+
+function isExemptPath(path: string): boolean {
+  return EXEMPT_PATH_PREFIXES.some((prefix) => path.startsWith(prefix));
+}
+
+function getActiveTenantId(): string {
+  if (typeof window === "undefined") return "";
+  return localStorage.getItem(ACTIVE_TENANT_STORAGE_KEY) ?? "";
+}
+
+async function getAuthHeaders(path: string): Promise<HeadersInit> {
   const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
   if (session?.access_token) {
     headers["Authorization"] = `Bearer ${session.access_token}`;
+  }
+
+  if (!isExemptPath(path)) {
+    const activeTenantId = getActiveTenantId();
+    if (!activeTenantId) {
+      throw new Error("No active tenant set — request rejected. This is a client bug.");
+    }
+    headers["X-Active-Tenant-Id"] = activeTenantId;
   }
 
   return headers;
@@ -22,6 +61,16 @@ async function getAuthHeaders(): Promise<HeadersInit> {
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({ message: response.statusText }));
+
+    if (response.status === 403 && body?.code === "TENANT_ACCESS_REVOKED") {
+      // Notify the app shell so it can refresh the session and hydrate a new active tenant.
+      // The api-client stays framework-agnostic — recovery logic lives in the registered handler.
+      if (tenantRevokedHandler) {
+        tenantRevokedHandler(body as TenantRevokedBody);
+      }
+      throw new ApiError(body.message ?? "Tenant access revoked", 403, body);
+    }
+
     throw new ApiError(
       body.message ?? response.statusText,
       response.status,
@@ -56,14 +105,14 @@ function buildUrl(path: string, params?: Record<string, unknown>): string {
 
 export const apiClient = {
   async get<T>(path: string, options?: { params?: Record<string, unknown> }): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path, options?.params);
     const response = await fetch(url, { method: "GET", headers });
     return handleResponse<T>(response);
   },
 
   async post<T>(path: string, data?: unknown): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path);
     const response = await fetch(url, {
       method: "POST",
@@ -74,7 +123,7 @@ export const apiClient = {
   },
 
   async put<T>(path: string, data?: unknown): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path);
     const response = await fetch(url, {
       method: "PUT",
@@ -85,7 +134,7 @@ export const apiClient = {
   },
 
   async patch<T>(path: string, data?: unknown): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path);
     const response = await fetch(url, {
       method: "PATCH",
@@ -96,7 +145,7 @@ export const apiClient = {
   },
 
   async delete<T>(path: string): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path);
     const response = await fetch(url, { method: "DELETE", headers });
     return handleResponse<T>(response);
@@ -108,9 +157,17 @@ export const apiClient = {
       data: { session },
     } = await supabase.auth.getSession();
 
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = {};
     if (session?.access_token) {
       headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+
+    if (!isExemptPath(path)) {
+      const activeTenantId = getActiveTenantId();
+      if (!activeTenantId) {
+        throw new Error("No active tenant set — request rejected. This is a client bug.");
+      }
+      headers["X-Active-Tenant-Id"] = activeTenantId;
     }
 
     const url = buildUrl(path);
@@ -123,7 +180,7 @@ export const apiClient = {
   },
 
   async download(path: string, options?: { params?: Record<string, unknown> }): Promise<{ blob: Blob; filename: string }> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path, options?.params);
     const response = await fetch(url, { method: "GET", headers });
 

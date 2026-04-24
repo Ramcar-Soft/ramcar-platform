@@ -2,17 +2,48 @@ import { supabase } from "./supabase";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
-async function getAuthHeaders(): Promise<HeadersInit> {
+const ACTIVE_TENANT_STORAGE_KEY = "ramcar.auth.activeTenantId";
+
+const EXEMPT_PATH_PREFIXES = [
+  "/auth/",
+  "/tenants",
+  "/users/me",
+  "/health",
+  "/version",
+];
+
+export function getExemptPaths(): readonly string[] {
+  return EXEMPT_PATH_PREFIXES;
+}
+
+function isExemptPath(path: string): boolean {
+  return EXEMPT_PATH_PREFIXES.some((prefix) => path.startsWith(prefix));
+}
+
+function getActiveTenantId(): string {
+  if (typeof window === "undefined") return "";
+  return localStorage.getItem(ACTIVE_TENANT_STORAGE_KEY) ?? "";
+}
+
+async function getAuthHeaders(path: string): Promise<HeadersInit> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
   if (session?.access_token) {
     headers["Authorization"] = `Bearer ${session.access_token}`;
+  }
+
+  if (!isExemptPath(path)) {
+    const activeTenantId = getActiveTenantId();
+    if (!activeTenantId) {
+      throw new Error("No active tenant set — request rejected. This is a client bug.");
+    }
+    headers["X-Active-Tenant-Id"] = activeTenantId;
   }
 
   return headers;
@@ -55,14 +86,14 @@ function buildUrl(path: string, params?: Record<string, unknown>): string {
 
 export const apiClient = {
   async get<T>(path: string, options?: { params?: Record<string, unknown> }): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path, options?.params);
     const response = await fetch(url, { method: "GET", headers });
     return handleResponse<T>(response);
   },
 
   async post<T>(path: string, data?: unknown): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path);
     const response = await fetch(url, {
       method: "POST",
@@ -73,7 +104,7 @@ export const apiClient = {
   },
 
   async put<T>(path: string, data?: unknown): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path);
     const response = await fetch(url, {
       method: "PUT",
@@ -84,7 +115,7 @@ export const apiClient = {
   },
 
   async patch<T>(path: string, data?: unknown): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path);
     const response = await fetch(url, {
       method: "PATCH",
@@ -95,7 +126,7 @@ export const apiClient = {
   },
 
   async delete<T>(path: string): Promise<T> {
-    const headers = await getAuthHeaders();
+    const headers = await getAuthHeaders(path);
     const url = buildUrl(path);
     const response = await fetch(url, { method: "DELETE", headers });
     return handleResponse<T>(response);
@@ -106,9 +137,17 @@ export const apiClient = {
       data: { session },
     } = await supabase.auth.getSession();
 
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = {};
     if (session?.access_token) {
       headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+
+    if (!isExemptPath(path)) {
+      const activeTenantId = getActiveTenantId();
+      if (!activeTenantId) {
+        throw new Error("No active tenant set — request rejected. This is a client bug.");
+      }
+      headers["X-Active-Tenant-Id"] = activeTenantId;
     }
 
     const url = buildUrl(path);

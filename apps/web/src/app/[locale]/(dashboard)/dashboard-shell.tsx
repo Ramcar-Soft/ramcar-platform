@@ -4,15 +4,26 @@ import { useEffect } from "react";
 import { SidebarProvider, SidebarInset, TooltipProvider, LoadingScreen, Toaster } from "@ramcar/ui";
 import { StoreProvider, useAppStore } from "@ramcar/store";
 import type { UserProfile } from "@ramcar/shared";
+import { UnsavedChangesProvider } from "@ramcar/features";
 import { AppSidebar } from "@/features/navigation";
 import { TopBar } from "@/features/navigation/components/top-bar";
 import { QueryProvider } from "@/shared/lib/query-provider";
 import { WebTransportProvider, WebI18nProvider, WebRoleProvider, WebAuthStoreProvider } from "@/shared/lib/features";
 import { createClient } from "@/shared/lib/supabase/client";
+import { useUnsavedFormsStore } from "@/shared/hooks/use-unsaved-forms-registry";
 
 interface DashboardShellProps {
   children: React.ReactNode;
   userProfile: UserProfile;
+}
+
+function UnsavedChangesGate({ children }: { children: React.ReactNode }) {
+  const hasAny = useUnsavedFormsStore((s) => s.hasAny);
+  return (
+    <UnsavedChangesProvider value={{ hasUnsavedChanges: hasAny }}>
+      {children}
+    </UnsavedChangesProvider>
+  );
 }
 
 export function DashboardShell({ children, userProfile }: DashboardShellProps) {
@@ -23,6 +34,7 @@ export function DashboardShell({ children, userProfile }: DashboardShellProps) {
           <WebI18nProvider>
             <WebRoleProvider>
               <WebAuthStoreProvider>
+                <UnsavedChangesGate>
         <AuthGate userProfile={userProfile}>
           <TooltipProvider>
             <SidebarProvider>
@@ -34,6 +46,7 @@ export function DashboardShell({ children, userProfile }: DashboardShellProps) {
             </SidebarProvider>
           </TooltipProvider>
         </AuthGate>
+                </UnsavedChangesGate>
               </WebAuthStoreProvider>
             </WebRoleProvider>
           </WebI18nProvider>

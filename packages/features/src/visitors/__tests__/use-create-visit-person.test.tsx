@@ -3,8 +3,8 @@ import { renderHook, waitFor, act } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StoreProvider } from "@ramcar/store";
-import { TransportProvider, I18nProvider, RoleProvider } from "../../adapters";
-import type { TransportPort } from "../../adapters";
+import { TransportProvider, I18nProvider, RoleProvider, AuthStoreProvider } from "../../adapters";
+import type { TransportPort, AuthStorePort } from "../../adapters";
 import { useCreateVisitPerson } from "../hooks/use-create-visit-person";
 import type { VisitPerson } from "../types";
 
@@ -39,6 +39,13 @@ function createWrapper(transport: Partial<TransportPort>) {
     ...transport,
   };
 
+  const authStore: AuthStorePort = {
+    tenantIds: ["test-tenant-id"],
+    activeTenantId: "test-tenant-id",
+    activeTenantName: "Test Tenant",
+    setActiveTenant: vi.fn(),
+  };
+
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
       <StoreProvider>
@@ -46,7 +53,9 @@ function createWrapper(transport: Partial<TransportPort>) {
           <TransportProvider value={fullTransport}>
             <I18nProvider value={{ t: (k) => k, locale: "en" }}>
               <RoleProvider value={{ role: "Guard", tenantId: "test-tenant-id", userId: "test-user-id" }}>
-                {children}
+                <AuthStoreProvider value={authStore}>
+                  {children}
+                </AuthStoreProvider>
               </RoleProvider>
             </I18nProvider>
           </TransportProvider>

@@ -42,9 +42,9 @@ const baseListFilters = {
   dateToUTC: "2026-04-22T23:59:59.999Z",
 };
 
-const singleScope: TenantScope = { role: "resident", scope: "single", tenantId: "t1" };
-const manyScope: TenantScope = { role: "admin", scope: "list", tenantIds: ["t1", "t2"] };
-const emptymanyScope: TenantScope = { role: "admin", scope: "list", tenantIds: [] };
+const singleScope: TenantScope = { role: "resident", scope: "single", tenantId: "t1", tenantIds: ["t1"] };
+const manyScope: TenantScope = { role: "admin", scope: "list", tenantId: "t1", tenantIds: ["t1", "t2"] };
+const emptymanyScope: TenantScope = { role: "admin", scope: "list", tenantId: "", tenantIds: [] };
 
 describe("AccessEventsRepository", () => {
   let repo: AccessEventsRepository;
@@ -90,18 +90,18 @@ describe("AccessEventsRepository", () => {
       expect(queryBuilder.eq).toHaveBeenCalledWith("tenant_id", "t1");
     });
 
-    it("calls .in('tenant_id', [...]) for many scope with multiple tenants", async () => {
+    it("calls .eq('tenant_id', tenantId) for many scope (active-tenant model uses tenantId not tenantIds)", async () => {
       await repo.list(baseListFilters, manyScope);
-      expect(queryBuilder.in).toHaveBeenCalledWith("tenant_id", ["t1", "t2"]);
+      // With the active-tenant header model, scope.tenantId is the validated active tenant.
+      expect(queryBuilder.eq).toHaveBeenCalledWith("tenant_id", "t1");
     });
 
-    it("does NOT call .eq('tenant_id') for many scope", async () => {
+    it("does NOT call .in('tenant_id') for many scope (active-tenant model uses eq not in)", async () => {
       await repo.list(baseListFilters, manyScope);
-
-      const tenantIdEqCalls = queryBuilder.eq.mock.calls.filter(
+      const tenantIdInCalls = queryBuilder.in.mock.calls.filter(
         ([col]: [string]) => col === "tenant_id",
       );
-      expect(tenantIdEqCalls).toHaveLength(0);
+      expect(tenantIdInCalls).toHaveLength(0);
     });
 
     it("returns empty result immediately for many scope with empty tenantIds (no range call)", async () => {
@@ -200,13 +200,13 @@ describe("AccessEventsRepository", () => {
       );
     });
 
-    it("calls rpc('search_access_events') with correct params for many scope", async () => {
+    it("calls rpc('search_access_events') with correct params for many scope (uses tenantId only)", async () => {
       await repo.searchList(searchFilters, manyScope);
 
       expect(mockClient.rpc).toHaveBeenCalledWith(
         "search_access_events",
         expect.objectContaining({
-          p_tenant_ids: ["t1", "t2"],
+          p_tenant_ids: ["t1"], // Active-tenant model: only the active tenant, not all tenantIds
         }),
       );
     });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRegisterUnsavedForm } from "./use-unsaved-forms-registry";
 
 const STORAGE_PREFIX = "ramcar-draft:";
 
@@ -23,6 +24,9 @@ export function useFormPersistence<T extends Record<string, unknown>>(
   const { onRestore, excludeFields, debounceMs = 1000 } = options;
   const [wasRestored, setWasRestored] = useState(false);
   const storageKey = `${STORAGE_PREFIX}${formKey}`;
+
+  // Register with unsaved forms registry while a draft is active
+  useRegisterUnsavedForm(formKey, wasRestored);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRender = useRef(true);
   const onRestoreRef = useRef(onRestore);

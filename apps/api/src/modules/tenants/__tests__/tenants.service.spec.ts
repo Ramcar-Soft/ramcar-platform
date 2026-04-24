@@ -19,7 +19,7 @@ function makeUseCase() {
   return { execute: jest.fn() } as unknown as jest.Mocked<CreateTenantUseCase>;
 }
 
-const scope: TenantScope = { role: "super_admin", scope: "all" };
+const scope: TenantScope = { role: "super_admin", scope: "all", tenantId: "", tenantIds: [] };
 
 describe("TenantsService.update", () => {
   it("passes through when dto.name is undefined (no uniqueness check)", async () => {

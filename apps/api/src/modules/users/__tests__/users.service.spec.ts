@@ -9,6 +9,7 @@ import { UsersService } from "../users.service";
 import { UsersRepository } from "../users.repository";
 import { UserGroupsService } from "../../user-groups/user-groups.service";
 import { SupabaseService } from "../../../infrastructure/supabase/supabase.service";
+import { CrossTenantDetailDeniedException } from "../../../common/filters/tenant-errors";
 import type { TenantScope } from "../../../common/utils/tenant-scope";
 
 const mockRepository = {
@@ -49,9 +50,9 @@ function makeAuthUser(
 }
 
 function makeScope(role: string, tenantId = "tenant-1"): TenantScope {
-  if (role === "super_admin") return { role: "super_admin", scope: "all" };
-  if (role === "resident") return { role: "resident", scope: "single", tenantId };
-  return { role: role as "admin" | "guard", scope: "list", tenantIds: [tenantId] };
+  if (role === "super_admin") return { role: "super_admin", scope: "all", tenantId: "", tenantIds: [] };
+  if (role === "resident") return { role: "resident", scope: "single", tenantId, tenantIds: [tenantId] };
+  return { role: role as "admin" | "guard", scope: "list", tenantId, tenantIds: [tenantId] };
 }
 
 function makeProfileRow(overrides: Record<string, unknown> = {}) {
@@ -193,14 +194,14 @@ describe("UsersService", () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it("admin cannot see users from different tenant", async () => {
+    it("admin cannot see users from different tenant — throws CrossTenantDetailDeniedException (403)", async () => {
       mockRepository.getById.mockResolvedValue(
         makeProfileRow({ tenant_id: "other-tenant" }),
       );
 
       await expect(
         service.getById("profile-1", makeAuthUser("admin"), makeScope("admin", "tenant-1")),
-      ).rejects.toThrow(NotFoundException);
+      ).rejects.toThrow(CrossTenantDetailDeniedException);
     });
 
     it("super_admin can see users from any tenant", async () => {

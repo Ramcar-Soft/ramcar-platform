@@ -41,12 +41,7 @@ export class AccessEventsService {
     scope: TenantScope,
     registeredBy: string,
   ): Promise<AccessEvent> {
-    const tenantId =
-      scope.scope === "single"
-        ? scope.tenantId
-        : scope.scope === "list"
-          ? (scope.tenantIds[0] ?? "")
-          : "";
+    const tenantId = scope.scope === "all" ? "" : scope.tenantId;
     const row = await this.repository.create(dto, tenantId, registeredBy);
     return this.mapRow(row);
   }
@@ -154,7 +149,7 @@ export class AccessEventsService {
         : today.dateToUTC;
 
     const locale = (query.locale ?? "en") as LogbookLocale;
-    const showTenant = scope.scope === "all" || (scope.scope === "list" && scope.tenantIds.length > 1);
+    const showTenant = scope.scope === "all" || scope.tenantIds.length > 1;
     const personType = query.personType;
     const searchTerm = query.search?.trim();
 

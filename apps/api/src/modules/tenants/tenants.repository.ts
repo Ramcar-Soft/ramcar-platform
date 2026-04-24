@@ -21,20 +21,25 @@ export class TenantsRepository {
 
     // Tenant scope filtering — for tenants table the scoping column is "id" not "tenant_id"
     if (queryScope === "selector") {
-      if (scope.scope === "list") {
-        q = q.in("id", [...scope.tenantIds]);
-      } else if (scope.scope === "single") {
-        q = q.eq("id", scope.tenantId);
+      // Selector shows ALL authorized tenants (for tenant-switching UI).
+      if (scope.scope !== "all") {
+        if (scope.tenantIds.length > 0) {
+          q = q.in("id", [...scope.tenantIds]);
+        } else {
+          q = q.eq("id", scope.tenantId);
+        }
       }
       // super_admin: no filter, show all
       if (!include_inactive && scope.scope !== "all") {
         q = q.eq("status", "active");
       }
     } else {
-      if (scope.scope === "list") {
-        q = q.in("id", [...scope.tenantIds]);
-      } else if (scope.scope === "single") {
-        q = q.eq("id", scope.tenantId);
+      if (scope.scope !== "all") {
+        if (scope.tenantIds.length > 0) {
+          q = q.in("id", [...scope.tenantIds]);
+        } else {
+          q = q.eq("id", scope.tenantId);
+        }
       }
       if (status !== "all") {
         q = q.eq("status", status);
@@ -64,11 +69,9 @@ export class TenantsRepository {
       .select("id, name, slug, address, status, config, image_path, time_zone, created_at, updated_at")
       .eq("id", id);
 
-    if (scope.scope === "list" && !scope.tenantIds.includes(id)) {
-      throw new NotFoundException("Tenant not found");
-    }
-    if (scope.scope === "single" && scope.tenantId !== id) {
-      throw new NotFoundException("Tenant not found");
+    if (scope.scope !== "all") {
+      const authorized = scope.tenantIds.length > 0 ? scope.tenantIds.includes(id) : scope.tenantId === id;
+      if (!authorized) throw new NotFoundException("Tenant not found");
     }
 
     const { data, error } = await q.single();
@@ -111,10 +114,12 @@ export class TenantsRepository {
       .update(updateData)
       .eq("id", id);
 
-    if (scope.scope === "list") {
-      q = q.in("id", [...scope.tenantIds]);
-    } else if (scope.scope === "single") {
-      q = q.eq("id", scope.tenantId);
+    if (scope.scope !== "all") {
+      if (scope.tenantIds.length > 0) {
+        q = q.in("id", [...scope.tenantIds]);
+      } else {
+        q = q.eq("id", scope.tenantId);
+      }
     }
 
     const { data, error } = await q

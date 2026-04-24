@@ -32,6 +32,7 @@ import { enqueue } from "../repositories/sync-outbox-repository";
 
 let apiBaseUrl = "http://localhost:3001";
 let authToken: string | null = null;
+let activeTenantId: string = "";
 
 export function configureVisitPersonsHandlers(config: { apiBaseUrl: string }): void {
   apiBaseUrl = config.apiBaseUrl;
@@ -41,13 +42,19 @@ export function setVisitPersonsAuthToken(token: string | null): void {
   authToken = token;
 }
 
-function getHeaders(): Record<string, string> {
+export function setVisitPersonsActiveTenant(tenantId: string): void {
+  activeTenantId = tenantId;
+}
+
+function getHeaders(tenantId?: string): Record<string, string> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+  const tid = tenantId || activeTenantId;
+  if (tid) headers["X-Active-Tenant-Id"] = tid;
   return headers;
 }
 
-async function fetchFromApi<T>(path: string, params?: Record<string, unknown>): Promise<T> {
+async function fetchFromApi<T>(path: string, params?: Record<string, unknown>, tenantId?: string): Promise<T> {
   const url = new URL(path, apiBaseUrl);
   if (params) {
     for (const [key, value] of Object.entries(params)) {
@@ -56,25 +63,25 @@ async function fetchFromApi<T>(path: string, params?: Record<string, unknown>): 
       }
     }
   }
-  const response = await fetch(url.toString(), { method: "GET", headers: getHeaders() });
+  const response = await fetch(url.toString(), { method: "GET", headers: getHeaders(tenantId) });
   if (!response.ok) throw new Error(`API error: ${response.status}`);
   return response.json() as Promise<T>;
 }
 
-async function postToApi<T>(path: string, data: unknown): Promise<T> {
+async function postToApi<T>(path: string, data: unknown, tenantId?: string): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     method: "POST",
-    headers: getHeaders(),
+    headers: getHeaders(tenantId),
     body: JSON.stringify(data),
   });
   if (!response.ok) throw new Error(`API error: ${response.status}`);
   return response.json() as Promise<T>;
 }
 
-async function patchToApi<T>(path: string, data: unknown): Promise<T> {
+async function patchToApi<T>(path: string, data: unknown, tenantId?: string): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     method: "PATCH",
-    headers: getHeaders(),
+    headers: getHeaders(tenantId),
     body: JSON.stringify(data),
   });
   if (!response.ok) throw new Error(`API error: ${response.status}`);
@@ -135,9 +142,10 @@ export function registerVisitPersonsHandlers(): void {
 
   // Create visit person
   ipcMain.handle("visit-persons:create", async (_event, data: Record<string, unknown>) => {
+    const tenantId = (data.activeTenantId as string) || activeTenantId;
     if (net.isOnline() && authToken) {
       try {
-        const created = await postToApi<LocalVisitPerson>("/visit-persons", data);
+        const created = await postToApi<LocalVisitPerson>("/visit-persons", data, tenantId);
         upsertVisitPerson(mapApiPersonToLocal(created));
         return created;
       } catch {
@@ -147,7 +155,7 @@ export function registerVisitPersonsHandlers(): void {
 
     const localPerson: LocalVisitPerson = {
       id: randomUUID(),
-      tenant_id: data.tenant_id as string ?? "",
+      tenant_id: tenantId,
       code: `OFFLINE-${Date.now()}`,
       type: data.type as "visitor" | "service_provider",
       status: (data.status as string ?? "allowed") as "allowed" | "flagged" | "denied",
@@ -162,7 +170,7 @@ export function registerVisitPersonsHandlers(): void {
       updated_at: new Date().toISOString(),
     };
     upsertVisitPerson(localPerson);
-    enqueue("visit_person", localPerson.id, "create", data);
+    enqueue("visit_person", localPerson.id, "create", data, tenantId);
     return localPerson;
   });
 
@@ -184,9 +192,10 @@ export function registerVisitPersonsHandlers(): void {
 
   // Create vehicle for visit person
   ipcMain.handle("visit-persons:create-vehicle", async (_event, data: Record<string, unknown>) => {
+    const tenantId = (data.activeTenantId as string) || activeTenantId;
     if (net.isOnline() && authToken) {
       try {
-        const created = await postToApi<LocalVehicle>("/vehicles", data);
+        const created = await postToApi<LocalVehicle>("/vehicles", data, tenantId);
         upsertVehicle(mapApiVehicleToLocal(created));
         return created;
       } catch {
@@ -196,7 +205,7 @@ export function registerVisitPersonsHandlers(): void {
 
     const localVehicle: LocalVehicle = {
       id: randomUUID(),
-      tenant_id: data.tenant_id as string ?? "",
+      tenant_id: tenantId,
       user_id: null,
       visit_person_id: data.visitPersonId as string,
       vehicle_type: data.vehicleType as string,
@@ -209,7 +218,7 @@ export function registerVisitPersonsHandlers(): void {
       updated_at: new Date().toISOString(),
     };
     upsertVehicle(localVehicle);
-    enqueue("vehicle", localVehicle.id, "create", data);
+    enqueue("vehicle", localVehicle.id, "create", data, tenantId);
     return localVehicle;
   });
 
@@ -234,10 +243,11 @@ export function registerVisitPersonsHandlers(): void {
   // Create access event
   ipcMain.handle("visit-persons:create-event", async (_event, data: Record<string, unknown>) => {
     const eventId = data.eventId as string ?? randomUUID();
+    const tenantId = (data.activeTenantId as string) || activeTenantId;
 
     if (net.isOnline() && authToken) {
       try {
-        const created = await postToApi<LocalAccessEvent>("/access-events", { ...data, eventId });
+        const created = await postToApi<LocalAccessEvent>("/access-events", { ...data, eventId }, tenantId);
         upsertAccessEvent(mapApiEventToLocal(created));
         return created;
       } catch {
@@ -247,7 +257,7 @@ export function registerVisitPersonsHandlers(): void {
 
     const localEvent: LocalAccessEvent = {
       id: randomUUID(),
-      tenant_id: data.tenant_id as string ?? "",
+      tenant_id: tenantId,
       event_id: eventId,
       person_type: data.personType as string,
       user_id: null,
@@ -262,17 +272,18 @@ export function registerVisitPersonsHandlers(): void {
       updated_at: new Date().toISOString(),
     };
     upsertAccessEvent(localEvent);
-    enqueue("access_event", localEvent.id, "create", { ...data, eventId });
+    enqueue("access_event", localEvent.id, "create", { ...data, eventId }, tenantId);
     return localEvent;
   });
 
   // Update visit person (optimistic SQLite update + API/outbox)
   ipcMain.handle("visit-persons:update", async (_event, id: string, patch: Record<string, unknown>) => {
     const existing = findVisitPersonById(id);
+    const tenantId = (patch.activeTenantId as string) || activeTenantId;
 
     if (net.isOnline() && authToken) {
       try {
-        const updated = await patchToApi<LocalVisitPerson>(`/visit-persons/${id}`, patch);
+        const updated = await patchToApi<LocalVisitPerson>(`/visit-persons/${id}`, patch, tenantId);
         upsertVisitPerson(mapApiPersonToLocal(updated));
         return updated;
       } catch {
@@ -283,10 +294,10 @@ export function registerVisitPersonsHandlers(): void {
     if (existing) {
       const patched = applyPatchToLocalPerson(existing, patch);
       upsertVisitPerson(patched);
-      enqueue("visit_person", id, "update", { id, ...patch });
+      enqueue("visit_person", id, "update", { id, ...patch }, tenantId);
       return patched;
     }
-    enqueue("visit_person", id, "update", { id, ...patch });
+    enqueue("visit_person", id, "update", { id, ...patch }, tenantId);
     return { id, ...patch };
   });
 
@@ -305,7 +316,8 @@ export function registerVisitPersonsHandlers(): void {
   // Upload image (save locally + enqueue sync)
   ipcMain.handle(
     "visit-persons:upload-image",
-    async (_event, visitPersonId: string, imageType: string, imageData: Uint8Array) => {
+    async (_event, visitPersonId: string, imageType: string, imageData: Uint8Array, tenantIdArg?: string) => {
+      const tenantId = tenantIdArg || activeTenantId;
       const buffer = Buffer.from(imageData);
       const localPath = saveImageLocally(visitPersonId, imageType, buffer);
       const id = randomUUID();
@@ -319,7 +331,7 @@ export function registerVisitPersonsHandlers(): void {
 
       upsertImageMeta({
         id,
-        tenant_id: "",
+        tenant_id: tenantId,
         visit_person_id: visitPersonId,
         image_type: imageType as "face" | "id_card" | "vehicle_plate" | "other",
         local_path: localPath,
@@ -331,7 +343,7 @@ export function registerVisitPersonsHandlers(): void {
         visitPersonId,
         imageType,
         localPath,
-      });
+      }, tenantId);
 
       return { id, localPath, imageType };
     },

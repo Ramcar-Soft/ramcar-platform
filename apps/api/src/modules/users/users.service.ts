@@ -22,6 +22,7 @@ import type { CreateUserDto } from "./dto/create-user.dto";
 import type { UpdateUserDto } from "./dto/update-user.dto";
 import type { UserStatus } from "@ramcar/shared";
 import type { TenantScope } from "../../common/utils/tenant-scope";
+import { CrossTenantDetailDeniedException } from "../../common/filters/tenant-errors";
 
 interface AuthUser {
   id: string;
@@ -93,13 +94,11 @@ export class UsersService {
     if (!row) throw new NotFoundException("User not found");
 
     const actorRole = scope.role as Role;
-    if (
-      scope.scope !== "all" &&
-      (scope.scope === "single"
-        ? row.tenant_id !== scope.tenantId
-        : !scope.tenantIds.includes(row.tenant_id as string))
-    ) {
-      throw new NotFoundException("User not found");
+    if (scope.scope !== "all") {
+      const authorized = scope.tenantIds.length > 0
+        ? scope.tenantIds.includes(row.tenant_id as string)
+        : row.tenant_id === scope.tenantId;
+      if (!authorized) throw new CrossTenantDetailDeniedException();
     }
 
     const allGroups = await this.userGroupsService.findAll();
@@ -133,16 +132,14 @@ export class UsersService {
 
     const tenantId = "tenantId" in dto ? (dto as { tenantId: string }).tenantId : undefined;
     if (scope.scope !== "all" && tenantId) {
-      if (scope.scope === "single" && tenantId !== scope.tenantId) {
-        throw new ForbiddenException("Cannot create users in another tenant");
-      }
-      if (scope.scope === "list" && !scope.tenantIds.includes(tenantId)) {
-        throw new ForbiddenException("Cannot create users in another tenant");
-      }
+      const authorized = scope.tenantIds.length > 0
+        ? scope.tenantIds.includes(tenantId)
+        : tenantId === scope.tenantId;
+      if (!authorized) throw new ForbiddenException("Cannot create users in another tenant");
     }
 
     const tenantIds = "tenant_ids" in dto ? (dto as { tenant_ids: string[] }).tenant_ids : undefined;
-    if (scope.scope === "list" && tenantIds) {
+    if (scope.scope !== "all" && scope.tenantIds.length > 0 && tenantIds) {
       const forbidden = tenantIds.some((id) => !scope.tenantIds.includes(id));
       if (forbidden) {
         throw new ForbiddenException("Cannot assign users to tenants outside your scope");
@@ -198,13 +195,11 @@ export class UsersService {
     const actorRole = scope.role as Role;
     const targetRole = target.role as Role;
 
-    if (
-      scope.scope !== "all" &&
-      (scope.scope === "single"
-        ? target.tenant_id !== scope.tenantId
-        : !scope.tenantIds.includes(target.tenant_id as string))
-    ) {
-      throw new NotFoundException("User not found");
+    if (scope.scope !== "all") {
+      const authorized = scope.tenantIds.length > 0
+        ? scope.tenantIds.includes(target.tenant_id as string)
+        : target.tenant_id === scope.tenantId;
+      if (!authorized) throw new CrossTenantDetailDeniedException();
     }
 
     if (!canModifyUser(actorRole, targetRole)) {
@@ -281,13 +276,11 @@ export class UsersService {
     const actorRole = scope.role as Role;
     const targetRole = target.role as Role;
 
-    if (
-      scope.scope !== "all" &&
-      (scope.scope === "single"
-        ? target.tenant_id !== scope.tenantId
-        : !scope.tenantIds.includes(target.tenant_id as string))
-    ) {
-      throw new NotFoundException("User not found");
+    if (scope.scope !== "all") {
+      const authorized = scope.tenantIds.length > 0
+        ? scope.tenantIds.includes(target.tenant_id as string)
+        : target.tenant_id === scope.tenantId;
+      if (!authorized) throw new CrossTenantDetailDeniedException();
     }
 
     if (target.user_id === actorUser.id) {
@@ -345,7 +338,7 @@ export class UsersService {
       );
     }
 
-    if (actor.scope === "list") {
+    if (actor.scope !== "all" && actor.tenantIds.length > 0) {
       const outOfScope = tenantIds.some((id) => !actor.tenantIds.includes(id));
       if (outOfScope) {
         throw new ForbiddenException(

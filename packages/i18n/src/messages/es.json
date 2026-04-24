@@ -731,9 +731,19 @@
       "nameExists": "Ya existe un fraccionamiento con este nombre"
     },
     "selector": {
-      "searchPlaceholder": "Buscar comunidades…",
-      "noResults": "No se encontraron comunidades",
-      "label": "Seleccionar comunidad"
+      "searchPlaceholder": "Buscar fraccionamientos…",
+      "noResults": "No se encontraron fraccionamientos",
+      "label": "Seleccionar fraccionamiento"
+    }
+  },
+  "tenantSelector": {
+    "confirm": {
+      "title": "¿Cambiar fraccionamiento?",
+      "body": "Estás a punto de cambiar de {source} a {target}. Todas las listas, búsquedas y nuevos registros se aplicarán a {target} hasta que cambies de nuevo.",
+      "unsavedWarning": "Tienes cambios sin guardar que se perderán.",
+      "cancel": "Cancelar",
+      "confirm": "Cambiar a {target}",
+      "revokedToast": "Tu acceso a {previous} fue actualizado. Cambiado a {current}."
     }
   }
 }

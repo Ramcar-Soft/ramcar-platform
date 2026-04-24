@@ -16,8 +16,8 @@ const api = {
     createEvent: (data: Record<string, unknown>) => ipcRenderer.invoke("visit-persons:create-event", data),
     update: (id: string, patch: Record<string, unknown>) => ipcRenderer.invoke("visit-persons:update", id, patch),
     images: (visitPersonId: string) => ipcRenderer.invoke("visit-persons:images", visitPersonId),
-    uploadImage: (visitPersonId: string, imageType: string, imageData: Uint8Array) =>
-      ipcRenderer.invoke("visit-persons:upload-image", visitPersonId, imageType, imageData),
+    uploadImage: (visitPersonId: string, imageType: string, imageData: Uint8Array, tenantId?: string) =>
+      ipcRenderer.invoke("visit-persons:upload-image", visitPersonId, imageType, imageData, tenantId),
   },
 
   sync: {
@@ -25,6 +25,7 @@ const api = {
     trigger: () => ipcRenderer.invoke("sync:trigger"),
     outboxCount: () => ipcRenderer.invoke("sync:outbox-count"),
     setAuthToken: (token: string | null) => ipcRenderer.invoke("sync:set-auth-token", token),
+    setActiveTenant: (tenantId: string) => ipcRenderer.invoke("sync:set-active-tenant", tenantId),
     onStatusChange: (callback: (status: { status: string; pendingCount: number }) => void) => {
       const handler = (_event: Electron.IpcRendererEvent, data: { status: string; pendingCount: number }) => callback(data);
       ipcRenderer.on("sync-status", handler);

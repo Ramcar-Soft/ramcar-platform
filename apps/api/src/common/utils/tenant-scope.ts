@@ -1,28 +1,25 @@
-import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException } from "@nestjs/common";
 import type { Role } from "@ramcar/shared";
 
 export type TenantScope =
-  | { readonly role: "super_admin"; readonly scope: "all" }
-  | { readonly role: "admin" | "guard"; readonly scope: "list"; readonly tenantIds: readonly string[] }
-  | { readonly role: "resident"; readonly scope: "single"; readonly tenantId: string };
+  | { readonly role: "super_admin"; readonly scope: "all"; readonly tenantId: string; readonly tenantIds: readonly string[] }
+  | { readonly role: "admin" | "guard"; readonly scope: "list"; readonly tenantId: string; readonly tenantIds: readonly string[] }
+  | { readonly role: "resident"; readonly scope: "single"; readonly tenantId: string; readonly tenantIds: readonly string[] };
 
 export function toScope(
   role: Role,
-  tenantIds: "*" | string[] | undefined
+  tenantIds: "*" | string[] | undefined,
+  activeTenantId = "",
 ): TenantScope {
   if (role === "super_admin" || tenantIds === "*") {
-    return { role: "super_admin", scope: "all" };
+    return { role: "super_admin", scope: "all", tenantId: activeTenantId, tenantIds: [] };
   }
+  const ids = Array.isArray(tenantIds) ? tenantIds : [];
   if (role === "resident") {
-    const id =
-      (Array.isArray(tenantIds) && tenantIds[0]);
-    if (!id) throw new UnauthorizedException("resident without tenant");
-    return { role: "resident", scope: "single", tenantId: id };
+    const id = activeTenantId || ids[0] || "";
+    return { role: "resident", scope: "single", tenantId: id, tenantIds: ids };
   }
-  const ids = Array.isArray(tenantIds)
-    ? tenantIds
-    : [];
-  return { role: role as "admin" | "guard", scope: "list", tenantIds: ids };
+  return { role: role as "admin" | "guard", scope: "list", tenantId: activeTenantId || ids[0] || "", tenantIds: ids };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,8 +29,7 @@ export function applyTenantScope<Q extends { eq: any; in: any }>(
   column = "tenant_id",
 ): Q {
   if (scope.scope === "all") return q;
-  if (scope.scope === "single") return q.eq(column, scope.tenantId);
-  return q.in(column, [...scope.tenantIds]);
+  return q.eq(column, scope.tenantId);
 }
 
 export function assertTargetAllowed(
