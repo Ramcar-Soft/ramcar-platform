@@ -90,6 +90,7 @@ describe("VisitPersonForm", () => {
   it("pre-fills fields from initialDraft", () => {
     const initialDraft = {
       fullName: "Carlos",
+      phone: "",
       status: "allowed" as const,
       residentId: "",
       notes: "test note",

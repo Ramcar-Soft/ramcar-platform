@@ -14,6 +14,7 @@ import {
   DialogFooter,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
+import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { UpdateVisitPersonInput } from "@ramcar/shared";
 import { ResidentSelect } from "@ramcar/features/shared/resident-select";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
@@ -68,10 +69,21 @@ export function ProviderEditForm({
   const t = useTranslations("visitPersons.form");
   const tEdit = useTranslations("visitPersons.edit");
   const tCommon = useTranslations("common");
+  const tForms = useTranslations("forms");
 
   const initial = useMemo(() => initialFromPerson(person), [person]);
   const [state, setState] = useState<EditFormState>(initial);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  const handlePhoneBlur = () => {
+    if (!state.phone.trim()) {
+      setPhoneError(null);
+      return;
+    }
+    const parsed = phoneOptionalSchema.safeParse(state.phone);
+    setPhoneError(parsed.success ? null : "forms.phoneInvalid");
+  };
 
   const composedData = useMemo(() => state, [state]);
 
@@ -103,10 +115,15 @@ export function ProviderEditForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!state.fullName.trim()) return;
+    const normalizedPhone = state.phone.trim() ? normalizePhone(state.phone) : "";
+    if (state.phone.trim() && normalizedPhone === null) {
+      setPhoneError("forms.phoneInvalid");
+      return;
+    }
     clearDraft();
     onSave({
       fullName: state.fullName.trim(),
-      phone: state.phone,
+      phone: normalizedPhone ?? "",
       company: state.company,
       status: state.status,
       residentId: state.residentId || null,
@@ -141,11 +158,20 @@ export function ProviderEditForm({
         </div>
 
         <div className="space-y-2">
-          <Label>{t("phone")}</Label>
+          <Label htmlFor="provider-edit-phone">{t("phone")}</Label>
           <Input
+            id="provider-edit-phone"
             value={state.phone}
             onChange={(e) => setState((s) => ({ ...s, phone: e.target.value }))}
+            onBlur={handlePhoneBlur}
+            placeholder={tForms("phonePlaceholder")}
+            aria-invalid={!!phoneError}
           />
+          {phoneError ? (
+            <p className="text-sm text-destructive">{tForms("phoneInvalid")}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">{tForms("phoneHelp")}</p>
+          )}
         </div>
 
         <div className="space-y-2">

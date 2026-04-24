@@ -20,6 +20,7 @@ describe("VisitorsView draft props", () => {
     const onDraftChange = vi.fn();
     const initialDraft = {
       fullName: "PreFilled",
+      phone: "",
       status: "allowed" as const,
       residentId: "",
       notes: "",

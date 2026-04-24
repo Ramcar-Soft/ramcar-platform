@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { phoneOptionalSchema } from "./phone";
 
 const visitPersonTypeEnum = z.enum(["visitor", "service_provider"]);
 const visitPersonStatusEnum = z.enum(["allowed", "flagged", "denied"]);
@@ -9,7 +10,7 @@ export const createVisitPersonSchema = z.object({
   type: visitPersonTypeEnum,
   fullName: z.string().min(1).max(255),
   status: visitPersonStatusEnum.default("allowed"),
-  phone: z.string().max(30).optional().or(z.literal("")),
+  phone: phoneOptionalSchema.optional(),
   company: z.string().max(255).optional().or(z.literal("")),
   residentId: z.string().uuid().optional(),
   notes: z.string().optional().or(z.literal("")),
@@ -20,7 +21,7 @@ export type CreateVisitPersonInput = z.infer<typeof createVisitPersonSchema>;
 export const updateVisitPersonSchema = z.object({
   fullName: z.string().min(1).max(255).optional(),
   status: visitPersonStatusEnum.optional(),
-  phone: z.string().max(30).optional().or(z.literal("")),
+  phone: phoneOptionalSchema.optional(),
   company: z.string().max(255).optional().or(z.literal("")),
   residentId: z.string().uuid().optional().nullable(),
   notes: z.string().optional().or(z.literal("")),

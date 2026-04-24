@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Input, Label, Separator, Textarea } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
+import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { ImageType } from "@ramcar/shared";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
 import { ImageSection, type StagedImage } from "@ramcar/features/visitors";
@@ -36,6 +37,16 @@ export function ProviderForm({
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<VisitPersonStatus>("allowed");
   const [notes, setNotes] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  const handlePhoneBlur = () => {
+    if (!phone.trim()) {
+      setPhoneError(null);
+      return;
+    }
+    const parsed = phoneOptionalSchema.safeParse(phone);
+    setPhoneError(parsed.success ? null : "forms.phoneInvalid");
+  };
   const [stagedImages, setStagedImages] = useState<Map<ImageType, StagedImage>>(
     () => new Map(),
   );
@@ -67,11 +78,16 @@ export function ProviderForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim()) return;
+    const normalizedPhone = phone.trim() ? normalizePhone(phone) : "";
+    if (phone.trim() && normalizedPhone === null) {
+      setPhoneError("forms.phoneInvalid");
+      return;
+    }
     const filesByType = new Map<ImageType, File>();
     stagedImages.forEach(({ file }, type) => filesByType.set(type, file));
     onSave({
       fullName: fullName.trim(),
-      phone,
+      phone: normalizedPhone ?? "",
       company,
       status,
       residentId: "",
@@ -91,12 +107,29 @@ export function ProviderForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label>{t("visitPersons.form.fullName")}</Label>
-        <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+        <Label htmlFor="desktop-provider-fullName">{t("visitPersons.form.fullName")}</Label>
+        <Input
+          id="desktop-provider-fullName"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+        />
       </div>
       <div className="space-y-2">
-        <Label>{t("visitPersons.form.phone")}</Label>
-        <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <Label htmlFor="desktop-provider-phone">{t("visitPersons.form.phone")}</Label>
+        <Input
+          id="desktop-provider-phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          onBlur={handlePhoneBlur}
+          placeholder={t("forms.phonePlaceholder")}
+          aria-invalid={!!phoneError}
+        />
+        {phoneError ? (
+          <p className="text-sm text-destructive">{t("forms.phoneInvalid")}</p>
+        ) : (
+          <p className="text-xs text-muted-foreground">{t("forms.phoneHelp")}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label>{t("visitPersons.form.company")}</Label>

@@ -12,6 +12,7 @@ import {
   DialogFooter,
 } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
+import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { UpdateVisitPersonInput } from "@ramcar/shared";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
 import type { VisitPerson, VisitPersonStatus } from "../types";
@@ -62,15 +63,30 @@ export function ProviderEditForm({
   const initial = useMemo(() => initialFromPerson(person), [person]);
   const [state, setState] = useState<EditFormState>(initial);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  const handlePhoneBlur = () => {
+    if (!state.phone.trim()) {
+      setPhoneError(null);
+      return;
+    }
+    const parsed = phoneOptionalSchema.safeParse(state.phone);
+    setPhoneError(parsed.success ? null : "forms.phoneInvalid");
+  };
 
   const dirty = hasChanges(initial, state);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!state.fullName.trim()) return;
+    const normalizedPhone = state.phone.trim() ? normalizePhone(state.phone) : "";
+    if (state.phone.trim() && normalizedPhone === null) {
+      setPhoneError("forms.phoneInvalid");
+      return;
+    }
     onSave({
       fullName: state.fullName.trim(),
-      phone: state.phone,
+      phone: normalizedPhone ?? "",
       company: state.company,
       status: state.status,
       notes: state.notes,
@@ -103,11 +119,20 @@ export function ProviderEditForm({
         </div>
 
         <div className="space-y-2">
-          <Label>{t("visitPersons.form.phone")}</Label>
+          <Label htmlFor="desktop-provider-edit-phone">{t("visitPersons.form.phone")}</Label>
           <Input
+            id="desktop-provider-edit-phone"
             value={state.phone}
             onChange={(e) => setState((s) => ({ ...s, phone: e.target.value }))}
+            onBlur={handlePhoneBlur}
+            placeholder={t("forms.phonePlaceholder")}
+            aria-invalid={!!phoneError}
           />
+          {phoneError ? (
+            <p className="text-sm text-destructive">{t("forms.phoneInvalid")}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">{t("forms.phoneHelp")}</p>
+          )}
         </div>
 
         <div className="space-y-2">

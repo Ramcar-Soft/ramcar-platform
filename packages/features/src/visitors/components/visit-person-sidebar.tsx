@@ -58,12 +58,14 @@ interface VisitPersonSidebarProps {
   onSaveEdit?: (patch: UpdateVisitPersonInput) => void;
   initialDraft?: {
     fullName: string;
+    phone: string;
     status: VisitPersonStatus;
     residentId: string;
     notes: string;
   };
   onDraftChange?: (draft: {
     fullName: string;
+    phone: string;
     status: VisitPersonStatus;
     residentId: string;
     notes: string;

@@ -35,7 +35,7 @@ function makeUser(overrides: Partial<ExtendedUserProfile> = {}): ExtendedUserPro
     id: "p1", userId: "u1", tenantId: "t1", tenantName: "T",
     tenantIds: ["t1"],
     fullName: "Self", email: "self@x.com", role: "admin", address: "addr",
-    username: "self", phone: "5551", phoneType: null, status: "active",
+    username: "self", phone: "+525551234567", phoneType: null, status: "active",
     userGroupIds: [], userGroups: [], observations: null,
     createdAt: "2026-01-01", updatedAt: "2026-01-01",
     canEdit: true, canDeactivate: false,

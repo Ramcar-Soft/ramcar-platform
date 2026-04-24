@@ -11,6 +11,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@ramcar/ui";
+import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { UpdateVisitPersonInput } from "@ramcar/shared";
 import { useI18n } from "../../adapters/i18n";
 import { ResidentSelect } from "../../shared/resident-select";
@@ -28,6 +29,7 @@ interface VisitPersonEditFormProps {
 
 interface EditFormState {
   fullName: string;
+  phone: string;
   status: VisitPersonStatus;
   residentId: string;
   notes: string;
@@ -37,6 +39,7 @@ interface EditFormState {
 function initialFromPerson(person: VisitPerson): EditFormState {
   return {
     fullName: person.fullName,
+    phone: person.phone ?? "",
     status: person.status,
     residentId: person.residentId ?? "",
     notes: person.notes ?? "",
@@ -46,6 +49,7 @@ function initialFromPerson(person: VisitPerson): EditFormState {
 function hasChanges(initial: EditFormState, current: EditFormState): boolean {
   return (
     initial.fullName !== current.fullName ||
+    initial.phone !== current.phone ||
     initial.status !== current.status ||
     initial.residentId !== current.residentId ||
     initial.notes !== current.notes
@@ -65,6 +69,16 @@ export function VisitPersonEditForm({
   const initial = useMemo(() => initialFromPerson(person), [person]);
   const [state, setState] = useState<EditFormState>(initialDraft ?? initial);
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  const handlePhoneBlur = () => {
+    if (!state.phone.trim()) {
+      setPhoneError(null);
+      return;
+    }
+    const parsed = phoneOptionalSchema.safeParse(state.phone);
+    setPhoneError(parsed.success ? null : "forms.phoneInvalid");
+  };
 
   const composedData = useMemo(() => state, [state]);
 
@@ -80,8 +94,14 @@ export function VisitPersonEditForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!state.fullName.trim()) return;
+    const normalizedPhone = state.phone.trim() ? normalizePhone(state.phone) : "";
+    if (state.phone.trim() && normalizedPhone === null) {
+      setPhoneError("forms.phoneInvalid");
+      return;
+    }
     onSave({
       fullName: state.fullName.trim(),
+      phone: normalizedPhone ?? "",
       status: state.status,
       residentId: state.residentId || null,
       notes: state.notes,
@@ -111,6 +131,23 @@ export function VisitPersonEditForm({
             onChange={(e) => setState((s) => ({ ...s, fullName: e.target.value }))}
             required
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="visit-person-edit-phone">{t("visitPersons.form.phone")}</Label>
+          <Input
+            id="visit-person-edit-phone"
+            value={state.phone}
+            onChange={(e) => setState((s) => ({ ...s, phone: e.target.value }))}
+            onBlur={handlePhoneBlur}
+            placeholder="(555) 123-4567"
+            aria-invalid={!!phoneError}
+          />
+          {phoneError ? (
+            <p className="text-sm text-destructive">{t(phoneError)}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">{t("forms.phoneHelp")}</p>
+          )}
         </div>
 
         <div className="space-y-2">

@@ -78,6 +78,17 @@ export {
   imageTypeEnum,
   type ImageTypeInput,
 } from "./validators/visit-person-image";
+export {
+  phoneSchema,
+  phoneOptionalSchema,
+  normalizePhone,
+} from "./validators/phone";
+export { emailSchema } from "./validators/email";
+export {
+  usernameSchema,
+  usernameOptionalSchema,
+  stripUsernameChars,
+} from "./validators/username";
 export type {
   Platform,
   SidebarItem,
