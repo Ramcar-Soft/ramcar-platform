@@ -24,6 +24,10 @@ export class UsersRepository {
       query = applyTenantScope(query, scope) as typeof query;
     }
 
+    if (scope?.role !== "super_admin") {
+      query = query.neq("role", "super_admin");
+    }
+
     if (filters.role) {
       query = query.eq("role", filters.role);
     }
