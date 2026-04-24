@@ -14,7 +14,7 @@ import {
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
-import { useKeyboardNavigation } from "@ramcar/features";
+import { useKeyboardNavigation, ShortcutsHint } from "@ramcar/features";
 import { useTenants } from "../hooks/use-tenants";
 import { useTenantsTableColumns } from "./tenants-table-columns";
 import { TenantSidebar } from "./tenant-sidebar";
@@ -44,6 +44,12 @@ export function TenantsTable() {
     setSidebarOpen(true);
   }, []);
 
+  const handleCreate = useCallback(() => {
+    setSelectedTenantId(undefined);
+    setSidebarMode("create");
+    setSidebarOpen(true);
+  }, []);
+
   const columns = useTenantsTableColumns(handleEdit);
 
   useEffect(() => {
@@ -61,6 +67,7 @@ export function TenantsTable() {
     highlightedIndex,
     setHighlightedIndex,
     onSelectItem: handleEdit,
+    onCreate: handleCreate,
   });
 
   function handleFilterChange(partial: { search?: string; status?: "active" | "inactive" | "all" }) {
@@ -68,20 +75,17 @@ export function TenantsTable() {
     if (partial.status !== undefined) setStatus(partial.status);
   }
 
-  function handleCreate() {
-    setSelectedTenantId(undefined);
-    setSidebarMode("create");
-    setSidebarOpen(true);
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">{t("nav.label")}</h1>
-        <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          {t("actions.create")}
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <ShortcutsHint search navigate select create />
+          <Button onClick={handleCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            {t("actions.create")}
+          </Button>
+        </div>
       </div>
       <div className="flex items-center justify-between">
         <TenantFilters
