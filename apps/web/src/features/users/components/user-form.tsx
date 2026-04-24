@@ -303,7 +303,6 @@ export function UserForm({
               <Select
                 value={formData.tenantId}
                 onValueChange={(v) => updateField("tenantId", v)}
-                disabled={!isSuperAdmin && mode === "create"}
               >
                 <SelectTrigger aria-invalid={!!errors.tenantId}>
                   <SelectValue placeholder={t("form.selectTenant")} />
