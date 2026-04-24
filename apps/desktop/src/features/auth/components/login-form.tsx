@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, CardContent, CardFooter, Input } from "@ramcar/ui";
 import { loginSchema } from "@ramcar/shared";
@@ -13,6 +13,15 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Clear any previous-session tenant selection so the next sign-in starts
+  // from the user's primary tenant. Prevents stale tenant scope leaking
+  // across different users on the same machine.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("ramcar.auth.activeTenantId");
+    localStorage.removeItem("ramcar.auth.activeTenantName");
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

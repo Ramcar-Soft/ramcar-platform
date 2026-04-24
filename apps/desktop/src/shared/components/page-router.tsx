@@ -5,7 +5,7 @@ import { SidebarProvider, SidebarInset, TooltipProvider, Toaster } from "@ramcar
 import { AppSidebar } from "../../features/navigation";
 import { TopBar } from "../../features/navigation/components/top-bar";
 import { QueryProvider } from "../lib/query-provider";
-import { DesktopTransportProvider, DesktopI18nProvider, DesktopRoleProvider } from "../lib/features";
+import { DesktopTransportProvider, DesktopI18nProvider, DesktopRoleProvider, DesktopAuthStoreProvider } from "../lib/features";
 import { DashboardPage } from "../../features/dashboard/pages/dashboard-page";
 import { AccessLogVisitorsPage } from "../../features/access-log/pages/access-log-visitors-page";
 import { AccessLogProvidersPage } from "../../features/access-log/pages/access-log-providers-page";
@@ -62,6 +62,7 @@ export function PageRouter({ onLogout }: PageRouterProps) {
       <DesktopTransportProvider>
         <DesktopI18nProvider>
           <DesktopRoleProvider>
+            <DesktopAuthStoreProvider>
       <TooltipProvider>
         <SidebarProvider>
           <AppSidebar onLogout={onLogout} />
@@ -74,6 +75,7 @@ export function PageRouter({ onLogout }: PageRouterProps) {
         </SidebarProvider>
       </TooltipProvider>
       <Toaster />
+            </DesktopAuthStoreProvider>
           </DesktopRoleProvider>
         </DesktopI18nProvider>
       </DesktopTransportProvider>

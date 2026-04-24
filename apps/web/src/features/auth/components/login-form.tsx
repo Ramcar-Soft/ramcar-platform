@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useActionState } from "react";
+import React, { useActionState, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
@@ -21,6 +21,15 @@ export function LoginForm(): React.JSX.Element {
     login,
     null,
   );
+
+  // Clear any previous-session tenant selection so the next sign-in starts
+  // from the user's primary tenant. Prevents stale tenant scope leaking
+  // across different users on the same browser.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("ramcar.auth.activeTenantId");
+    localStorage.removeItem("ramcar.auth.activeTenantName");
+  }, []);
 
   return (
     <Card className="w-full sm:w-[450px] shadow-md ">

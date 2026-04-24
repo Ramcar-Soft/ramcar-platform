@@ -123,18 +123,6 @@ export const sidebarItems: SidebarItem[] = [
     platforms: ["web"],
   },
   {
-    key: "access-log",
-    icon: "DoorOpen",
-    route: "/access-log",
-    subItems: [
-      { key: "visitors", route: "/access-log/visitors" },
-      { key: "providers", route: "/access-log/providers" },
-      { key: "residents", route: "/access-log/residents" },
-    ],
-    roles: ["guard"],
-    platforms: ["desktop", "web"],
-  },
-  {
     key: "my-visits",
     icon: "Eye",
     route: "/my-visits",

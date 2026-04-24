@@ -670,7 +670,8 @@
       "loadFailed": "Failed to load tenants",
       "imageUpdateSuccess": "Tenant image updated",
       "imageRemoveSuccess": "Tenant image removed",
-      "imageUploadFailed": "Image upload failed"
+      "imageUploadFailed": "Image upload failed",
+      "adminCreateInfo": "This tenant will appear in your selector after the next sign-in"
     },
     "sidebar": {
       "createTitle": "New Tenant",
@@ -702,6 +703,11 @@
       "imageTooLarge": "Image must be under 2 MB",
       "imageWrongType": "Only JPEG, PNG, and WebP are allowed",
       "nameExists": "A tenant with this name already exists"
+    },
+    "selector": {
+      "searchPlaceholder": "Search tenants…",
+      "noResults": "No tenants found",
+      "label": "Select tenant"
     }
   }
 }

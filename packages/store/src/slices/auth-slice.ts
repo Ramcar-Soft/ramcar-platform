@@ -2,6 +2,13 @@ import type { StateCreator } from "zustand";
 import type { UserProfile } from "@ramcar/shared";
 
 const ACTIVE_TENANT_KEY = "ramcar.auth.activeTenantId";
+const ACTIVE_TENANT_NAME_KEY = "ramcar.auth.activeTenantName";
+
+function clearStoredTenantFromLocalStorage(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(ACTIVE_TENANT_KEY);
+  localStorage.removeItem(ACTIVE_TENANT_NAME_KEY);
+}
 
 export interface AuthSlice {
   user: UserProfile | null;
@@ -19,6 +26,7 @@ export interface AuthSlice {
   setTenantIds: (ids: string[]) => void;
   setActiveTenant: (id: string, name: string) => void;
   hydrateActiveTenant: (fallbackPrimary: string) => void;
+  clearStoredTenant: () => void;
 }
 
 export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set, get) => ({
@@ -33,9 +41,7 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set,
   setLoading: (isLoading) => set({ isLoading }),
 
   clearAuth: () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(ACTIVE_TENANT_KEY);
-    }
+    clearStoredTenantFromLocalStorage();
     set({
       user: null,
       isAuthenticated: false,
@@ -51,6 +57,7 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set,
   setActiveTenant: (id, name) => {
     if (typeof window !== "undefined") {
       localStorage.setItem(ACTIVE_TENANT_KEY, id);
+      localStorage.setItem(ACTIVE_TENANT_NAME_KEY, name);
     }
     set({ activeTenantId: id, activeTenantName: name });
   },
@@ -58,8 +65,10 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set,
   hydrateActiveTenant: (fallbackPrimary) => {
     const { tenantIds } = get();
     let stored: string | null = null;
+    let storedName: string | null = null;
     if (typeof window !== "undefined") {
       stored = localStorage.getItem(ACTIVE_TENANT_KEY);
+      storedName = localStorage.getItem(ACTIVE_TENANT_NAME_KEY);
     }
 
     let activeId = "";
@@ -71,6 +80,22 @@ export const createAuthSlice: StateCreator<AuthSlice, [], [], AuthSlice> = (set,
       activeId = tenantIds[0]!;
     }
 
-    set({ activeTenantId: activeId });
+    // Only trust the stored name when it still corresponds to the selected id,
+    // otherwise leave it empty so the UI can resolve it from the fetched tenant list.
+    const activeName = activeId && activeId === stored && storedName ? storedName : "";
+
+    // Persist the resolved id so a fresh tab starts from the same tenant.
+    if (typeof window !== "undefined" && activeId) {
+      localStorage.setItem(ACTIVE_TENANT_KEY, activeId);
+      if (activeName) {
+        localStorage.setItem(ACTIVE_TENANT_NAME_KEY, activeName);
+      }
+    }
+
+    set({ activeTenantId: activeId, activeTenantName: activeName });
+  },
+
+  clearStoredTenant: () => {
+    clearStoredTenantFromLocalStorage();
   },
 });

@@ -7,7 +7,7 @@ import type { UserProfile } from "@ramcar/shared";
 import { AppSidebar } from "@/features/navigation";
 import { TopBar } from "@/features/navigation/components/top-bar";
 import { QueryProvider } from "@/shared/lib/query-provider";
-import { WebTransportProvider, WebI18nProvider, WebRoleProvider } from "@/shared/lib/features";
+import { WebTransportProvider, WebI18nProvider, WebRoleProvider, WebAuthStoreProvider } from "@/shared/lib/features";
 import { createClient } from "@/shared/lib/supabase/client";
 
 interface DashboardShellProps {
@@ -22,6 +22,7 @@ export function DashboardShell({ children, userProfile }: DashboardShellProps) {
         <WebTransportProvider>
           <WebI18nProvider>
             <WebRoleProvider>
+              <WebAuthStoreProvider>
         <AuthGate userProfile={userProfile}>
           <TooltipProvider>
             <SidebarProvider>
@@ -33,6 +34,7 @@ export function DashboardShell({ children, userProfile }: DashboardShellProps) {
             </SidebarProvider>
           </TooltipProvider>
         </AuthGate>
+              </WebAuthStoreProvider>
             </WebRoleProvider>
           </WebI18nProvider>
         </WebTransportProvider>
