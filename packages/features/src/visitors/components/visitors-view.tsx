@@ -110,6 +110,12 @@ export function VisitorsView({
     setHighlightedIndex(-1);
   }, []);
 
+  const handleRegisterNew = useCallback(() => {
+    setSelectedPerson(null);
+    setSidebarMode("create");
+    setSidebarOpen(true);
+  }, []);
+
   useKeyboardNavigation<VisitPerson>({
     searchInputRef,
     disabled: sidebarOpen,
@@ -117,13 +123,8 @@ export function VisitorsView({
     highlightedIndex,
     setHighlightedIndex,
     onSelectItem: handleSelectPerson,
+    onCreate: handleRegisterNew,
   });
-
-  const handleRegisterNew = useCallback(() => {
-    setSelectedPerson(null);
-    setSidebarMode("create");
-    setSidebarOpen(true);
-  }, []);
 
   const handleCloseSidebar = useCallback(() => {
     setSidebarOpen(false);

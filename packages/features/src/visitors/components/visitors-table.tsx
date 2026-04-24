@@ -13,6 +13,7 @@ import {
 import { useI18n } from "../../adapters/i18n";
 import type { VisitPerson, PaginatedResponse } from "../types";
 import { getVisitorColumns } from "./visitors-table-columns";
+import { ShortcutsHint } from "../../shared/shortcuts-hint";
 
 interface VisitorsTableProps {
   data: PaginatedResponse<VisitPerson> | undefined;
@@ -56,19 +57,22 @@ export const VisitorsTable = forwardRef<HTMLInputElement, VisitorsTableProps>(
 
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-bold">{t("visitPersons.title")}</h1>
-          {trailingAction ?? (
-            onRegisterNew && (
-              <button
-                type="button"
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
-                onClick={onRegisterNew}
-              >
-                + {t("visitPersons.registerNew")}
-              </button>
-            )
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            <ShortcutsHint search navigate select create />
+            {trailingAction ?? (
+              onRegisterNew && (
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
+                  onClick={onRegisterNew}
+                >
+                  + {t("visitPersons.registerNew")}
+                </button>
+              )
+            )}
+          </div>
         </div>
 
         <Input

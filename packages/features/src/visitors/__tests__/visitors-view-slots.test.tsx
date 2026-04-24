@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { screen, cleanup } from "@testing-library/react";
+import { screen, cleanup, act } from "@testing-library/react";
 
 afterEach(() => cleanup());
 import { renderWithHarness } from "../../test/harness";
@@ -15,7 +15,6 @@ vi.mock("../hooks/use-create-access-event", () => ({ useCreateAccessEvent: () =>
 vi.mock("../hooks/use-create-visit-person", () => ({ useCreateVisitPerson: () => ({ mutateAsync: vi.fn(), isPending: false }) }));
 vi.mock("../hooks/use-update-visit-person", () => ({ useUpdateVisitPerson: () => ({ mutate: vi.fn(), isPending: false }) }));
 vi.mock("../hooks/use-upload-visit-person-image", () => ({ useUploadVisitPersonImage: () => ({ mutate: vi.fn(), isPending: false }) }));
-vi.mock("../../shared/hooks/use-keyboard-navigation", () => ({ useKeyboardNavigation: () => {} }));
 
 describe("VisitorsView slot props", () => {
   it("renders topRightSlot when provided", () => {
@@ -35,5 +34,29 @@ describe("VisitorsView slot props", () => {
       <VisitorsView emptyState={<span data-testid="custom-empty">Vacío</span>} />,
     );
     expect(screen.getByTestId("custom-empty")).toBeDefined();
+  });
+
+  it("renders the ShortcutsHint inside the visitors view", () => {
+    renderWithHarness(<VisitorsView />);
+    expect(screen.getByLabelText("shortcuts.ariaLabel")).toBeDefined();
+  });
+
+  it("pressing N opens the create sidebar (visitors)", () => {
+    renderWithHarness(<VisitorsView />);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "n", bubbles: true }));
+    });
+    expect(screen.getByRole("dialog")).toBeDefined();
+  });
+
+  it("pressing F focuses the search input (visitors)", () => {
+    renderWithHarness(<VisitorsView />);
+    const search = screen.getByPlaceholderText("visitPersons.searchPlaceholder") as HTMLInputElement;
+    expect(document.activeElement).not.toBe(search);
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "f", bubbles: true }));
+    });
+    expect(document.activeElement).toBe(search);
   });
 });
