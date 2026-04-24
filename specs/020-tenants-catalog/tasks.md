@@ -181,24 +181,24 @@ description: "Task list for feature 020 — Tenants Catalog and Multi-Tenant Acc
 
 ### Shared feature module (`packages/features/src/tenant-selector/`)
 
-- [ ] T080 [US3] Create `packages/features/src/tenant-selector/hooks/use-tenant-list.ts` — calls the injected transport adapter (spec 014 pattern) for `GET /api/tenants?scope=selector&include_inactive=${role === "super_admin"}&page_size=100`; returns `TenantSelectorProjection[]`; react-query key `["tenants","selector",role]`
-- [ ] T081 [US3] Create `packages/features/src/tenant-selector/components/tenant-selector-trigger.tsx` — renders `TenantAvatar` (from `@ramcar/ui`) + `activeTenantName` + `ChevronsUpDown` icon; consumes `useAppStore` via an injected selector adapter to read `activeTenantId`/`activeTenantName`
-- [ ] T082 [US3] Create `packages/features/src/tenant-selector/components/tenant-selector.tsx` — shadcn `Popover` + `Command` combobox; uses `useTenantList`; shows each tenant as `TenantAvatar` + name + (optional "Inactive" badge for super_admin); marks active with a checkmark; on select: calls `setActiveTenant(id, name)` (from injected Zustand actions), then `queryClient.invalidateQueries()` (no predicate per research.md §R-13), then closes the popover; renders `null` when `tenantIds.length < 2` per FR-043
-- [ ] T083 [US3] Create `packages/features/src/tenant-selector/index.ts` exporting `TenantSelector`, `TenantSelectorTrigger`, and any adapter-type interfaces; ensure no `next/*` imports and no `"use client";` directives (per spec 014 shared-feature rules)
-- [ ] T084 [US3] Add an adapter interface definition `packages/features/src/adapters/tenant-selector-adapters.ts` (transport + i18n + auth-store ports); ensures the shared module doesn't import concrete `next-intl` or `react-i18next` packages
-- [ ] T085 [US3] [P] Add Vitest + RTL tests for `TenantSelector` (renders null with 1 tenant; filters by search; selection commits to adapter; active tenant has checkmark) in `packages/features/src/tenant-selector/__tests__/tenant-selector.test.tsx`
+- [X] T080 [US3] Create `packages/features/src/tenant-selector/hooks/use-tenant-list.ts` — calls the injected transport adapter (spec 014 pattern) for `GET /api/tenants?scope=selector&include_inactive=${role === "super_admin"}&page_size=100`; returns `TenantSelectorProjection[]`; react-query key `["tenants","selector",role]`
+- [X] T081 [US3] Create `packages/features/src/tenant-selector/components/tenant-selector-trigger.tsx` — renders `TenantAvatar` (from `@ramcar/ui`) + `activeTenantName` + `ChevronsUpDown` icon; consumes `useAppStore` via an injected selector adapter to read `activeTenantId`/`activeTenantName`
+- [X] T082 [US3] Create `packages/features/src/tenant-selector/components/tenant-selector.tsx` — shadcn `Popover` + `Command` combobox; uses `useTenantList`; shows each tenant as `TenantAvatar` + name + (optional "Inactive" badge for super_admin); marks active with a checkmark; on select: calls `setActiveTenant(id, name)` (from injected Zustand actions), then `queryClient.invalidateQueries()` (no predicate per research.md §R-13), then closes the popover; renders `null` when `tenantIds.length < 2` per FR-043
+- [X] T083 [US3] Create `packages/features/src/tenant-selector/index.ts` exporting `TenantSelector`, `TenantSelectorTrigger`, and any adapter-type interfaces; ensure no `next/*` imports and no `"use client";` directives (per spec 014 shared-feature rules)
+- [X] T084 [US3] Add an adapter interface definition `packages/features/src/adapters/tenant-selector-adapters.tsx` (auth-store port); ensures the shared module doesn't import concrete `next-intl` or `react-i18next` packages
+- [X] T085 [US3] [P] Add Vitest + RTL tests for `TenantSelector` (renders null with 1 tenant; filters by search; selection commits to adapter; active tenant has checkmark) in `packages/features/src/tenant-selector/__tests__/tenant-selector.test.tsx`
 
 ### Web host wiring (`apps/web`)
 
-- [ ] T086 [US3] Inject the tenant-selector adapter set in `apps/web/src/shared/lib/features/tenant-selector/index.ts` — transport (HTTP via existing `apiClient`), auth store (Zustand), i18n (next-intl `useTranslations("tenants")`); re-export `<TenantSelector />` with adapters pre-wired for `apps/web`
-- [ ] T087 [US3] Render `<TenantSelector />` in `apps/web/src/features/navigation/components/top-bar.tsx` between the tenant name display and the theme toggle per FR-042
-- [ ] T088 [US3] Wire `setActiveTenant` to also invalidate the TanStack Query client in the same callback via a `queryClient` reference provided by the web adapter (since Zustand actions can't access the query client directly)
+- [X] T086 [US3] Inject the tenant-selector adapter set in `apps/web/src/shared/lib/features/tenant-selector/index.tsx` — transport (HTTP via existing `apiClient`), auth store (Zustand), i18n (next-intl `useTranslations("tenants")`); re-export `<TenantSelector />` with adapters pre-wired for `apps/web`
+- [X] T087 [US3] Render `<TenantSelector />` in `apps/web/src/features/navigation/components/top-bar.tsx` between the tenant name display and the theme toggle per FR-042
+- [X] T088 [US3] Wire `setActiveTenant` to also invalidate the TanStack Query client in the same callback via a `queryClient` reference provided by the web adapter (since Zustand actions can't access the query client directly)
 
 ### Desktop host wiring (`apps/desktop`)
 
-- [ ] T089 [US3] Inject the tenant-selector adapter set in `apps/desktop/src/shared/lib/features/tenant-selector/index.ts` — transport (online HTTP only per plan — desktop doesn't use outbox for reads), auth store (Zustand), i18n (react-i18next `useTranslation("tenants")`); re-export `<TenantSelector />` with adapters pre-wired
-- [ ] T090 [US3] Render `<TenantSelector />` in `apps/desktop/src/features/navigation/components/top-bar.tsx` between the tenant name display and the theme toggle
-- [ ] T091 [US3] [P] Add a desktop-specific Vitest test confirming the adapter wiring compiles and the component renders against a mocked Zustand store in `apps/desktop/src/shared/lib/features/tenant-selector/__tests__/adapter.test.tsx`
+- [X] T089 [US3] Inject the tenant-selector adapter set in `apps/desktop/src/shared/lib/features/tenant-selector/index.tsx` — transport (online HTTP only per plan — desktop doesn't use outbox for reads), auth store (Zustand), i18n (react-i18next `useTranslation("tenants")`); re-export `<TenantSelector />` with adapters pre-wired
+- [X] T090 [US3] Render `<TenantSelector />` in `apps/desktop/src/features/navigation/components/top-bar.tsx` between the tenant name display and the theme toggle
+- [X] T091 [US3] [P] Add a desktop-specific Vitest test confirming the adapter wiring compiles and the component renders against a mocked Zustand store in `apps/desktop/src/shared/lib/features/tenant-selector/__tests__/adapter.test.tsx`
 
 **Checkpoint**: Multi-tenant user sees the selector on both web and desktop; picking a tenant updates state + invalidates queries; single-tenant users and residents see no selector. Scenario 3 + Scenario 9 in quickstart.md pass.
 
@@ -292,10 +292,10 @@ description: "Task list for feature 020 — Tenants Catalog and Multi-Tenant Acc
 
 **Independent Test**: Sign in as Guard → no "Tenants" nav entry → navigate to `/catalogs/tenants` → redirect/403 → `curl /api/tenants` with their token → 403. Repeat for Resident.
 
-- [ ] T125 [US7] Verify the Tenants nav entry added in T063 has `roles: ["super_admin","admin"]` and the nav registry filters by role before render; if the registry doesn't already role-filter, add that filter in `apps/web/src/features/navigation/components/sidebar-nav.tsx` (or equivalent)
-- [ ] T126 [US7] Create a route guard for `apps/web/src/app/[locale]/(dashboard)/catalogs/tenants/page.tsx` — when `user.role` is `guard` or `resident`, redirect server-side to the user's default landing (`/es/dashboard` or `/en/dashboard`) per FR-001; return a translated 403 page if a redirect target cannot be resolved
-- [ ] T127 [US7] Confirm `apps/api/src/modules/tenants/tenants.controller.ts` `@Roles("super_admin","admin")` is present on every handler (list, get, create, update, image upload/delete) so Guard/Resident direct calls return 403; confirmed by T060/T106 access-matrix e2e tests
-- [ ] T128 [US7] [P] Add a Playwright test `e2e/tenants-role-gating.spec.ts` in `apps/web/e2e/` (if Playwright project is configured there) validating Guard and Resident redirect flows
+- [X] T125 [US7] Verify the Tenants nav entry added in T063 has `roles: ["super_admin","admin"]` and the nav registry filters by role before render; if the registry doesn't already role-filter, add that filter in `apps/web/src/features/navigation/components/sidebar-nav.tsx` (or equivalent)
+- [X] T126 [US7] Create a route guard for `apps/web/src/app/[locale]/(dashboard)/catalogs/tenants/page.tsx` — when `user.role` is `guard` or `resident`, redirect server-side to the user's default landing (`/es/dashboard` or `/en/dashboard`) per FR-001; return a translated 403 page if a redirect target cannot be resolved
+- [X] T127 [US7] Confirm `apps/api/src/modules/tenants/tenants.controller.ts` `@Roles("super_admin","admin")` is present on every handler (list, get, create, update, image upload/delete) so Guard/Resident direct calls return 403; confirmed by T060/T106 access-matrix e2e tests
+- [X] T128 [US7] [P] Add a Playwright test `e2e/tenants-role-gating.spec.ts` in `apps/web/e2e/` (if Playwright project is configured there) validating Guard and Resident redirect flows
 
 **Checkpoint**: Role gating works at nav, route, and API layers. Scenario 6 in quickstart.md passes.
 

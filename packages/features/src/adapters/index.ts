@@ -6,3 +6,6 @@ export type { I18nPort } from "./i18n";
 
 export { RoleProvider, useRole } from "./role";
 export type { RolePort, Role } from "./role";
+
+export { AuthStoreProvider, useAuthStore } from "./tenant-selector-adapters";
+export type { AuthStorePort } from "./tenant-selector-adapters";

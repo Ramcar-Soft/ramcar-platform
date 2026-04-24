@@ -670,7 +670,8 @@
       "loadFailed": "Error al cargar las fraccionamientos",
       "imageUpdateSuccess": "Imagen de fraccionamiento actualizada",
       "imageRemoveSuccess": "Imagen de fraccionamiento eliminada",
-      "imageUploadFailed": "Error al subir la imagen"
+      "imageUploadFailed": "Error al subir la imagen",
+      "adminCreateInfo": "Esta comunidad aparecerá en tu selector tras el próximo inicio de sesión"
     },
     "sidebar": {
       "createTitle": "Crear Fraccionamiento",
@@ -702,6 +703,11 @@
       "imageTooLarge": "La imagen debe ser menor de 2 MB",
       "imageWrongType": "Solo se permiten JPEG, PNG y WebP",
       "nameExists": "Ya existe un fraccionamiento con este nombre"
+    },
+    "selector": {
+      "searchPlaceholder": "Buscar comunidades…",
+      "noResults": "No se encontraron comunidades",
+      "label": "Seleccionar comunidad"
     }
   }
 }
