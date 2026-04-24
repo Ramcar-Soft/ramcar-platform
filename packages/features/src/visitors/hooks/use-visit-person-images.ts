@@ -1,14 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import type { VisitPersonImage } from "@ramcar/shared";
-import { useTransport, useRole } from "../../adapters";
+import { useTransport } from "../../adapters";
+import { useActiveTenant } from "../../tenant-selector/hooks/use-active-tenant";
 
 export function useVisitPersonImages(visitPersonId: string | null) {
   const transport = useTransport();
-  const { tenantId } = useRole();
+  const { activeTenantId } = useActiveTenant();
   return useQuery<VisitPersonImage[]>({
-    queryKey: ["access-events", tenantId, "images", visitPersonId],
+    queryKey: ["access-events", activeTenantId, "images", visitPersonId],
     queryFn: () =>
       transport.get<VisitPersonImage[]>(`/visit-persons/${visitPersonId!}/images`),
-    enabled: !!visitPersonId,
+    enabled: !!activeTenantId && !!visitPersonId,
   });
 }

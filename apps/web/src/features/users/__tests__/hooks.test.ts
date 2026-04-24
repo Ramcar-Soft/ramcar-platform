@@ -1,5 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+const TENANT_A = "3d8b2fbc-0000-0000-0000-000000000001";
+
+vi.mock("@ramcar/features", () => ({
+  useActiveTenant: () => ({
+    activeTenantId: TENANT_A,
+    activeTenantName: "Test Tenant",
+    tenantIds: [TENANT_A],
+  }),
+}));
+
 const mockGet = vi.fn();
 const mockPost = vi.fn();
 const mockPut = vi.fn();

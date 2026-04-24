@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { VisitPersonImage, ImageType } from "@ramcar/shared";
-import { useTransport, useRole } from "../../adapters";
+import { useTransport } from "../../adapters";
+import { useActiveTenant } from "../../tenant-selector/hooks/use-active-tenant";
 
 export function useUploadVisitPersonImage() {
   const queryClient = useQueryClient();
   const transport = useTransport();
-  const { tenantId } = useRole();
+  const { activeTenantId } = useActiveTenant();
 
   return useMutation({
     mutationFn: ({
@@ -27,7 +28,7 @@ export function useUploadVisitPersonImage() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["access-events", tenantId, "images", variables.visitPersonId],
+        queryKey: ["access-events", activeTenantId, "images", variables.visitPersonId],
       });
     },
   });

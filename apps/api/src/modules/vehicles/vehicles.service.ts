@@ -5,9 +5,7 @@ import type { CreateVehicleDto } from "./dto/create-vehicle.dto";
 import type { TenantScope } from "../../common/utils/tenant-scope";
 
 function scopeToTenantId(scope: TenantScope): string {
-  if (scope.scope === "single") return scope.tenantId;
-  if (scope.scope === "list") return scope.tenantIds[0] ?? "";
-  return "";
+  return scope.scope === "all" ? "" : scope.tenantId;
 }
 
 @Injectable()

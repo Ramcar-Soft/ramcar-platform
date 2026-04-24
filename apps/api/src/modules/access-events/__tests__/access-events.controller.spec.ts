@@ -17,8 +17,8 @@ const TENANT_UUID_1 = "00000000-0000-0000-0000-000000000001";
 const TENANT_UUID_2 = "00000000-0000-0000-0000-000000000002";
 const TENANT_UUID_UNAUTH = "00000000-0000-0000-0000-000000000099";
 
-const adminScope: TenantScope = { role: "admin", scope: "list", tenantIds: [TENANT_UUID_1] };
-const superAdminScope: TenantScope = { role: "super_admin", scope: "all" };
+const adminScope: TenantScope = { role: "admin", scope: "list", tenantId: TENANT_UUID_1, tenantIds: [TENANT_UUID_1] };
+const superAdminScope: TenantScope = { role: "super_admin", scope: "all", tenantId: TENANT_UUID_1, tenantIds: [] };
 
 describe("AccessEventsController", () => {
   let controller: AccessEventsController;

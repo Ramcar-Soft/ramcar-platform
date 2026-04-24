@@ -91,6 +91,26 @@ const SCHEMA_SQL = `
   CREATE INDEX IF NOT EXISTS idx_sync_outbox_status ON sync_outbox(status);
 `;
 
+// Schema version 2: adds tenant_id to sync_outbox
+const MIGRATION_V2 = `
+  ALTER TABLE sync_outbox ADD COLUMN tenant_id TEXT NOT NULL DEFAULT '';
+`;
+
+function applyMigrations(database: Database.Database): void {
+  const version = (database.pragma("user_version", { simple: true }) as number) ?? 0;
+
+  if (version < 2) {
+    database.exec(MIGRATION_V2);
+    // Backfill existing rows from payload.tenant_id where available
+    database.prepare(`
+      UPDATE sync_outbox
+      SET tenant_id = COALESCE(json_extract(payload, '$.tenant_id'), 'unknown')
+      WHERE tenant_id = ''
+    `).run();
+    database.pragma("user_version = 2");
+  }
+}
+
 export function getDatabase(): Database.Database {
   if (db) return db;
 
@@ -100,6 +120,7 @@ export function getDatabase(): Database.Database {
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
   db.exec(SCHEMA_SQL);
+  applyMigrations(db);
 
   return db;
 }

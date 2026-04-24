@@ -14,8 +14,8 @@ const mockRepo = {
   exportIterator: jest.fn(),
 };
 
-const adminScope: TenantScope = { role: "admin", scope: "list", tenantIds: ["t1"] };
-const superAdminScope: TenantScope = { role: "super_admin", scope: "all" };
+const adminScope: TenantScope = { role: "admin", scope: "list", tenantId: "t1", tenantIds: ["t1"] };
+const superAdminScope: TenantScope = { role: "super_admin", scope: "all", tenantId: "t1", tenantIds: [] };
 // const multiTenantScope: TenantScope = { role: "admin", scope: "list", tenantIds: ["t1", "t2"] };
 
 describe("AccessEventsService.list", () => {

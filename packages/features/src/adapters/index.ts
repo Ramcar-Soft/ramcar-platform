@@ -9,3 +9,9 @@ export type { RolePort, Role } from "./role";
 
 export { AuthStoreProvider, useAuthStore } from "./tenant-selector-adapters";
 export type { AuthStorePort } from "./tenant-selector-adapters";
+
+export { UnsavedChangesProvider, useUnsavedChanges } from "./unsaved-changes";
+export type { UnsavedChangesPort } from "./unsaved-changes";
+
+export { AnalyticsProvider, useAnalytics } from "./analytics";
+export type { AnalyticsPort } from "./analytics";

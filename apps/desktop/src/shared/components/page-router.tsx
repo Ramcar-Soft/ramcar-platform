@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useAppStore } from "@ramcar/store";
 import { isRouteAllowedForRole } from "@ramcar/shared";
 import { SidebarProvider, SidebarInset, TooltipProvider, Toaster } from "@ramcar/ui";
+import { UnsavedChangesProvider } from "@ramcar/features";
 import { AppSidebar } from "../../features/navigation";
 import { TopBar } from "../../features/navigation/components/top-bar";
 import { QueryProvider } from "../lib/query-provider";
@@ -69,6 +70,7 @@ export function PageRouter({ onLogout }: PageRouterProps) {
         <DesktopI18nProvider>
           <DesktopRoleProvider>
             <DesktopAuthStoreProvider>
+              <UnsavedChangesProvider value={{ hasUnsavedChanges: () => false }}>
       <UpdateNotifier />
       <TooltipProvider>
         <SidebarProvider>
@@ -82,6 +84,7 @@ export function PageRouter({ onLogout }: PageRouterProps) {
         </SidebarProvider>
       </TooltipProvider>
       <Toaster />
+              </UnsavedChangesProvider>
             </DesktopAuthStoreProvider>
           </DesktopRoleProvider>
         </DesktopI18nProvider>

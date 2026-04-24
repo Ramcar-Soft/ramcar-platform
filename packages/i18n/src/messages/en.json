@@ -735,5 +735,15 @@
       "noResults": "No tenants found",
       "label": "Select tenant"
     }
+  },
+  "tenantSelector": {
+    "confirm": {
+      "title": "Switch community?",
+      "body": "You're about to switch from {source} to {target}. All lists, searches, and new records will target {target} until you switch again.",
+      "unsavedWarning": "You have unsaved changes that will be discarded.",
+      "cancel": "Cancel",
+      "confirm": "Switch to {target}",
+      "revokedToast": "Your access to {previous} was updated. Switched to {current}."
+    }
   }
 }

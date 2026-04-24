@@ -25,8 +25,8 @@ function makeSupabase() {
   };
 }
 
-const adminScope: TenantScope = { role: "admin", scope: "list", tenantIds: ["tenant-prev"] };
-const superScope: TenantScope = { role: "super_admin", scope: "all" };
+const adminScope: TenantScope = { role: "admin", scope: "list", tenantId: "tenant-prev", tenantIds: ["tenant-prev"] };
+const superScope: TenantScope = { role: "super_admin", scope: "all", tenantId: "", tenantIds: [] };
 const dto: CreateTenantDto = { name: "Acme", address: "123 St", status: "active" } as CreateTenantDto;
 
 describe("CreateTenantUseCase", () => {

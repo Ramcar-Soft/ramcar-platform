@@ -6,6 +6,7 @@ export interface OutboxEntry {
   entity_id: string;
   action: "create" | "update" | "upload_image";
   payload: string;
+  tenant_id: string;
   status: "pending" | "syncing" | "failed";
   retry_count: number;
   created_at: string;
@@ -17,12 +18,16 @@ export function enqueue(
   entityId: string,
   action: "create" | "update" | "upload_image",
   payload: unknown,
+  tenantId: string,
 ): void {
+  if (!tenantId) {
+    throw new Error("tenant_id is required for sync outbox entries");
+  }
   const db = getDatabase();
   db.prepare(`
-    INSERT INTO sync_outbox (entity_type, entity_id, action, payload)
-    VALUES (?, ?, ?, ?)
-  `).run(entityType, entityId, action, JSON.stringify(payload));
+    INSERT INTO sync_outbox (entity_type, entity_id, action, payload, tenant_id)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(entityType, entityId, action, JSON.stringify(payload), tenantId);
 }
 
 export function dequeuePending(limit = 10): OutboxEntry[] {
@@ -55,6 +60,13 @@ export function markFailed(id: number): void {
   db.prepare(
     "UPDATE sync_outbox SET status = 'failed', retry_count = retry_count + 1 WHERE id = ?"
   ).run(id);
+}
+
+export function markError(id: number, lastError: string): void {
+  const db = getDatabase();
+  db.prepare(
+    "UPDATE sync_outbox SET status = 'failed', last_error = ?, retry_count = retry_count + 1 WHERE id = ?"
+  ).run(lastError, id);
 }
 
 export function getPendingCount(): number {

@@ -20,6 +20,7 @@ import { RolesGuard } from "../../common/guards/roles.guard";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { CurrentTenant } from "../../common/decorators/current-tenant.decorator";
+import { SkipTenant } from "../../common/decorators/skip-tenant.decorator";
 import { TenantsService } from "./tenants.service";
 import {
   createTenantSchema,
@@ -34,7 +35,7 @@ import { DeleteTenantImageUseCase } from "./use-cases/delete-tenant-image.use-ca
 
 @Controller("tenants")
 @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
-@Roles("super_admin", "admin")
+@Roles("super_admin", "admin", "guard")
 export class TenantsController {
   constructor(
     private readonly tenantsService: TenantsService,
@@ -43,6 +44,7 @@ export class TenantsController {
   ) {}
 
   @Get()
+  @SkipTenant()
   async list(
     @Query() query: Record<string, string>,
     @CurrentTenant() scope: TenantScope,

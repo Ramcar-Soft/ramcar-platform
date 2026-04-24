@@ -20,7 +20,7 @@ function makeAuthUser(role = "admin", _tenantId = "tenant-1") {
 }
 
 function makeScope(tenantId = "tenant-1"): TenantScope {
-  return { role: "admin", scope: "list", tenantIds: [tenantId] };
+  return { role: "admin", scope: "list", tenantId, tenantIds: [tenantId] };
 }
 
 function makeResidentProfile(overrides: Record<string, unknown> = {}) {

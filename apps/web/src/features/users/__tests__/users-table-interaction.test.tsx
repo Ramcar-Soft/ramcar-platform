@@ -15,6 +15,24 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
+vi.mock("@ramcar/features", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@ramcar/features")>();
+  return {
+    ...actual,
+    useActiveTenant: () => ({
+      activeTenantId: "t1",
+      activeTenantName: "Test Tenant",
+      tenantIds: ["t1"],
+    }),
+    useAuthStore: () => ({
+      tenantIds: ["t1"],
+      activeTenantId: "t1",
+      activeTenantName: "Test Tenant",
+      setActiveTenant: vi.fn(),
+    }),
+  };
+});
+
 const mockUsersData: PaginatedResponse<ExtendedUserProfile> = {
   data: [
     {

@@ -4,6 +4,7 @@ import {
   dequeuePending,
   markSynced,
   markFailed,
+  markError,
   getPendingCount,
   resetStuckSyncing,
 } from "../repositories/sync-outbox-repository";
@@ -50,9 +51,17 @@ async function processOutbox(): Promise<void> {
 
   let hadError = false;
   for (const entry of entries) {
+    // Rows with unknown tenant_id cannot be reliably synced — mark as error.
+    if (!entry.tenant_id || entry.tenant_id === "unknown" || entry.tenant_id === "") {
+      markError(entry.id, "tenant_id missing — manual re-capture required");
+      hadError = true;
+      continue;
+    }
+
     try {
       const payload = JSON.parse(entry.payload);
-      await syncEntry(entry.entity_type, entry.action, payload);
+      // Use the row's captured tenant_id, NOT the current UI active tenant.
+      await syncEntry(entry.entity_type, entry.action, payload, entry.tenant_id);
       markSynced(entry.id);
     } catch {
       markFailed(entry.id);
@@ -69,9 +78,11 @@ async function syncEntry(
   entityType: string,
   action: string,
   payload: Record<string, unknown>,
+  tenantId: string,
 ): Promise<void> {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${authToken}`,
+    "X-Active-Tenant-Id": tenantId,
   };
 
   if (action === "upload_image") {

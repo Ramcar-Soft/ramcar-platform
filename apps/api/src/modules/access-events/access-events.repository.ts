@@ -45,7 +45,7 @@ export class AccessEventsRepository {
   }
 
   async findRecentByUserId(userId: string, scope: TenantScope, limit = 3) {
-    const tenantId = scope.scope === "single" ? scope.tenantId : scope.scope === "list" ? (scope.tenantIds[0] ?? "") : "";
+    const tenantId = scope.scope === "all" ? "" : scope.tenantId;
     const { data, error } = await this.supabase
       .getClient()
       .from("access_events")
@@ -61,7 +61,7 @@ export class AccessEventsRepository {
   }
 
   async findLastByUserId(userId: string, scope: TenantScope) {
-    const tenantId = scope.scope === "single" ? scope.tenantId : scope.scope === "list" ? (scope.tenantIds[0] ?? "") : "";
+    const tenantId = scope.scope === "all" ? "" : scope.tenantId;
     const { data, error } = await this.supabase
       .getClient()
       .from("access_events")
@@ -82,7 +82,7 @@ export class AccessEventsRepository {
     scope: TenantScope,
     limit = 3,
   ) {
-    const tenantId = scope.scope === "single" ? scope.tenantId : scope.scope === "list" ? (scope.tenantIds[0] ?? "") : "";
+    const tenantId = scope.scope === "all" ? "" : scope.tenantId;
     const { data, error } = await this.supabase
       .getClient()
       .from("access_events")
@@ -101,7 +101,7 @@ export class AccessEventsRepository {
     scope: TenantScope,
     updateData: Record<string, unknown>,
   ) {
-    const tenantId = scope.scope === "single" ? scope.tenantId : scope.scope === "list" ? (scope.tenantIds[0] ?? "") : "";
+    const tenantId = scope.scope === "all" ? "" : scope.tenantId;
     const { data, error } = await this.supabase
       .getClient()
       .from("access_events")
@@ -153,12 +153,9 @@ export class AccessEventsRepository {
 
     if (scope.scope === "all") {
       // super_admin: no tenant filter
-    } else if (scope.scope === "single") {
+    } else if (scope.tenantId) {
       query = query.eq("tenant_id", scope.tenantId);
-    } else if (scope.tenantIds.length > 0) {
-      query = query.in("tenant_id", [...scope.tenantIds]);
     } else {
-      // No authorized tenants → empty result
       return { data: [], total: 0 };
     }
 
@@ -246,12 +243,7 @@ export class AccessEventsRepository {
     filters: ListAccessEventsFilters & { search: string },
     scope: TenantScope,
   ): Promise<{ data: AccessEventListItem[]; total: number }> {
-    const tenantIds =
-      scope.scope === "single"
-        ? [scope.tenantId]
-        : scope.scope === "list"
-          ? [...scope.tenantIds]
-          : [];
+    const tenantIds = scope.scope === "all" ? [] : [scope.tenantId];
     const offset = (filters.page - 1) * filters.pageSize;
 
     const { data, error } = await this.supabase
