@@ -103,6 +103,31 @@ Inside `apps/desktop`:
 
 Output of `dist`/`release`: `apps/desktop/release/<version>/` — DMG on macOS, NSIS `.exe` on Windows, AppImage on Linux, plus `latest.yml` / `latest-mac.yml` / `*.blockmap` files needed by the auto-updater.
 
+### Local installer build
+
+The `apps/desktop` scripts do **not** wrap themselves in `dotenvx`. `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` must already be in `process.env` when Vite runs, otherwise `vite.config.ts` bakes `undefined` into the bundle. Run from the repo root wrapped in `dotenvx`, pointing at the env file for the Supabase project the installer should talk to:
+
+```bash
+# Prod Supabase
+dotenvx run -f .env -- pnpm --filter @ramcar/desktop dist
+
+# Remote dev Supabase
+dotenvx run -f .env.development -- pnpm --filter @ramcar/desktop dist
+```
+
+`.env.local` points at local Supabase (`127.0.0.1:54321`) and is not useful for an installed app.
+
+To build both Mac and Windows installers from a single Mac host, pass `-mw` to `electron-builder`:
+
+```bash
+dotenvx run -f .env -- pnpm --filter @ramcar/desktop exec \
+  sh -c 'tsc && vite build && electron-builder -mw'
+```
+
+First run pulls a Wine container for the NSIS target. Native modules (`better-sqlite3`) are not cross-compiled — electron-builder fetches the prebuilt Windows binary from npm.
+
+Do **not** use `pnpm release` locally unless you intend to publish — it passes `--publish always` and requires `GH_TOKEN`. Use `pnpm dist` for local artifacts.
+
 ### Cross-platform note
 
 `electron-builder` cannot fully cross-build (signing + native modules like `better-sqlite3` need the target platform). Use the GitHub Actions matrix to produce all installers; building the wrong target locally will skip or fail.
