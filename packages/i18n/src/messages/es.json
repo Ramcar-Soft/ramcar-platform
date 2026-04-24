@@ -3,6 +3,13 @@
     "title": "Ramcar Web",
     "description": "Portal Web de Ramcar"
   },
+  "shortcuts": {
+    "ariaLabel": "Atajos de teclado",
+    "search": "buscar",
+    "navigate": "navegar",
+    "select": "seleccionar",
+    "create": "nuevo"
+  },
   "common": {
     "appName": "RamcarSoft",
     "loading": "Cargando...",

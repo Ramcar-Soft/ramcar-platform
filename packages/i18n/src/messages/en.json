@@ -3,6 +3,13 @@
     "title": "Ramcar Web",
     "description": "Ramcar Web Portal"
   },
+  "shortcuts": {
+    "ariaLabel": "Keyboard shortcuts",
+    "search": "search",
+    "navigate": "navigate",
+    "select": "select",
+    "create": "new"
+  },
   "common": {
     "appName": "RamcarSoft",
     "loading": "Loading...",
