@@ -1,9 +1,9 @@
 // @see - https://www.electron.build/configuration/configuration
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "YourAppID",
+  "appId": "com.ramcarsoft.app",
   "asar": true,
-  "productName": "YourAppName",
+  "productName": "RamcarSoft",
   "directories": {
     "output": "release/${version}"
   },
@@ -39,5 +39,13 @@
       "AppImage"
     ],
     "artifactName": "${productName}-Linux-${version}.${ext}"
-  }
+  },
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "Ramcar-Soft",
+      "repo": "ramcar-platform",
+      "releaseType": "draft"
+    }
+  ]
 }

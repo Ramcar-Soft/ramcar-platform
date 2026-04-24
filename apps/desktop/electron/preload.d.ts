@@ -24,12 +24,19 @@ export interface SyncAPI {
   onStatusChange: (callback: (status: { status: string; pendingCount: number }) => void) => () => void;
 }
 
+export interface UpdaterAPI {
+  installNow: () => Promise<void>;
+  onUpdateDownloaded: (callback: (info: { version: string }) => void) => () => void;
+}
+
 export interface ElectronAPI {
   ping: () => Promise<string>;
   getLanguage: () => Promise<string>;
   setLanguage: (locale: string) => Promise<void>;
+  getAppVersion: () => Promise<string>;
   visitPersons: VisitPersonsAPI;
   sync: SyncAPI;
+  updater: UpdaterAPI;
 }
 
 declare global {

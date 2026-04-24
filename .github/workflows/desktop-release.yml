@@ -1,0 +1,77 @@
+name: Desktop Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish a draft GitHub Release (uploads installers + latest.yml so auto-update works)"
+        type: boolean
+        default: false
+  push:
+    tags:
+      - "desktop-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            artifact_name: ramcarsoft-macos
+            artifact_glob: |
+              apps/desktop/release/**/*.dmg
+              apps/desktop/release/**/*.zip
+              apps/desktop/release/**/*.yml
+              apps/desktop/release/**/*.blockmap
+          - os: windows-latest
+            artifact_name: ramcarsoft-windows
+            artifact_glob: |
+              apps/desktop/release/**/*.exe
+              apps/desktop/release/**/*.yml
+              apps/desktop/release/**/*.blockmap
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      SUPABASE_URL: ${{ secrets.DESKTOP_SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.DESKTOP_SUPABASE_PUBLISHABLE_KEY }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and publish (tag or manual-publish)
+        if: startsWith(github.ref, 'refs/tags/desktop-v') || inputs.publish == true
+        working-directory: apps/desktop
+        run: pnpm release
+
+      - name: Build only (no publish)
+        if: ${{ !startsWith(github.ref, 'refs/tags/desktop-v') && inputs.publish != true }}
+        working-directory: apps/desktop
+        run: pnpm dist
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_glob }}
+          if-no-files-found: error
+          retention-days: 14

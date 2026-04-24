@@ -24,11 +24,15 @@ import {
   SidebarRail,
   Avatar,
   AvatarFallback,
+  Badge,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@ramcar/ui";
+import { useAppVersion } from "../../../shared/hooks/use-app-version";
+import { usePendingUpdate } from "../../../shared/hooks/use-pending-update";
+import { updaterStore } from "../../../shared/lib/updater-store";
 import { Collapsible as CollapsiblePrimitive } from "radix-ui";
 
 const Collapsible = CollapsiblePrimitive.Root;
@@ -49,6 +53,8 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
   const navigate = useAppStore((s) => s.navigate);
   const user = useAppStore((s) => s.user);
   const items = user ? getItemsForRole(user.role, "desktop") : [];
+  const version = useAppVersion();
+  const pendingVersion = usePendingUpdate();
 
   return (
     <Sidebar collapsible="icon">
@@ -56,9 +62,34 @@ export function AppSidebar({ onLogout }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <span className="font-semibold">RamcarSoft</span>
+              <div className="grid flex-1 text-left leading-tight">
+                <span className="truncate font-semibold">RamcarSoft</span>
+                {version && (
+                  <span className="truncate text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+                    v{version}
+                  </span>
+                )}
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {pendingVersion && (
+            <SidebarMenuItem>
+              <button
+                type="button"
+                onClick={() => updaterStore.installNow()}
+                className="flex w-full items-center justify-center group-data-[collapsible=icon]:p-0"
+                title={t("updater.badgeLabel", { version: pendingVersion })}
+              >
+                <Badge variant="default" className="w-full justify-center cursor-pointer group-data-[collapsible=icon]:hidden">
+                  {t("updater.badgeLabel", { version: pendingVersion })}
+                </Badge>
+                <span
+                  aria-hidden
+                  className="hidden h-2 w-2 rounded-full bg-primary group-data-[collapsible=icon]:block"
+                />
+              </button>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
