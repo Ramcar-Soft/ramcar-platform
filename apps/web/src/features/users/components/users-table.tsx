@@ -15,7 +15,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useAppStore } from "@ramcar/store";
 import { Plus } from "lucide-react";
-import { useKeyboardNavigation } from "@ramcar/features";
+import { useKeyboardNavigation, ShortcutsHint } from "@ramcar/features";
 import type { UserFilters } from "../types";
 import { useUsers } from "../hooks/use-users";
 import { useTenants } from "@/features/tenants/hooks/use-tenants";
@@ -91,6 +91,14 @@ export function UsersTable() {
     [handleEdit],
   );
 
+  const canCreate = user?.role === "super_admin" || user?.role === "admin";
+
+  const handleCreateOpen = useCallback(() => {
+    setSelectedUserId(undefined);
+    setSidebarMode("create");
+    setSidebarOpen(true);
+  }, []);
+
   useEffect(() => {
     setHighlightedIndex(-1);
   }, [filters, data?.data]);
@@ -106,6 +114,7 @@ export function UsersTable() {
     highlightedIndex,
     setHighlightedIndex,
     onSelectItem: handleSelectItem,
+    onCreate: canCreate ? handleCreateOpen : undefined,
   });
 
   const columns = getUserColumns({
@@ -118,20 +127,17 @@ export function UsersTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
-        {(user?.role === "super_admin" || user?.role === "admin") && (
-          <Button
-            onClick={() => {
-              setSelectedUserId(undefined);
-              setSidebarMode("create");
-              setSidebarOpen(true);
-            }}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            {t("createUser")}
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <ShortcutsHint search navigate select create={canCreate} />
+          {canCreate && (
+            <Button onClick={handleCreateOpen}>
+              <Plus className="mr-2 h-4 w-4" />
+              {t("createUser")}
+            </Button>
+          )}
+        </div>
       </div>
 
       <UserFiltersBar

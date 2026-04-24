@@ -3,6 +3,7 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { I18nProvider } from "@ramcar/features/adapters";
 import type { ExtendedUserProfile } from "../types";
 import type { PaginatedResponse } from "@ramcar/shared";
 
@@ -69,23 +70,34 @@ vi.mock("@/shared/hooks/use-form-persistence", () => ({
   useFormPersistence: () => ({ wasRestored: false, discardDraft: vi.fn(), clearDraft: vi.fn() }),
 }));
 
+const userHolder: { current: { userId: string; role: string; tenantId: string } } = {
+  current: { userId: "u1", role: "super_admin", tenantId: "t1" },
+};
+
 vi.mock("@ramcar/store", () => ({
   useAppStore: (selector: (s: unknown) => unknown) =>
-    selector({ user: { userId: "u1", role: "super_admin", tenantId: "t1" } }),
+    selector({ user: userHolder.current }),
 }));
+
+function setRole(role: "super_admin" | "admin" | "guard" | "resident") {
+  userHolder.current = { userId: "u1", role, tenantId: "t1" };
+}
 
 import { UsersTable } from "../components/users-table";
 
 function renderWithClient(ui: React.ReactElement) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+    <QueryClientProvider client={queryClient}>
+      <I18nProvider value={{ t: (k) => k, locale: "en" }}>{ui}</I18nProvider>
+    </QueryClientProvider>,
   );
 }
 
 describe("UsersTable interaction", () => {
   beforeEach(() => {
     cleanup();
+    setRole("super_admin");
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
   });
 
@@ -178,5 +190,52 @@ describe("UsersTable interaction", () => {
     expect(first.getAttribute("aria-selected")).toBe("true");
     const second = screen.getByText("Bob").closest("tr")!;
     expect(second.getAttribute("aria-selected")).not.toBe("true");
+  });
+
+  it("renders the ShortcutsHint with create flag for super_admin", () => {
+    setRole("super_admin");
+    renderWithClient(<UsersTable />);
+    expect(screen.getByLabelText("shortcuts.ariaLabel")).toBeTruthy();
+    const labels = Array.from(document.querySelectorAll("kbd")).map((k) => k.textContent);
+    expect(labels).toContain("N");
+  });
+
+  it("hides the create glyph when the user is a guard", () => {
+    setRole("guard");
+    renderWithClient(<UsersTable />);
+    expect(screen.getByLabelText("shortcuts.ariaLabel")).toBeTruthy();
+    const labels = Array.from(document.querySelectorAll("kbd")).map((k) => k.textContent);
+    expect(labels).not.toContain("N");
+  });
+
+  it("pressing N as super_admin opens the create sidebar", () => {
+    setRole("super_admin");
+    renderWithClient(<UsersTable />);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "n", bubbles: true }));
+    });
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "sidebar.createTitle" })).toBeTruthy();
+  });
+
+  it("pressing N as a guard is a no-op", () => {
+    setRole("guard");
+    renderWithClient(<UsersTable />);
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "n", bubbles: true }));
+    });
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("pressing F focuses the search input", () => {
+    setRole("super_admin");
+    renderWithClient(<UsersTable />);
+    const search = screen.getByPlaceholderText("searchPlaceholder") as HTMLInputElement;
+    expect(document.activeElement).not.toBe(search);
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "f", bubbles: true }));
+    });
+    expect(document.activeElement).toBe(search);
   });
 });
