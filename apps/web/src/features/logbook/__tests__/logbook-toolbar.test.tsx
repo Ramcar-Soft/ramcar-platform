@@ -2,8 +2,15 @@
 import React from "react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { I18nProvider } from "@ramcar/features/adapters";
 import { LogbookToolbar } from "../components/logbook-toolbar";
 import type { LogbookFilters } from "../types";
+
+function renderWithI18n(ui: React.ReactElement) {
+  return render(
+    <I18nProvider value={{ t: (k) => k, locale: "en" }}>{ui}</I18nProvider>,
+  );
+}
 
 afterEach(() => cleanup());
 
@@ -46,7 +53,7 @@ const baseFilters: LogbookFilters = {
 
 describe("LogbookToolbar", () => {
   it("renders search input with placeholder from i18n", () => {
-    render(
+    renderWithI18n(
       <LogbookToolbar
         filters={baseFilters}
         onFilterChange={vi.fn()}
@@ -69,7 +76,7 @@ describe("LogbookToolbar", () => {
 
   it("calls onSearchChange when user types in the search input", () => {
     const onSearchChange = vi.fn();
-    render(
+    renderWithI18n(
       <LogbookToolbar
         filters={baseFilters}
         onFilterChange={vi.fn()}
@@ -89,7 +96,7 @@ describe("LogbookToolbar", () => {
 
   it("clears the input and calls onSearchChange('') when Escape is pressed", () => {
     const onSearchChange = vi.fn();
-    render(
+    renderWithI18n(
       <LogbookToolbar
         filters={baseFilters}
         onFilterChange={vi.fn()}
@@ -115,7 +122,7 @@ describe("LogbookToolbar", () => {
       ...baseFilters,
       search: "Jane",
     };
-    render(
+    renderWithI18n(
       <LogbookToolbar
         filters={filtersWithSearch}
         onFilterChange={vi.fn()}
@@ -134,7 +141,7 @@ describe("LogbookToolbar", () => {
 
   it("calls onFilterChange when DateRangeFilter applies a new value", () => {
     const onFilterChange = vi.fn();
-    render(
+    renderWithI18n(
       <LogbookToolbar
         filters={baseFilters}
         onFilterChange={onFilterChange}
@@ -150,7 +157,7 @@ describe("LogbookToolbar", () => {
   });
 
   it("does not show clear button when search is not set", () => {
-    render(
+    renderWithI18n(
       <LogbookToolbar
         filters={baseFilters}
         onFilterChange={vi.fn()}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAppStore } from "@ramcar/store";
+import { useKeyboardNavigation } from "@ramcar/features";
 import { ExportAllDialog } from "./export-all-dialog";
 import { LogbookTable } from "./logbook-table";
 import { LogbookToolbar } from "./logbook-toolbar";
@@ -20,12 +21,17 @@ export function LogbookSubpage({ personType, columns }: LogbookSubpageProps) {
   const user = useAppStore((s) => s.user);
   const [exportAllOpen, setExportAllOpen] = useState(false);
 
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useKeyboardNavigation({ searchInputRef });
+
   const isSuperAdmin = user?.role === "super_admin";
   const showTenantColumn = isSuperAdmin && !filters.tenantId;
 
   return (
     <div className="flex flex-col gap-4">
       <LogbookToolbar
+        ref={searchInputRef}
         filters={filters}
         onFilterChange={setFilters}
         onSearchChange={setSearch}
