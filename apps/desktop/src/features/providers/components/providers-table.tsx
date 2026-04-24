@@ -6,6 +6,7 @@ import {
 import { useTranslation } from "react-i18next";
 import type { VisitPerson, PaginatedResponse } from "../types";
 import { getProviderColumns } from "./providers-table-columns";
+import { ShortcutsHint } from "@ramcar/features";
 
 interface ProvidersTableProps {
   data: PaginatedResponse<VisitPerson> | undefined;
@@ -37,13 +38,16 @@ export const ProvidersTable = forwardRef<HTMLInputElement, ProvidersTableProps>(
 
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-bold">{t("providers.title")}</h1>
-          {onRegisterNew && (
-            <Button size="sm" onClick={onRegisterNew}>
-              + {t("providers.registerNew")}
-            </Button>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            <ShortcutsHint search navigate select create />
+            {onRegisterNew && (
+              <Button size="sm" onClick={onRegisterNew}>
+                + {t("providers.registerNew")}
+              </Button>
+            )}
+          </div>
         </div>
 
         <Input
