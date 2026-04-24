@@ -7,6 +7,7 @@ import type { VisitPersonStatus } from "@ramcar/features/visitors";
 
 interface VisitorFormDraft {
   fullName: string;
+  phone: string;
   status: VisitPersonStatus;
   residentId: string;
   notes: string;
@@ -15,6 +16,7 @@ interface VisitorFormDraft {
 
 const DEFAULT_DRAFT: VisitorFormDraft = {
   fullName: "",
+  phone: "",
   status: "allowed",
   residentId: "",
   notes: "",
@@ -27,6 +29,7 @@ function VisitorsPageClient() {
     onRestore: (restored) => {
       setDraft({
         fullName: (restored.fullName as string) ?? "",
+        phone: (restored.phone as string) ?? "",
         status: (restored.status as VisitPersonStatus) ?? "allowed",
         residentId: (restored.residentId as string) ?? "",
         notes: (restored.notes as string) ?? "",
@@ -37,6 +40,7 @@ function VisitorsPageClient() {
   const handleDraftChange = useCallback(
     (d: {
       fullName: string;
+      phone: string;
       status: VisitPersonStatus;
       residentId: string;
       notes: string;

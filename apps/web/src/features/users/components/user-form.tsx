@@ -15,7 +15,14 @@ import {
 import { useTranslations } from "next-intl";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import { useAppStore } from "@ramcar/store";
-import { getAssignableRoles } from "@ramcar/shared";
+import {
+  getAssignableRoles,
+  normalizePhone,
+  phoneOptionalSchema,
+  stripUsernameChars,
+  usernameOptionalSchema,
+  emailSchema,
+} from "@ramcar/shared";
 import type { Role } from "@ramcar/shared";
 import type { ExtendedUserProfile, PhoneType, UserGroup } from "../types";
 import { TenantMultiSelect } from "./tenant-multi-select";
@@ -59,6 +66,8 @@ export function UserForm({
   onCancel,
 }: UserFormProps) {
   const t = useTranslations("users");
+  const tForms = useTranslations("forms");
+  const tError = useTranslations();
   const currentUser = useAppStore((s) => s.user);
   const actorRole = (currentUser?.role ?? "resident") as Role;
   const actorTenantIds = useAppStore((s) => s.tenantIds);
@@ -127,11 +136,44 @@ export function UserForm({
     });
   };
 
+  const validateField = (name: keyof UserFormData, value: string): string | null => {
+    if (name === "email") {
+      if (!value.trim()) return null;
+      const parsed = emailSchema.safeParse(value);
+      return parsed.success ? null : "forms.emailInvalid";
+    }
+    if (name === "phone") {
+      if (!value.trim()) return null;
+      const parsed = phoneOptionalSchema.safeParse(value);
+      return parsed.success ? null : "forms.phoneInvalid";
+    }
+    if (name === "username") {
+      if (!value) return null;
+      const parsed = usernameOptionalSchema.safeParse(value);
+      if (parsed.success) return null;
+      const first = parsed.error.issues[0]?.message;
+      return first ?? "users.validation.usernameInvalid";
+    }
+    return null;
+  };
+
+  const handleBlurField = (name: keyof UserFormData) => () => {
+    const value = (formData[name] ?? "") as string;
+    const err = validateField(name, value);
+    setErrors((prev) => {
+      const next = { ...prev };
+      if (err) next[name] = tError(err);
+      else delete next[name];
+      return next;
+    });
+  };
+
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
     if (!formData.fullName.trim()) errs.fullName = "Required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-      errs.email = "Invalid email";
+    const emailErr = validateField("email", formData.email);
+    if (!formData.email.trim() || emailErr)
+      errs.email = emailErr ? tError(emailErr) : "Required";
     if (!formData.role) errs.role = "Required";
 
     const role = formData.role;
@@ -150,14 +192,15 @@ export function UserForm({
     if (role === "resident" && !formData.address.trim()) {
       errs.address = "Required";
     }
-    if (formData.username.length > 0) {
-      if (formData.username.length < 3) errs.username = "Min 3 characters";
-      else if (!/^[a-zA-Z0-9_]+$/.test(formData.username))
-        errs.username = "Only letters, numbers, underscores";
-    }
+
+    const phoneErr = validateField("phone", formData.phone);
+    if (phoneErr) errs.phone = tError(phoneErr);
+
+    const usernameErr = validateField("username", formData.username);
+    if (usernameErr) errs.username = tError(usernameErr);
+
     if (!isEdit && formData.password && formData.password.length > 0) {
-      if (formData.password.length < 8)
-        errs.password = "Min 8 characters";
+      if (formData.password.length < 8) errs.password = "Min 8 characters";
       if (formData.password !== formData.confirmPassword)
         errs.confirmPassword = "Passwords do not match";
     }
@@ -170,10 +213,17 @@ export function UserForm({
     e.preventDefault();
     if (!validate()) return;
 
+    const normalizedPhone = formData.phone.trim()
+      ? normalizePhone(formData.phone)
+      : "";
+    const trimmedEmail = formData.email.trim().toLowerCase();
+    const trimmedUsername = formData.username.trim();
+
     const submitData: Record<string, unknown> = {
       ...formData,
-      phone: !!formData.phone.trim() ? formData.phone : undefined,
-      username: !!formData.username.trim() ? formData.phone : undefined,
+      email: trimmedEmail,
+      phone: normalizedPhone ? normalizedPhone : undefined,
+      username: trimmedUsername.length > 0 ? trimmedUsername : undefined,
     };
 
     if (isEdit || !submitData.password) {
@@ -236,6 +286,7 @@ export function UserForm({
             autoComplete="none"
             value={formData.email}
             onChange={(e) => updateField("email", e.target.value)}
+            onBlur={handleBlurField("email")}
             aria-invalid={!!errors.email}
           />
           {errors.email && (
@@ -329,10 +380,17 @@ export function UserForm({
               id="phone"
               value={formData.phone}
               onChange={(e) => updateField("phone", e.target.value)}
+              onBlur={handleBlurField("phone")}
+              placeholder={tForms("phonePlaceholder")}
               aria-invalid={!!errors.phone}
             />
             {errors.phone && (
               <p className="text-sm text-destructive">{errors.phone}</p>
+            )}
+            {!errors.phone && (
+              <p className="text-xs text-muted-foreground">
+                {tForms("phoneHelp")}
+              </p>
             )}
           </div>
 
@@ -365,11 +423,20 @@ export function UserForm({
             id="username"
             value={formData.username}
             autoComplete="off"
-            onChange={(e) => updateField("username", e.target.value)}
+            onChange={(e) =>
+              updateField("username", stripUsernameChars(e.target.value))
+            }
+            onBlur={handleBlurField("username")}
+            placeholder={t("form.usernamePlaceholder")}
             aria-invalid={!!errors.username}
           />
           {errors.username && (
             <p className="text-sm text-destructive">{errors.username}</p>
+          )}
+          {!errors.username && (
+            <p className="text-xs text-muted-foreground">
+              {t("form.usernameHelp")}
+            </p>
           )}
         </div>
 

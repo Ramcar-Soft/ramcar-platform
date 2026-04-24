@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { emailSchema } from "./email";
+import { phoneOptionalSchema } from "./phone";
+import { usernameOptionalSchema } from "./username";
 
 const phoneTypeEnum = z.enum(["house", "cellphone", "work", "primary"]);
 const userStatusEnum = z.enum(["active", "inactive"]);
@@ -22,21 +25,12 @@ const adminGuardTenantObj = z.object({
   primary_tenant_id: z.string().uuid(),
 });
 
-const usernameWhenProvided = z
-  .string()
-  .min(3, "Username must be at least 3 characters")
-  .max(50)
-  .regex(
-    /^[a-zA-Z0-9_]+$/,
-    "Username can only contain letters, numbers, and underscores",
-  );
-
 const baseCreateUserObj = z.object({
   fullName: z.string().min(1, "Full name is required").max(255),
-  email: z.string().email("Invalid email address"),
+  email: emailSchema,
   address: z.string().max(500).optional().or(z.literal("")),
-  username: z.union([z.literal(""), usernameWhenProvided]).optional(),
-  phone: z.string().max(20).optional().or(z.literal("")),
+  username: usernameOptionalSchema.optional(),
+  phone: phoneOptionalSchema.optional(),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -89,10 +83,10 @@ export type CreateUserInput = z.input<typeof createUserSchema>;
 
 const updateUserObj = z.object({
   fullName: z.string().min(1, "Full name is required").max(255).optional(),
-  email: z.string().email("Invalid email address").optional(),
+  email: emailSchema.optional(),
   address: z.string().max(500).optional().or(z.literal("")),
-  username: z.union([z.literal(""), usernameWhenProvided]).optional(),
-  phone: z.string().max(20).optional().or(z.literal("")),
+  username: usernameOptionalSchema.optional(),
+  phone: phoneOptionalSchema.optional(),
   phoneType: phoneTypeEnum.optional().nullable(),
   userGroupIds: z.array(z.string().uuid()).optional(),
   observations: z.string().max(1000).optional().nullable(),

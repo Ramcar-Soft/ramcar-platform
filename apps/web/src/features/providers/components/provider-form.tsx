@@ -9,6 +9,7 @@ import {
   Textarea,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
+import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { ImageType } from "@ramcar/shared";
 import { ResidentSelect } from "@ramcar/features/shared/resident-select";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
@@ -41,6 +42,7 @@ export function ProviderForm({
 }: ProviderFormProps) {
   const t = useTranslations("visitPersons.form");
   const tCommon = useTranslations("common");
+  const tForms = useTranslations("forms");
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -48,6 +50,16 @@ export function ProviderForm({
   const [status, setStatus] = useState<VisitPersonStatus>("allowed");
   const [residentId, setResidentId] = useState("");
   const [notes, setNotes] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  const handlePhoneBlur = () => {
+    if (!phone.trim()) {
+      setPhoneError(null);
+      return;
+    }
+    const parsed = phoneOptionalSchema.safeParse(phone);
+    setPhoneError(parsed.success ? null : "forms.phoneInvalid");
+  };
   const [stagedImages, setStagedImages] = useState<Map<ImageType, StagedImage>>(
     () => new Map(),
   );
@@ -105,12 +117,17 @@ export function ProviderForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim()) return;
+    const normalizedPhone = phone.trim() ? normalizePhone(phone) : "";
+    if (phone.trim() && normalizedPhone === null) {
+      setPhoneError("forms.phoneInvalid");
+      return;
+    }
     clearDraft();
     const filesByType = new Map<ImageType, File>();
     stagedImages.forEach(({ file }, type) => filesByType.set(type, file));
     onSave({
       fullName: fullName.trim(),
-      phone,
+      phone: normalizedPhone ?? "",
       company,
       status,
       residentId,
@@ -130,13 +147,30 @@ export function ProviderForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label>{t("fullName")}</Label>
-        <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+        <Label htmlFor="provider-fullName">{t("fullName")}</Label>
+        <Input
+          id="provider-fullName"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          required
+        />
       </div>
 
       <div className="space-y-2">
-        <Label>{t("phone")}</Label>
-        <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <Label htmlFor="provider-phone">{t("phone")}</Label>
+        <Input
+          id="provider-phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          onBlur={handlePhoneBlur}
+          placeholder={tForms("phonePlaceholder")}
+          aria-invalid={!!phoneError}
+        />
+        {phoneError ? (
+          <p className="text-sm text-destructive">{tForms("phoneInvalid")}</p>
+        ) : (
+          <p className="text-xs text-muted-foreground">{tForms("phoneHelp")}</p>
+        )}
       </div>
 
       <div className="space-y-2">

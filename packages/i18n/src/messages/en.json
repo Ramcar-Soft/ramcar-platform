@@ -10,6 +10,12 @@
     "draftRestored": "Draft restored from {time}",
     "discardDraft": "Discard"
   },
+  "forms": {
+    "phoneHelp": "Mexican 10-digit number or international with + prefix",
+    "phoneInvalid": "Invalid phone number",
+    "phonePlaceholder": "(555) 123-4567",
+    "emailInvalid": "Invalid email address"
+  },
   "auth": {
     "login": {
       "title": "RamcarSoft",
@@ -101,6 +107,8 @@
       "tenant": "Tenant",
       "address": "Address",
       "username": "Username",
+      "usernameHelp": "3–30 characters. Letters, numbers, and . _ -. Must start with a letter or number.",
+      "usernamePlaceholder": "juan.perez",
       "phone": "Phone",
       "phoneType": "Phone Type",
       "userGroup": "User Group",
@@ -181,7 +189,10 @@
     "validation": {
       "atLeastOneTenant": "Select at least one tenant",
       "primaryMustBeSelected": "The primary tenant must be one of the assigned tenants",
-      "tooManyTenants": "A user cannot be assigned to more than 50 tenants"
+      "tooManyTenants": "A user cannot be assigned to more than 50 tenants",
+      "usernameInvalid": "Invalid username format",
+      "usernameTooShort": "Username must be at least 3 characters",
+      "usernameTooLong": "Username must be at most 30 characters"
     },
     "empty": "No users found",
     "errorLoading": "Failed to load users. Please try again."

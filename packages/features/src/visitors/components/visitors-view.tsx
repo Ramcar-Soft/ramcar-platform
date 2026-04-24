@@ -24,6 +24,7 @@ import { useI18n } from "../../adapters";
 
 interface VisitPersonFormDraft {
   fullName: string;
+  phone: string;
   status: VisitPersonStatus;
   residentId: string;
   notes: string;

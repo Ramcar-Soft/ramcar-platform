@@ -10,6 +10,12 @@
     "draftRestored": "Borrador restaurado de {time}",
     "discardDraft": "Descartar"
   },
+  "forms": {
+    "phoneHelp": "Número mexicano de 10 dígitos o internacional con prefijo +",
+    "phoneInvalid": "Número de teléfono inválido",
+    "phonePlaceholder": "(555) 123-4567",
+    "emailInvalid": "Correo electrónico inválido"
+  },
   "auth": {
     "login": {
       "title": "RamcarSoft",
@@ -101,6 +107,8 @@
       "tenant": "Condominio",
       "address": "Dirección",
       "username": "Nombre de Usuario",
+      "usernameHelp": "3–30 caracteres. Letras, números y . _ -. Debe comenzar con letra o número.",
+      "usernamePlaceholder": "juan.perez",
       "phone": "Teléfono",
       "phoneType": "Tipo de Teléfono",
       "userGroup": "Grupo",
@@ -181,7 +189,10 @@
     "validation": {
       "atLeastOneTenant": "Selecciona al menos un condominio",
       "primaryMustBeSelected": "El condominio principal debe ser uno de los condominios asignados",
-      "tooManyTenants": "Un usuario no puede asignarse a más de 50 condominios"
+      "tooManyTenants": "Un usuario no puede asignarse a más de 50 condominios",
+      "usernameInvalid": "Formato de usuario inválido",
+      "usernameTooShort": "El usuario debe tener al menos 3 caracteres",
+      "usernameTooLong": "El usuario debe tener a lo sumo 30 caracteres"
     },
     "empty": "No se encontraron usuarios",
     "errorLoading": "Error al cargar usuarios. Por favor, intenta de nuevo."

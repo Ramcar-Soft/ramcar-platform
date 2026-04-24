@@ -16,7 +16,7 @@ describe("createUserSchema", () => {
     primary_tenant_id: tenantUuid,
     address: "123 Main St",
     username: "johndoe",
-    phone: "+1234567890",
+    phone: "+14155551234",
     userGroupIds: [],
   };
 
@@ -196,7 +196,7 @@ describe("updateUserSchema", () => {
     tenantId: "a0000000-0000-0000-0000-000000000001",
     address: "456 Oak Ave",
     username: "janedoe",
-    phone: "+9876543210",
+    phone: "+14155551234",
   };
 
   it("accepts valid full update", () => {
@@ -339,5 +339,88 @@ describe("toggleStatusSchema", () => {
   it("rejects missing status", () => {
     const result = toggleStatusSchema.safeParse({});
     expect(result.success).toBe(false);
+  });
+});
+
+describe("createUserSchema — format rules (new)", () => {
+  const tenantUuid = "a0000000-0000-0000-0000-000000000001";
+  const base = {
+    fullName: "John Doe",
+    email: "john@example.com",
+    role: "guard" as const,
+    tenant_ids: [tenantUuid],
+    primary_tenant_id: tenantUuid,
+    address: "123 Main",
+    userGroupIds: [],
+  };
+
+  it("normalizes a MX phone to E.164 on parse", () => {
+    const result = createUserSchema.safeParse({
+      ...base,
+      phone: "(555) 123-4567",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.phone).toBe("+525551234567");
+    }
+  });
+
+  it("rejects an invalid phone (letters)", () => {
+    expect(
+      createUserSchema.safeParse({ ...base, phone: "abc1234567" }).success,
+    ).toBe(false);
+  });
+
+  it("rejects a 9-digit phone", () => {
+    expect(
+      createUserSchema.safeParse({ ...base, phone: "555123456" }).success,
+    ).toBe(false);
+  });
+
+  it("lowercases and trims email on parse", () => {
+    const result = createUserSchema.safeParse({
+      ...base,
+      email: "  John@Example.COM  ",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.email).toBe("john@example.com");
+    }
+  });
+
+  it("rejects username with consecutive separators", () => {
+    expect(
+      createUserSchema.safeParse({ ...base, username: "juan..perez" }).success,
+    ).toBe(false);
+  });
+
+  it("accepts username with valid separators", () => {
+    expect(
+      createUserSchema.safeParse({ ...base, username: "juan.perez-1" }).success,
+    ).toBe(true);
+  });
+
+  it("rejects username ending in separator", () => {
+    expect(
+      createUserSchema.safeParse({ ...base, username: "juan." }).success,
+    ).toBe(false);
+  });
+});
+
+describe("updateUserSchema — format rules (new)", () => {
+  it("normalizes phone on update", () => {
+    const result = updateUserSchema.safeParse({ phone: "555 123 4567" });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.phone).toBe("+525551234567");
+  });
+
+  it("rejects invalid phone on update", () => {
+    expect(updateUserSchema.safeParse({ phone: "abc" }).success).toBe(false);
+  });
+
+  it("lowercases email on update", () => {
+    const result = updateUserSchema.safeParse({ email: "Foo@Bar.COM" });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.email).toBe("foo@bar.com");
   });
 });

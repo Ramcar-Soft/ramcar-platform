@@ -6,6 +6,7 @@ import {
   Separator,
   Textarea,
 } from "@ramcar/ui";
+import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { ImageType } from "@ramcar/shared";
 import { useI18n } from "../../adapters/i18n";
 import { ResidentSelect } from "../../shared/resident-select";
@@ -15,6 +16,7 @@ import { ImageSection, type StagedImage } from "./image-section";
 
 interface VisitPersonFormData {
   fullName: string;
+  phone: string;
   status: VisitPersonStatus;
   residentId: string;
   notes: string;
@@ -23,6 +25,7 @@ interface VisitPersonFormData {
 
 interface VisitPersonFormDraft {
   fullName: string;
+  phone: string;
   status: VisitPersonStatus;
   residentId: string;
   notes: string;
@@ -48,6 +51,8 @@ export function VisitPersonForm({
   const { t } = useI18n();
 
   const [fullName, setFullName] = useState(initialDraft?.fullName ?? "");
+  const [phone, setPhone] = useState(initialDraft?.phone ?? "");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [status, setStatus] = useState<VisitPersonStatus>(
     initialDraft?.status ?? "allowed",
   );
@@ -59,9 +64,18 @@ export function VisitPersonForm({
   const stagedImagesRef = useRef(stagedImages);
   stagedImagesRef.current = stagedImages;
 
+  const handlePhoneBlur = () => {
+    if (!phone.trim()) {
+      setPhoneError(null);
+      return;
+    }
+    const parsed = phoneOptionalSchema.safeParse(phone);
+    setPhoneError(parsed.success ? null : "forms.phoneInvalid");
+  };
+
   const composedData = useMemo(
-    () => ({ fullName, status, residentId, notes }),
-    [fullName, status, residentId, notes],
+    () => ({ fullName, phone, status, residentId, notes }),
+    [fullName, phone, status, residentId, notes],
   );
 
   const onDraftChangeRef = useRef(onDraftChange);
@@ -96,10 +110,16 @@ export function VisitPersonForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim()) return;
+    const normalizedPhone = phone.trim() ? normalizePhone(phone) : "";
+    if (phone.trim() && normalizedPhone === null) {
+      setPhoneError("forms.phoneInvalid");
+      return;
+    }
     const filesByType = new Map<ImageType, File>();
     stagedImages.forEach(({ file }, type) => filesByType.set(type, file));
     onSave({
       fullName: fullName.trim(),
+      phone: normalizedPhone ?? "",
       status,
       residentId,
       notes,
@@ -125,6 +145,23 @@ export function VisitPersonForm({
           placeholder={t("visitPersons.form.fullName")}
           required
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="visit-person-phone">{t("visitPersons.form.phone")}</Label>
+        <Input
+          id="visit-person-phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          onBlur={handlePhoneBlur}
+          placeholder="(555) 123-4567"
+          aria-invalid={!!phoneError}
+        />
+        {phoneError ? (
+          <p className="text-sm text-destructive">{t(phoneError)}</p>
+        ) : (
+          <p className="text-xs text-muted-foreground">{t("forms.phoneHelp")}</p>
+        )}
       </div>
 
       <div className="space-y-2">

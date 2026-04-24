@@ -1,0 +1,7 @@
+import { z } from "zod";
+
+export const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email({ message: "forms.emailInvalid" });
