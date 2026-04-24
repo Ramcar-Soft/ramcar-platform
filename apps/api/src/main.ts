@@ -8,7 +8,13 @@ async function bootstrap() {
     origin: [
       "http://localhost:3000",
       "http://localhost:5173",
-      "https://ramcar-platform-dev.up.railway.app"
+      "https://ramcar-platform-dev.up.railway.app",
+      "https://dev.ramcarsoft.com",
+      "dev.ramcarsoft.com",
+      "https://app.ramcarsoft.com",
+      "app.ramcarsoft.com",
+      "ramcarsoft-web.vercel.app",
+      "https://ramcarsoft-web.vercel.app"
     ],
     credentials: true,
   });
