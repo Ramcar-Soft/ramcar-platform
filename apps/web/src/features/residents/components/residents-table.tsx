@@ -15,6 +15,7 @@ import {
 import { useTranslations } from "next-intl";
 import type { ExtendedUserProfile, PaginatedResponse } from "../types";
 import { getResidentColumns } from "./residents-table-columns";
+import { ShortcutsHint } from "@ramcar/features";
 
 interface ResidentsTableProps {
   data: PaginatedResponse<ExtendedUserProfile> | undefined;
@@ -41,8 +42,9 @@ export const ResidentsTable = forwardRef<HTMLInputElement, ResidentsTableProps>(
 
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-2xl font-bold">{t("title")}</h1>
+          <ShortcutsHint search navigate select />
         </div>
 
         <Input
