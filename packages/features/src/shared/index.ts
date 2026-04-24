@@ -9,6 +9,9 @@ export { VisitPersonStatusSelect } from "./visit-person-status-select";
 
 export { ResidentSelect } from "./resident-select";
 
+export { ShortcutsHint } from "./shortcuts-hint";
+export type { ShortcutsHintProps } from "./shortcuts-hint";
+
 export { ColorSelect } from "./color-select";
 export type { ColorSelectProps } from "./color-select";
 export {
