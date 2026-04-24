@@ -17,6 +17,14 @@
     "draftRestored": "Draft restored from {time}",
     "discardDraft": "Discard"
   },
+  "updater": {
+    "updateReady": "Update available — restart to install",
+    "updateReadyVersion": "Version {version} is ready",
+    "restartNow": "Restart now",
+    "later": "Later",
+    "badgeLabel": "Update v{version} ready",
+    "badgeShort": "Update ready"
+  },
   "forms": {
     "phoneHelp": "Mexican 10-digit number or international with + prefix",
     "phoneInvalid": "Invalid phone number",

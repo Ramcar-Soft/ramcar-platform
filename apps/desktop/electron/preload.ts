@@ -4,6 +4,7 @@ const api = {
   ping: () => ipcRenderer.invoke("ping"),
   getLanguage: () => ipcRenderer.invoke("get-language"),
   setLanguage: (locale: string) => ipcRenderer.invoke("set-language", locale),
+  getAppVersion: () => ipcRenderer.invoke("app:version"),
 
   visitPersons: {
     list: (filters: Record<string, unknown>) => ipcRenderer.invoke("visit-persons:list", filters),
@@ -28,6 +29,15 @@ const api = {
       const handler = (_event: Electron.IpcRendererEvent, data: { status: string; pendingCount: number }) => callback(data);
       ipcRenderer.on("sync-status", handler);
       return () => ipcRenderer.removeListener("sync-status", handler);
+    },
+  },
+
+  updater: {
+    installNow: () => ipcRenderer.invoke("updater:install"),
+    onUpdateDownloaded: (callback: (info: { version: string }) => void) => {
+      const handler = (_event: Electron.IpcRendererEvent, data: { version: string }) => callback(data);
+      ipcRenderer.on("updater:update-downloaded", handler);
+      return () => ipcRenderer.removeListener("updater:update-downloaded", handler);
     },
   },
 };

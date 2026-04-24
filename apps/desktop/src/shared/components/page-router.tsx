@@ -6,6 +6,7 @@ import { AppSidebar } from "../../features/navigation";
 import { TopBar } from "../../features/navigation/components/top-bar";
 import { QueryProvider } from "../lib/query-provider";
 import { DesktopTransportProvider, DesktopI18nProvider, DesktopRoleProvider, DesktopAuthStoreProvider } from "../lib/features";
+import { useUpdateNotifier } from "../hooks/use-update-notifier";
 import { DashboardPage } from "../../features/dashboard/pages/dashboard-page";
 import { AccessLogVisitorsPage } from "../../features/access-log/pages/access-log-visitors-page";
 import { AccessLogProvidersPage } from "../../features/access-log/pages/access-log-providers-page";
@@ -27,6 +28,11 @@ const routes: Record<string, React.ComponentType> = {
   "/patrols": PatrolsPage,
   "/account": AccountPage,
 };
+
+function UpdateNotifier() {
+  useUpdateNotifier();
+  return null;
+}
 
 interface PageRouterProps {
   onLogout: () => void;
@@ -63,6 +69,7 @@ export function PageRouter({ onLogout }: PageRouterProps) {
         <DesktopI18nProvider>
           <DesktopRoleProvider>
             <DesktopAuthStoreProvider>
+      <UpdateNotifier />
       <TooltipProvider>
         <SidebarProvider>
           <AppSidebar onLogout={onLogout} />

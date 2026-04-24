@@ -4,7 +4,9 @@ import path from 'node:path'
 import { registerSettingsHandlers } from './ipc/settings-handlers'
 import { registerVisitPersonsHandlers } from './ipc/visit-persons-handlers'
 import { registerSyncHandlers } from './ipc/sync-handlers'
+import { registerUpdaterHandlers } from './ipc/updater-handlers'
 import { startSyncEngine, stopSyncEngine } from './services/sync-engine'
+import { startAutoUpdater, stopAutoUpdater } from './services/auto-updater'
 import { closeDatabase } from './repositories/database'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -72,11 +74,14 @@ app.whenReady().then(() => {
   registerSettingsHandlers()
   registerVisitPersonsHandlers()
   registerSyncHandlers()
+  registerUpdaterHandlers()
   startSyncEngine()
+  startAutoUpdater()
   createWindow()
 })
 
 app.on('before-quit', () => {
   stopSyncEngine()
+  stopAutoUpdater()
   closeDatabase()
 })

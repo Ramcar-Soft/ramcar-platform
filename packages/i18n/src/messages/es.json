@@ -17,6 +17,14 @@
     "draftRestored": "Borrador restaurado de {time}",
     "discardDraft": "Descartar"
   },
+  "updater": {
+    "updateReady": "Actualización disponible — reinicia para instalar",
+    "updateReadyVersion": "La versión {version} está lista",
+    "restartNow": "Reiniciar ahora",
+    "later": "Más tarde",
+    "badgeLabel": "Actualización v{version} lista",
+    "badgeShort": "Actualización lista"
+  },
   "forms": {
     "phoneHelp": "Número mexicano de 10 dígitos o internacional con prefijo +",
     "phoneInvalid": "Número de teléfono inválido",
