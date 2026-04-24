@@ -3,10 +3,11 @@ import { useCallback, useEffect } from "react";
 export interface UseKeyboardNavigationOptions<T> {
   searchInputRef: React.RefObject<HTMLInputElement | null>;
   disabled?: boolean;
-  items: T[] | undefined;
-  highlightedIndex: number;
-  setHighlightedIndex: (i: number | ((prev: number) => number)) => void;
-  onSelectItem: (item: T) => void;
+  items?: T[];
+  highlightedIndex?: number;
+  setHighlightedIndex?: (i: number | ((prev: number) => number)) => void;
+  onSelectItem?: (item: T) => void;
+  onCreate?: () => void;
 }
 
 export function useKeyboardNavigation<T>({
@@ -16,6 +17,7 @@ export function useKeyboardNavigation<T>({
   highlightedIndex,
   setHighlightedIndex,
   onSelectItem,
+  onCreate,
 }: UseKeyboardNavigationOptions<T>): void {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -25,7 +27,12 @@ export function useKeyboardNavigation<T>({
       const isInputFocused =
         target.tagName === "INPUT" || target.tagName === "TEXTAREA";
 
-      if (e.key === "b" || e.key === "B") {
+      if (
+        e.key === "b" ||
+        e.key === "B" ||
+        e.key === "f" ||
+        e.key === "F"
+      ) {
         if (!isInputFocused) {
           e.preventDefault();
           searchInputRef.current?.focus();
@@ -33,20 +40,34 @@ export function useKeyboardNavigation<T>({
         return;
       }
 
-      if (e.key === "ArrowDown") {
+      if (e.key === "n" || e.key === "N") {
+        if (!isInputFocused && onCreate) {
+          e.preventDefault();
+          onCreate();
+        }
+        return;
+      }
+
+      if (e.key === "ArrowDown" && setHighlightedIndex) {
         e.preventDefault();
         const max = (items?.length ?? 1) - 1;
         setHighlightedIndex((prev) => Math.min(prev + 1, max));
         return;
       }
 
-      if (e.key === "ArrowUp") {
+      if (e.key === "ArrowUp" && setHighlightedIndex) {
         e.preventDefault();
         setHighlightedIndex((prev) => Math.max(prev - 1, 0));
         return;
       }
 
-      if (e.key === "Enter" && highlightedIndex >= 0 && items) {
+      if (
+        e.key === "Enter" &&
+        onSelectItem &&
+        items &&
+        highlightedIndex !== undefined &&
+        highlightedIndex >= 0
+      ) {
         const item = items[highlightedIndex];
         if (item) {
           e.preventDefault();
@@ -58,7 +79,15 @@ export function useKeyboardNavigation<T>({
         (target as HTMLInputElement).blur();
       }
     },
-    [disabled, searchInputRef, items, highlightedIndex, setHighlightedIndex, onSelectItem],
+    [
+      disabled,
+      searchInputRef,
+      items,
+      highlightedIndex,
+      setHighlightedIndex,
+      onSelectItem,
+      onCreate,
+    ],
   );
 
   useEffect(() => {
