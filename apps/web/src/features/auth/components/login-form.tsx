@@ -34,14 +34,16 @@ export function LoginForm(): React.JSX.Element {
   return (
     <Card className="w-full sm:w-[450px] shadow-md ">
       <CardHeader>
-        <CardTitle className="text-4xl font-bold flex gap-2 items-center">
+        <CardTitle className="text-xl sm:text-4xl font-bold flex gap-2 items-center ">
           <Image
             alt="icon"
             src="/assets/images/icon.png"
             width={80}
             height={80}
           />
-          {t("title")}
+          <span className="flex-1">
+            {t("title")}
+          </span>
         </CardTitle>
         <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
