@@ -259,7 +259,8 @@
     "vehicleSelect": {
       "label": "Vehículo",
       "placeholder": "Seleccionar vehículo",
-      "addVehicle": "Agregar Vehículo"
+      "addVehicle": "Agregar Vehículo",
+      "manageVehicles": "Administrar vehículos"
     },
     "notes": {
       "label": "Notas",
@@ -446,13 +447,32 @@
     "form": {
       "save": "Guardar Vehículo",
       "saving": "Guardando...",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "update": "Actualizar"
     },
     "messages": {
       "created": "Vehículo registrado exitosamente",
-      "errorCreating": "Error al registrar vehículo"
+      "errorCreating": "Error al registrar vehículo",
+      "updated": "Vehículo actualizado",
+      "errorUpdating": "No se pudo actualizar el vehículo",
+      "deleted": "Vehículo eliminado",
+      "errorDeleting": "No se pudo eliminar el vehículo",
+      "forbidden": "No tienes permiso para administrar este vehículo"
     },
-    "noVehicles": "Sin vehículos registrados. Agrega uno abajo."
+    "noVehicles": "Sin vehículos registrados. Agrega uno abajo.",
+    "editTitle": "Editar vehículo",
+    "manageTitle": "Administrar vehículos",
+    "manage": {
+      "empty": "No hay vehículos registrados.",
+      "editAction": "Editar",
+      "deleteAction": "Eliminar"
+    },
+    "deleteConfirm": {
+      "title": "Eliminar vehículo",
+      "description": "¿Seguro que deseas eliminar \"{label}\"? Este vehículo dejará de aparecer en los selectores. Los registros de acceso pasados se conservan.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    }
   },
   "visitPersons": {
     "title": "Visitantes",
