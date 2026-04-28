@@ -31,6 +31,8 @@ interface AccessEventFormProps {
   onSave: (data: AccessEventFormData) => Promise<void>;
   onCancel: () => void;
   onAddVehicle?: () => void;
+  onManageVehicles?: () => void;
+  canManageVehicles?: boolean;
   isSaving: boolean;
   initialVehicleId?: string | null;
 }
@@ -61,6 +63,8 @@ export function AccessEventForm({
   onSave,
   onCancel,
   onAddVehicle,
+  onManageVehicles,
+  canManageVehicles = false,
   isSaving,
   initialVehicleId,
 }: AccessEventFormProps) {
@@ -196,7 +200,7 @@ export function AccessEventForm({
                   ))}
                 </SelectContent>
               </Select>
-              {onAddVehicle && (
+              {canManageVehicles && onAddVehicle && (
                 <Button
                   type="button"
                   variant="link"
@@ -207,13 +211,24 @@ export function AccessEventForm({
                   + {t("vehicleSelect.addVehicle")}
                 </Button>
               )}
+              {canManageVehicles && onManageVehicles && (
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  className="p-0 h-auto"
+                  onClick={onManageVehicles}
+                >
+                  + {t("vehicleSelect.manageVehicles")}
+                </Button>
+              )}
             </>
           ) : (
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 {tVehicles("noVehicles")}
               </p>
-              {onAddVehicle && (
+              {canManageVehicles && onAddVehicle && (
                 <Button
                   type="button"
                   variant="outline"
