@@ -143,3 +143,93 @@ describe("VehicleForm — submission forwards vehicle to onSaved", () => {
     await waitFor(() => expect(onSaved).toHaveBeenCalledWith(mockVehicle));
   });
 });
+
+describe("VehicleForm — edit mode", () => {
+  const existing: Vehicle = {
+    id: "vehicle-1",
+    tenantId: "test-tenant-id",
+    userId: "user-1",
+    visitPersonId: null,
+    vehicleType: "car",
+    brand: "Toyota",
+    model: "Corolla",
+    plate: "ABC-123",
+    color: "#000000",
+    notes: "",
+    year: 2020,
+    createdAt: "2026-01-01T00:00:00Z",
+    updatedAt: "2026-01-01T00:00:00Z",
+  };
+
+  it("renders the edit heading and Update submit label", () => {
+    renderWithHarness(
+      <VehicleForm
+        mode="edit"
+        vehicle={existing}
+        onSaved={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    expect(screen.getByText("vehicles.editTitle")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "vehicles.form.update" }),
+    ).toBeInTheDocument();
+  });
+
+  it("seeds plate from vehicle.plate", () => {
+    renderWithHarness(
+      <VehicleForm
+        mode="edit"
+        vehicle={existing}
+        onSaved={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    expect(screen.getByDisplayValue("ABC-123")).toBeInTheDocument();
+  });
+
+  it("submits via transport.patch to /vehicles/:id with the partial body", async () => {
+    const patch = vi.fn().mockResolvedValue({ ...existing, plate: "XYZ-999" });
+    const onSaved = vi.fn();
+
+    renderWithHarness(
+      <VehicleForm
+        mode="edit"
+        vehicle={existing}
+        onSaved={onSaved}
+        onCancel={vi.fn()}
+      />,
+      { transport: { patch } },
+    );
+
+    const plateInput = screen.getByDisplayValue("ABC-123") as HTMLInputElement;
+    fireEvent.change(plateInput, { target: { value: "XYZ-999" } });
+    fireEvent.click(screen.getByRole("button", { name: "vehicles.form.update" }));
+
+    await waitFor(() => expect(patch).toHaveBeenCalledTimes(1));
+    expect(patch.mock.calls[0][0]).toBe("/vehicles/vehicle-1");
+    expect(patch.mock.calls[0][1]).toMatchObject({ plate: "XYZ-999" });
+    await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
+  });
+
+  it("does NOT include ownerType / userId / visitPersonId in the patch body", async () => {
+    const patch = vi.fn().mockResolvedValue(existing);
+    renderWithHarness(
+      <VehicleForm
+        mode="edit"
+        vehicle={existing}
+        onSaved={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+      { transport: { patch } },
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "vehicles.form.update" }));
+    await waitFor(() => expect(patch).toHaveBeenCalledTimes(1));
+    const body = patch.mock.calls[0][1] as Record<string, unknown>;
+    expect(body).not.toHaveProperty("ownerType");
+    expect(body).not.toHaveProperty("userId");
+    expect(body).not.toHaveProperty("visitPersonId");
+    expect(body).not.toHaveProperty("tenantId");
+  });
+});

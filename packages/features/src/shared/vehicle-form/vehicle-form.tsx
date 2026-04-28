@@ -2,7 +2,14 @@ import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Label, Textarea } from "@ramcar/ui";
 import { toast } from "sonner";
-import { createVehicleSchema, type VehicleType, type Vehicle, type CreateVehicleInput } from "@ramcar/shared";
+import {
+  createVehicleSchema,
+  updateVehicleSchema,
+  type VehicleType,
+  type Vehicle,
+  type CreateVehicleInput,
+  type UpdateVehicleInput,
+} from "@ramcar/shared";
 import { useI18n, useTransport, useRole } from "../../adapters";
 import { VehicleTypeSelect } from "./vehicle-type-select";
 import { ColorSelect } from "../color-select/color-select";
@@ -11,6 +18,8 @@ import { VehicleModelSelect } from "../vehicle-brand-model/vehicle-model-select"
 import { VehicleYearInput } from "../vehicle-brand-model/vehicle-year-input";
 
 interface VehicleFormProps {
+  mode?: "create" | "edit";
+  vehicle?: Vehicle;
   userId?: string;
   visitPersonId?: string;
   onSaved: (vehicle: Vehicle) => void;
@@ -35,19 +44,43 @@ interface VehicleFormProps {
   }) => void;
 }
 
-export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialDraft, onDraftChange }: VehicleFormProps) {
+export function VehicleForm({
+  mode = "create",
+  vehicle,
+  userId,
+  visitPersonId,
+  onSaved,
+  onCancel,
+  initialDraft,
+  onDraftChange,
+}: VehicleFormProps) {
   const { t } = useI18n();
   const transport = useTransport();
   const queryClient = useQueryClient();
   const { tenantId } = useRole();
 
-  const [vehicleType, setVehicleType] = useState<VehicleType | "">(initialDraft?.vehicleType ?? "");
-  const [brand, setBrand] = useState<string | null>(initialDraft?.brand ?? null);
-  const [model, setModel] = useState<string | null>(initialDraft?.model ?? null);
-  const [plate, setPlate] = useState(initialDraft?.plate ?? "");
-  const [color, setColor] = useState(initialDraft?.color ?? "");
-  const [notes, setNotes] = useState(initialDraft?.notes ?? "");
-  const [year, setYear] = useState<number | null>(initialDraft?.year ?? null);
+  const isEdit = mode === "edit";
+  if (isEdit && !vehicle) {
+    throw new Error("VehicleForm: mode=\"edit\" requires a vehicle prop");
+  }
+
+  const seed = isEdit ? vehicle! : null;
+
+  const [vehicleType, setVehicleType] = useState<VehicleType | "">(
+    (seed?.vehicleType as VehicleType | undefined) ?? initialDraft?.vehicleType ?? "",
+  );
+  const [brand, setBrand] = useState<string | null>(
+    seed?.brand ?? initialDraft?.brand ?? null,
+  );
+  const [model, setModel] = useState<string | null>(
+    seed?.model ?? initialDraft?.model ?? null,
+  );
+  const [plate, setPlate] = useState(seed?.plate ?? initialDraft?.plate ?? "");
+  const [color, setColor] = useState(seed?.color ?? initialDraft?.color ?? "");
+  const [notes, setNotes] = useState(seed?.notes ?? initialDraft?.notes ?? "");
+  const [year, setYear] = useState<number | null>(
+    seed?.year ?? initialDraft?.year ?? null,
+  );
 
   const modelInputRef = useRef<HTMLElement | null>(null);
 
@@ -61,23 +94,72 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
       notes,
       year,
       [field]: value,
-    } as Parameters<typeof onDraftChange>[0]);
+    } as Parameters<NonNullable<typeof onDraftChange>>[0]);
   };
+
+  const cacheKey = (() => {
+    const ownerKind = isEdit
+      ? vehicle!.userId
+        ? "resident"
+        : "visit-person"
+      : userId
+        ? "resident"
+        : "visit-person";
+    const ownerId = isEdit
+      ? (vehicle!.userId ?? vehicle!.visitPersonId)
+      : (userId ?? visitPersonId);
+    return ["vehicles", tenantId, ownerKind, ownerId] as const;
+  })();
 
   const createVehicle = useMutation({
     mutationFn: (data: CreateVehicleInput) =>
       transport.post<Vehicle>("/vehicles", data),
-    onSuccess: (_data, variables) => {
-      const key =
-        variables.ownerType === "user"
-          ? ["vehicles", tenantId, "resident", variables.userId]
-          : ["vehicles", tenantId, "visit-person", variables.visitPersonId];
-      queryClient.invalidateQueries({ queryKey: key });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: cacheKey });
     },
   });
 
+  const updateVehicle = useMutation({
+    mutationFn: (data: UpdateVehicleInput) =>
+      transport.patch<Vehicle>(`/vehicles/${vehicle!.id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: cacheKey });
+    },
+  });
+
+  const isPending = createVehicle.isPending || updateVehicle.isPending;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isEdit) {
+      const result = updateVehicleSchema.safeParse({
+        vehicleType: vehicleType || undefined,
+        brand: brand || undefined,
+        model: model || undefined,
+        plate: plate || undefined,
+        color: color || undefined,
+        notes: notes || undefined,
+        year: year ?? undefined,
+      });
+      if (!result.success) return;
+
+      updateVehicle.mutate(result.data, {
+        onSuccess: (updated) => {
+          toast.success(t("vehicles.messages.updated"));
+          onSaved(updated);
+        },
+        onError: (err: unknown) => {
+          const status = (err as { status?: number })?.status;
+          if (status === 403) {
+            toast.error(t("vehicles.messages.forbidden"));
+          } else {
+            toast.error(t("vehicles.messages.errorUpdating"));
+          }
+        },
+      });
+      return;
+    }
 
     const ownerFields = visitPersonId
       ? { ownerType: "visitPerson" as const, visitPersonId }
@@ -97,19 +179,31 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
     if (!result.success) return;
 
     createVehicle.mutate(result.data, {
-      onSuccess: (vehicle) => {
+      onSuccess: (created) => {
         toast.success(t("vehicles.messages.created"));
-        onSaved(vehicle);
+        onSaved(created);
       },
-      onError: () => {
-        toast.error(t("vehicles.messages.errorCreating"));
+      onError: (err: unknown) => {
+        const status = (err as { status?: number })?.status;
+        if (status === 403) {
+          toast.error(t("vehicles.messages.forbidden"));
+        } else {
+          toast.error(t("vehicles.messages.errorCreating"));
+        }
       },
     });
   };
 
+  const heading = isEdit ? t("vehicles.editTitle") : t("vehicles.title");
+  const submitLabel = isPending
+    ? t("vehicles.form.saving")
+    : isEdit
+      ? t("vehicles.form.update")
+      : t("vehicles.form.save");
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h3 className="text-sm font-semibold">{t("vehicles.title")}</h3>
+      <h3 className="text-sm font-semibold">{heading}</h3>
 
       <div className="space-y-2">
         <Label>{t("vehicles.vehicleType.label")}</Label>
@@ -186,17 +280,17 @@ export function VehicleForm({ userId, visitPersonId, onSaved, onCancel, initialD
       <div className="flex gap-2 pt-2">
         <Button
           type="submit"
-          disabled={!vehicleType || createVehicle.isPending}
+          disabled={!vehicleType || isPending}
           className="flex-1"
         >
-          {createVehicle.isPending ? t("vehicles.form.saving") : t("vehicles.form.save")}
+          {submitLabel}
         </Button>
         <Button
           type="button"
           variant="outline"
           className="flex-1"
           onClick={onCancel}
-          disabled={createVehicle.isPending}
+          disabled={isPending}
         >
           {t("vehicles.form.cancel")}
         </Button>

@@ -1,4 +1,18 @@
 // Components
+export {
+  AlertDialog,
+  AlertDialogPortal,
+  AlertDialogOverlay,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogMedia,
+} from "./components/ui/alert-dialog";
 export { Button, buttonVariants } from "./components/ui/button";
 export {
   Card,

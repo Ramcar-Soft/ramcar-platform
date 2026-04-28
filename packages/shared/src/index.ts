@@ -53,6 +53,8 @@ export type {
 export {
   createVehicleSchema,
   type CreateVehicleInput,
+  updateVehicleSchema,
+  type UpdateVehicleInput,
 } from "./validators/vehicle";
 export {
   createAccessEventSchema,

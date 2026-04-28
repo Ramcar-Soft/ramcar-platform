@@ -10,11 +10,14 @@ import {
   Separator,
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
+import { useRole } from "@ramcar/features/adapters";
+import { VehicleForm, VehicleManageList } from "@ramcar/features/shared/vehicle-form";
 import type { ExtendedUserProfile, AccessEvent, Vehicle } from "../types";
 import type { Direction, AccessMode } from "@ramcar/shared";
 import { RecentEventsList } from "./last-event-badge";
 import { AccessEventForm } from "./access-event-form";
-import { VehicleForm } from "@ramcar/features/shared/vehicle-form";
+
+type SidebarView = "default" | "create" | "manage" | "edit";
 
 interface AccessEventSidebarProps {
   open: boolean;
@@ -45,12 +48,18 @@ export function AccessEventSidebar({
   onSave,
 }: AccessEventSidebarProps) {
   const t = useTranslations("accessEvents");
-  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const { role } = useRole();
+  const canManageVehicles = role === "Admin" || role === "SuperAdmin";
+
+  const [view, setView] = useState<SidebarView>("default");
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
 
-  useEffect(() => { setJustCreatedVehicleId(null); }, [resident?.id]);
-
-  const handleCloseVehicleForm = () => setShowVehicleForm(false);
+  useEffect(() => {
+    setJustCreatedVehicleId(null);
+    setEditingVehicle(null);
+    setView("default");
+  }, [resident?.id]);
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -70,22 +79,59 @@ export function AccessEventSidebar({
             <RecentEventsList events={recentEvents} isLoading={isLoadingRecentEvents} />
             <Separator />
 
-            {showVehicleForm ? (
+            {view === "create" && (
               <VehicleForm
                 userId={resident.id}
                 onSaved={(vehicle) => {
                   setJustCreatedVehicleId(vehicle.id);
-                  setShowVehicleForm(false);
+                  setView("default");
                 }}
-                onCancel={handleCloseVehicleForm}
+                onCancel={() => setView("default")}
               />
-            ) : (
+            )}
+
+            {view === "manage" && (
+              <VehicleManageList
+                residentId={resident.id}
+                vehicles={vehicles}
+                isLoading={Boolean(isLoadingVehicles)}
+                onEdit={(v) => {
+                  setEditingVehicle(v);
+                  setView("edit");
+                }}
+                onClose={() => setView("default")}
+              />
+            )}
+
+            {view === "edit" && editingVehicle && (
+              <VehicleForm
+                mode="edit"
+                vehicle={editingVehicle}
+                userId={resident.id}
+                onSaved={() => {
+                  setEditingVehicle(null);
+                  setView("manage");
+                }}
+                onCancel={() => {
+                  setEditingVehicle(null);
+                  setView("manage");
+                }}
+              />
+            )}
+
+            {view === "default" && (
               <AccessEventForm
                 vehicles={vehicles}
                 isLoadingVehicles={isLoadingVehicles}
                 onSave={onSave}
                 onCancel={onClose}
-                onAddVehicle={() => setShowVehicleForm(true)}
+                onAddVehicle={
+                  canManageVehicles ? () => setView("create") : undefined
+                }
+                onManageVehicles={
+                  canManageVehicles ? () => setView("manage") : undefined
+                }
+                canManageVehicles={canManageVehicles}
                 isSaving={isSaving}
                 initialVehicleId={justCreatedVehicleId}
               />

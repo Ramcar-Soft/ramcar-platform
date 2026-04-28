@@ -259,7 +259,8 @@
     "vehicleSelect": {
       "label": "Vehicle",
       "placeholder": "Select a vehicle",
-      "addVehicle": "Add Vehicle"
+      "addVehicle": "Add Vehicle",
+      "manageVehicles": "Manage Vehicles"
     },
     "notes": {
       "label": "Notes",
@@ -446,13 +447,33 @@
     "form": {
       "save": "Save Vehicle",
       "saving": "Saving...",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "update": "Update"
     },
     "messages": {
       "created": "Vehicle registered successfully",
-      "errorCreating": "Error registering vehicle"
+      "errorCreating": "Error registering vehicle",
+      "updated": "Vehicle updated",
+      "errorUpdating": "Could not update vehicle",
+      "deleted": "Vehicle deleted",
+      "errorDeleting": "Could not delete vehicle",
+      "forbidden": "You don't have permission to manage this vehicle"
     },
-    "noVehicles": "No vehicles registered. Add one below."
+    "noVehicles": "No vehicles registered. Add one below.",
+    "noVehiclesAskAdmin": "No vehicles registered. Ask Admin to add one.",
+    "editTitle": "Edit Vehicle",
+    "manageTitle": "Manage Vehicles",
+    "manage": {
+      "empty": "No vehicles registered.",
+      "editAction": "Edit",
+      "deleteAction": "Delete"
+    },
+    "deleteConfirm": {
+      "title": "Delete vehicle",
+      "description": "Are you sure you want to delete \"{label}\"? This vehicle will no longer appear in selectors. Past access events will keep their record.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
   },
   "visitPersons": {
     "title": "Visitors",
