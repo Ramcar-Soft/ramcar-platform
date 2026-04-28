@@ -460,6 +460,7 @@
       "forbidden": "No tienes permiso para administrar este vehículo"
     },
     "noVehicles": "Sin vehículos registrados. Agrega uno abajo.",
+    "noVehiclesAskAdmin": "Sin vehículos registrados. Pide a un administrador que agregue uno.",
     "editTitle": "Editar vehículo",
     "manageTitle": "Administrar vehículos",
     "manage": {

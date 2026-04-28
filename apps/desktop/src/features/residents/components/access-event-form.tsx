@@ -155,7 +155,11 @@ export function AccessEventForm({
             </>
           ) : (
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">{t("vehicles.noVehicles")}</p>
+              <p className="text-sm text-muted-foreground">
+                {canManageVehicles
+                  ? t("vehicles.noVehicles")
+                  : t("vehicles.noVehiclesAskAdmin")}
+              </p>
               {canManageVehicles && onAddVehicle && (
                 <Button type="button" variant="outline" size="sm" onClick={onAddVehicle}>
                   + {t("accessEvents.vehicleSelect.addVehicle")}

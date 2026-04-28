@@ -226,7 +226,9 @@ export function AccessEventForm({
           ) : (
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                {tVehicles("noVehicles")}
+                {canManageVehicles
+                  ? tVehicles("noVehicles")
+                  : tVehicles("noVehiclesAskAdmin")}
               </p>
               {canManageVehicles && onAddVehicle && (
                 <Button

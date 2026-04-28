@@ -460,6 +460,7 @@
       "forbidden": "You don't have permission to manage this vehicle"
     },
     "noVehicles": "No vehicles registered. Add one below.",
+    "noVehiclesAskAdmin": "No vehicles registered. Ask Admin to add one.",
     "editTitle": "Edit Vehicle",
     "manageTitle": "Manage Vehicles",
     "manage": {
