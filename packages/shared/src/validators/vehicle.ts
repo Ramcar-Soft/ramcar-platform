@@ -41,3 +41,22 @@ export const createVehicleSchema = z.discriminatedUnion("ownerType", [
 ]);
 
 export type CreateVehicleInput = z.infer<typeof createVehicleSchema>;
+
+export const updateVehicleSchema = z
+  .object({
+    vehicleType: vehicleTypeEnum.optional(),
+    brand: z.string().max(100).optional().or(z.literal("")),
+    model: z.string().max(100).optional().or(z.literal("")),
+    plate: z.string().max(20).optional().or(z.literal("")),
+    color: z.string().max(50).optional().or(z.literal("")),
+    notes: z.string().optional().or(z.literal("")),
+    year: z
+      .number()
+      .int()
+      .min(1960, "Year must be 1960 or later")
+      .max(currentYear() + 1, "Year cannot be in the future beyond next model year")
+      .optional(),
+  })
+  .strict();
+
+export type UpdateVehicleInput = z.infer<typeof updateVehicleSchema>;
