@@ -25,7 +25,7 @@ const sampleItem: AccessEventListItem = {
   personType: "visitor",
   direction: "entry",
   accessMode: "pedestrian",
-  notes: null,
+  notes: "Lock left ajar",
   createdAt: "2026-04-22T10:00:00.000Z",
   visitPerson: {
     id: "vp-1",
@@ -56,6 +56,11 @@ const columns: LogbookColumn[] = [
     header: "Name",
     cell: (item) => item.visitPerson?.fullName ?? "—",
   },
+  {
+    id: "notes",
+    header: "Notes",
+    cell: (item) => <span data-testid="notes">{item.notes ?? "—"}</span>,
+  },
 ];
 
 const meta: PaginationMeta = {
@@ -78,9 +83,9 @@ describe("LogbookTable", () => {
     );
     // Table renders with skeletons inside cells
     expect(container.querySelector("table")).toBeInTheDocument();
-    // 5 skeleton rows × 3 columns (tenant + 2 caller-supplied) = 15 placeholders
+    // 5 skeleton rows × 4 columns (tenant + 3 caller-supplied) = 20 placeholders
     const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
-    expect(skeletons.length).toBe(15);
+    expect(skeletons.length).toBe(20);
   });
 
   it("shows empty state when no data", () => {
@@ -123,5 +128,6 @@ describe("LogbookTable", () => {
     );
     expect(screen.getByText("V001")).toBeInTheDocument();
     expect(screen.getByText("Jane Visitor")).toBeInTheDocument();
+    expect(screen.getByTestId("notes")).toHaveTextContent("Lock left ajar");
   });
 });
