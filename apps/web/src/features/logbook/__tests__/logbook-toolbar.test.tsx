@@ -30,11 +30,6 @@ vi.mock("../components/date-range-filter", () => ({
   ),
 }));
 
-// TenantSelect reaches into the Zustand store + React Query — stub it out.
-vi.mock("../components/tenant-select", () => ({
-  TenantSelect: () => null,
-}));
-
 // ExportMenu has its own deps — stub it out.
 vi.mock("../components/export-menu", () => ({
   ExportMenu: () => <div data-testid="export-menu" />,
@@ -59,7 +54,6 @@ describe("LogbookToolbar", () => {
         onFilterChange={vi.fn()}
         onSearchChange={vi.fn()}
         onResidentChange={vi.fn()}
-        onTenantChange={vi.fn()}
         personType="visitor"
         onExportAll={vi.fn()}
       />,
@@ -82,7 +76,6 @@ describe("LogbookToolbar", () => {
         onFilterChange={vi.fn()}
         onSearchChange={onSearchChange}
         onResidentChange={vi.fn()}
-        onTenantChange={vi.fn()}
         personType="visitor"
         onExportAll={vi.fn()}
       />,
@@ -102,7 +95,6 @@ describe("LogbookToolbar", () => {
         onFilterChange={vi.fn()}
         onSearchChange={onSearchChange}
         onResidentChange={vi.fn()}
-        onTenantChange={vi.fn()}
         personType="visitor"
         onExportAll={vi.fn()}
       />,
@@ -128,7 +120,6 @@ describe("LogbookToolbar", () => {
         onFilterChange={vi.fn()}
         onSearchChange={onSearchChange}
         onResidentChange={vi.fn()}
-        onTenantChange={vi.fn()}
         personType="visitor"
         onExportAll={vi.fn()}
       />,
@@ -147,7 +138,6 @@ describe("LogbookToolbar", () => {
         onFilterChange={onFilterChange}
         onSearchChange={vi.fn()}
         onResidentChange={vi.fn()}
-        onTenantChange={vi.fn()}
         personType="visitor"
         onExportAll={vi.fn()}
       />,
@@ -163,7 +153,6 @@ describe("LogbookToolbar", () => {
         onFilterChange={vi.fn()}
         onSearchChange={vi.fn()}
         onResidentChange={vi.fn()}
-        onTenantChange={vi.fn()}
         personType="visitor"
         onExportAll={vi.fn()}
       />,

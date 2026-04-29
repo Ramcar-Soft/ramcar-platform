@@ -10,20 +10,18 @@ describe("parseFilters", () => {
     expect(result.search).toBeUndefined();
     expect(result.dateFrom).toBeUndefined();
     expect(result.dateTo).toBeUndefined();
-    expect(result.tenantId).toBeUndefined();
     expect(result.residentId).toBeUndefined();
   });
 
   it("parses all params", () => {
     const params = new URLSearchParams(
-      "date_preset=last_7d&page=2&page_size=50&search=foo&tenant_id=abc&resident_id=def",
+      "date_preset=last_7d&page=2&page_size=50&search=foo&resident_id=def",
     );
     const result = parseFilters(params);
     expect(result.datePreset).toBe("last_7d");
     expect(result.page).toBe(2);
     expect(result.pageSize).toBe(50);
     expect(result.search).toBe("foo");
-    expect(result.tenantId).toBe("abc");
     expect(result.residentId).toBe("def");
   });
 
@@ -106,15 +104,13 @@ describe("buildUrl", () => {
     expect(url).not.toContain("search");
   });
 
-  it("includes tenantId and residentId when set", () => {
+  it("includes residentId when set", () => {
     const url = buildUrl("/path", {
       datePreset: "today",
       page: 1,
       pageSize: 25,
-      tenantId: "tenant-1",
       residentId: "resident-1",
     });
-    expect(url).toContain("tenant_id=tenant-1");
     expect(url).toContain("resident_id=resident-1");
   });
 
@@ -134,7 +130,6 @@ describe("buildUrl", () => {
       datePreset: "custom" as const,
       dateFrom: "2026-01-01",
       dateTo: "2026-01-31",
-      tenantId: "t1",
       residentId: "r1",
       search: "acme",
       page: 3,

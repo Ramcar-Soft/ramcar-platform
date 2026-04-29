@@ -7,7 +7,6 @@ export interface LogbookFilters {
   datePreset: "today" | "last_7d" | "last_30d" | "last_90d" | "custom";
   dateFrom?: string;
   dateTo?: string;
-  tenantId?: string;
   residentId?: string;
   search?: string;
   page: number;

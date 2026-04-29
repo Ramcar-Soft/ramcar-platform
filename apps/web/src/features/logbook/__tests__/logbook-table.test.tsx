@@ -78,9 +78,9 @@ describe("LogbookTable", () => {
     );
     // Table renders with skeletons inside cells
     expect(container.querySelector("table")).toBeInTheDocument();
-    // 5 skeleton rows × 2 columns = 10 skeleton placeholders
+    // 5 skeleton rows × 3 columns (tenant + 2 caller-supplied) = 15 placeholders
     const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
-    expect(skeletons.length).toBe(10);
+    expect(skeletons.length).toBe(15);
   });
 
   it("shows empty state when no data", () => {

@@ -19,7 +19,6 @@ interface ExportAllDialogProps {
   open: boolean;
   onClose: () => void;
   personType: string;
-  tenantId?: string;
 }
 
 const EMPTY_FILTERS: LogbookFilters = {
@@ -32,25 +31,20 @@ export function ExportAllDialog({
   open,
   onClose,
   personType,
-  tenantId,
 }: ExportAllDialogProps) {
   const t = useTranslations("logbook");
   const locale = useLocale();
   const { isExporting, exportCurrentView } = useLogbookExport();
-  const [modalFilters, setModalFilters] = useState<LogbookFilters>({
-    ...EMPTY_FILTERS,
-    tenantId,
-  });
+  const [modalFilters, setModalFilters] =
+    useState<LogbookFilters>(EMPTY_FILTERS);
   const [rangeError, setRangeError] = useState("");
 
-  // Reset the form each time the dialog opens so stale state does not leak
-  // across successive invocations.
   useEffect(() => {
     if (open) {
-      setModalFilters({ ...EMPTY_FILTERS, tenantId });
+      setModalFilters(EMPTY_FILTERS);
       setRangeError("");
     }
-  }, [open, tenantId]);
+  }, [open]);
 
   async function handleExport() {
     if (!modalFilters.dateFrom && !modalFilters.dateTo) {
@@ -61,7 +55,6 @@ export function ExportAllDialog({
     await exportCurrentView(
       {
         ...modalFilters,
-        tenantId,
         residentId: undefined,
         search: undefined,
       },

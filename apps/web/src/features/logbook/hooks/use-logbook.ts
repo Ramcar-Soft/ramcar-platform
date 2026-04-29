@@ -10,14 +10,10 @@ export function useLogbook(
   personType: "visitor" | "service_provider" | "resident",
   filters: LogbookFilters,
 ) {
-  const user = useAppStore((s) => s.user);
   const activeTenantId = useAppStore((s) => s.activeTenantId);
-  const actorRole = user?.role ?? "admin";
-  const scopeKey =
-    actorRole === "super_admin" ? (filters.tenantId ?? "ALL") : activeTenantId;
 
   return useQuery<AccessEventListResponse>({
-    queryKey: ["access-events", scopeKey, personType, filters],
+    queryKey: ["access-events", activeTenantId, personType, filters],
     queryFn: () =>
       apiClient.get<AccessEventListResponse>("/access-events", {
         params: {
@@ -26,11 +22,10 @@ export function useLogbook(
           pageSize: filters.pageSize,
           ...(filters.dateFrom && { dateFrom: filters.dateFrom }),
           ...(filters.dateTo && { dateTo: filters.dateTo }),
-          ...(filters.tenantId && { tenantId: filters.tenantId }),
           ...(filters.residentId && { residentId: filters.residentId }),
           ...(filters.search && { search: filters.search }),
         } as Record<string, unknown>,
       }),
-    enabled: Boolean(activeTenantId || actorRole === "super_admin"),
+    enabled: Boolean(activeTenantId),
   });
 }

@@ -614,10 +614,6 @@
         "cancel": "Cancelar",
         "invalidRange": "La fecha fin debe ser igual o posterior a la fecha inicio"
       },
-      "tenantSelect": {
-        "placeholder": "Seleccionar condominio",
-        "allOption": "Todos los condominios"
-      },
       "resident": {
         "placeholder": "Filtrar por residente"
       }
