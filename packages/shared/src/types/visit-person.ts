@@ -13,6 +13,8 @@ export interface VisitPerson {
   company: string | null;
   residentId: string | null;
   residentName?: string;
+  residentAddress?: string | null;
+  vehiclePlates?: string[];
   notes: string | null;
   registeredBy: string;
   createdAt: string;
