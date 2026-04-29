@@ -156,7 +156,7 @@ describe("VisitPersonsService — tenant scoping (T025)", () => {
     it("passes scope.tenantId (TENANT_A) to repository.create", async () => {
       mockRepository.create.mockResolvedValue(makeVisitPersonRow(TENANT_A));
 
-      await service.create(createDto, scopeA, "guard-profile-1");
+      await service.create(createDto, scopeA, "guard-profile-1", "admin");
 
       expect(mockRepository.create).toHaveBeenCalledWith(
         createDto,
@@ -168,7 +168,7 @@ describe("VisitPersonsService — tenant scoping (T025)", () => {
     it("passes scope.tenantId (TENANT_B) when scope is B", async () => {
       mockRepository.create.mockResolvedValue(makeVisitPersonRow(TENANT_B));
 
-      await service.create(createDto, scopeB, "guard-profile-2");
+      await service.create(createDto, scopeB, "guard-profile-2", "admin");
 
       expect(mockRepository.create).toHaveBeenCalledWith(
         createDto,
@@ -183,7 +183,7 @@ describe("VisitPersonsService — tenant scoping (T025)", () => {
       mockRepository.update.mockResolvedValue(makeVisitPersonRow(TENANT_A));
 
       const patch = { status: "flagged" as const };
-      await service.update("vp-1", patch, scopeA);
+      await service.update("vp-1", patch, scopeA, "admin");
 
       expect(mockRepository.update).toHaveBeenCalledWith("vp-1", patch, scopeA);
     });
@@ -192,7 +192,7 @@ describe("VisitPersonsService — tenant scoping (T025)", () => {
       mockRepository.update.mockResolvedValue(null);
 
       await expect(
-        service.update("vp-1", { status: "flagged" as const }, scopeA),
+        service.update("vp-1", { status: "flagged" as const }, scopeA, "admin"),
       ).rejects.toThrow(NotFoundException);
     });
   });

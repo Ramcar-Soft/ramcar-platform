@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import type { VisitPerson } from "@ramcar/shared";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import type { Role, VisitPerson } from "@ramcar/shared";
 import { SupabaseService } from "../../infrastructure/supabase/supabase.service";
 import { VisitPersonsRepository } from "./visit-persons.repository";
 import type { CreateVisitPersonDto } from "./dto/create-visit-person.dto";
@@ -22,9 +22,12 @@ export class VisitPersonsService {
     dto: CreateVisitPersonDto,
     scope: TenantScope,
     registeredBy: string,
+    role: Role | undefined,
   ): Promise<VisitPerson> {
     const tenantId = scopeToTenantId(scope);
-    const row = await this.repository.create(dto, tenantId, registeredBy);
+    const safeDto: CreateVisitPersonDto =
+      role === "admin" || role === "super_admin" ? dto : { ...dto, status: "flagged" };
+    const row = await this.repository.create(safeDto, tenantId, registeredBy);
     return this.enrichWithResidentName(this.mapRow(row));
   }
 
@@ -72,7 +75,11 @@ export class VisitPersonsService {
     id: string,
     dto: UpdateVisitPersonDto,
     scope: TenantScope,
+    role: Role | undefined,
   ): Promise<VisitPerson> {
+    if (role !== "admin" && role !== "super_admin" && dto.status !== undefined) {
+      throw new ForbiddenException("Guards cannot change visit-person status");
+    }
     const row = await this.repository.update(id, dto, scope);
     if (!row) throw new NotFoundException("Visit person not found");
     return this.enrichWithResidentName(this.mapRow(row));

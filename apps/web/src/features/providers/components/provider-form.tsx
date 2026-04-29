@@ -11,6 +11,7 @@ import {
 import { useTranslations } from "next-intl";
 import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { ImageType } from "@ramcar/shared";
+import { useRole } from "@ramcar/features/adapters";
 import { ResidentSelect } from "@ramcar/features/shared/resident-select";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
@@ -43,11 +44,12 @@ export function ProviderForm({
   const t = useTranslations("visitPersons.form");
   const tCommon = useTranslations("common");
   const tForms = useTranslations("forms");
+  const { role } = useRole();
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
-  const [status, setStatus] = useState<VisitPersonStatus>("allowed");
+  const [status, setStatus] = useState<VisitPersonStatus>("flagged");
   const [residentId, setResidentId] = useState("");
   const [notes, setNotes] = useState("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
@@ -79,7 +81,7 @@ export function ProviderForm({
         setFullName(draft.fullName ?? "");
         setPhone(draft.phone ?? "");
         setCompany(draft.company ?? "");
-        setStatus(draft.status ?? "allowed");
+        setStatus(role === "Guard" ? "flagged" : (draft.status ?? "flagged"));
         setResidentId(draft.residentId ?? "");
         setNotes(draft.notes ?? "");
       },
@@ -180,7 +182,11 @@ export function ProviderForm({
 
       <div className="space-y-2">
         <Label>{t("status")}</Label>
-        <VisitPersonStatusSelect value={status} onValueChange={setStatus} />
+        <VisitPersonStatusSelect
+          value={status}
+          onValueChange={setStatus}
+          disabled={role === "Guard"}
+        />
       </div>
 
       <div className="space-y-2">

@@ -54,6 +54,27 @@ describe("createVisitPersonSchema", () => {
   });
 });
 
+describe("createVisitPersonSchema status default", () => {
+  it("defaults status to 'flagged' when omitted", () => {
+    const result = createVisitPersonSchema.safeParse({
+      type: "visitor",
+      fullName: "Anonymous Visitor",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.status).toBe("flagged");
+  });
+
+  it("still accepts an explicit status: 'allowed'", () => {
+    const result = createVisitPersonSchema.safeParse({
+      type: "visitor",
+      fullName: "Anonymous Visitor",
+      status: "allowed",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.status).toBe("allowed");
+  });
+});
+
 describe("updateVisitPersonSchema", () => {
   it("accepts an empty update", () => {
     expect(updateVisitPersonSchema.safeParse({}).success).toBe(true);

@@ -18,6 +18,10 @@ vi.mock("@/shared/hooks/use-form-persistence", () => ({
   }),
 }));
 
+vi.mock("@ramcar/features/adapters", () => ({
+  useRole: () => ({ role: "Admin", tenantId: "", userId: "" }),
+}));
+
 vi.mock("@ramcar/features/shared/resident-select", () => ({
   ResidentSelect: () => null,
 }));

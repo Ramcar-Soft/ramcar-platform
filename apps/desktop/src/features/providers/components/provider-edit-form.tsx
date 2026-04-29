@@ -14,6 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { UpdateVisitPersonInput } from "@ramcar/shared";
+import { useRole } from "@ramcar/features/adapters";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
 import type { VisitPerson, VisitPersonStatus } from "../types";
 
@@ -59,6 +60,7 @@ export function ProviderEditForm({
   isSaving,
 }: ProviderEditFormProps) {
   const { t } = useTranslation();
+  const { role } = useRole();
 
   const initial = useMemo(() => initialFromPerson(person), [person]);
   const [state, setState] = useState<EditFormState>(initial);
@@ -148,6 +150,7 @@ export function ProviderEditForm({
           <VisitPersonStatusSelect
             value={state.status}
             onValueChange={(v) => setState((s) => ({ ...s, status: v }))}
+            disabled={role === "Guard"}
           />
         </div>
 

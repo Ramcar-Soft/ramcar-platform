@@ -13,7 +13,7 @@ import {
 } from "@ramcar/ui";
 import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { UpdateVisitPersonInput } from "@ramcar/shared";
-import { useI18n } from "../../adapters/i18n";
+import { useI18n, useRole } from "../../adapters";
 import { ResidentSelect } from "../../shared/resident-select";
 import { VisitPersonStatusSelect } from "../../shared/visit-person-status-select";
 import type { VisitPerson, VisitPersonStatus } from "../types";
@@ -65,6 +65,7 @@ export function VisitPersonEditForm({
   onDraftChange,
 }: VisitPersonEditFormProps) {
   const { t } = useI18n();
+  const { role } = useRole();
 
   const initial = useMemo(() => initialFromPerson(person), [person]);
   const [state, setState] = useState<EditFormState>(initialDraft ?? initial);
@@ -155,6 +156,7 @@ export function VisitPersonEditForm({
           <VisitPersonStatusSelect
             value={state.status}
             onValueChange={(v) => setState((s) => ({ ...s, status: v }))}
+            disabled={role === "Guard"}
           />
         </div>
 

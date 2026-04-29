@@ -1,8 +1,10 @@
 import { useReducer } from "react";
-import { describe, it, expect, vi } from "vitest";
-import { screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import { renderWithHarness } from "../../test/harness";
 import { VisitPersonForm } from "../components/visit-person-form";
+
+afterEach(() => cleanup());
 
 const defaultProps = {
   onSave: vi.fn(),
@@ -102,5 +104,70 @@ describe("VisitPersonForm", () => {
     const inputs = screen.getAllByDisplayValue("Carlos") as HTMLInputElement[];
     const input = inputs[0];
     expect(input.value).toBe("Carlos");
+  });
+
+  it("renders the status select disabled when role is Guard", () => {
+    renderWithHarness(<VisitPersonForm {...defaultProps} />, {
+      role: { role: "Guard" },
+    });
+    const trigger = screen.getByTestId("visit-person-status-select");
+    expect(trigger).toBeDisabled();
+  });
+
+  it("renders the status select enabled when role is Admin", () => {
+    renderWithHarness(<VisitPersonForm {...defaultProps} />, {
+      role: { role: "Admin" },
+    });
+    const trigger = screen.getByTestId("visit-person-status-select");
+    expect(trigger).not.toBeDisabled();
+  });
+
+  it("uses 'flagged' as the initial status when no initialDraft is provided", () => {
+    const onSave = vi.fn();
+    renderWithHarness(
+      <VisitPersonForm {...defaultProps} onSave={onSave} />,
+      { role: { role: "Admin" } },
+    );
+
+    const inputs = screen.getAllByPlaceholderText("visitPersons.form.fullName");
+    fireEvent.change(inputs[0], { target: { value: "Test Name" } });
+
+    const saveButton = screen
+      .getAllByRole("button")
+      .find((b) => b.getAttribute("type") === "submit");
+    fireEvent.click(saveButton!);
+
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave.mock.calls[0][0].status).toBe("flagged");
+  });
+
+  it("forces 'flagged' for guards even when initialDraft.status is 'allowed'", () => {
+    const onSave = vi.fn();
+    const initialDraft = {
+      fullName: "",
+      phone: "",
+      status: "allowed" as const,
+      residentId: "",
+      notes: "",
+    };
+    renderWithHarness(
+      <VisitPersonForm
+        {...defaultProps}
+        onSave={onSave}
+        initialDraft={initialDraft}
+      />,
+      { role: { role: "Guard" } },
+    );
+
+    const inputs = screen.getAllByPlaceholderText("visitPersons.form.fullName");
+    fireEvent.change(inputs[0], { target: { value: "Test Guard Visitor" } });
+
+    const saveButton = screen
+      .getAllByRole("button")
+      .find((b) => b.getAttribute("type") === "submit");
+    fireEvent.click(saveButton!);
+
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave.mock.calls[0][0].status).toBe("flagged");
   });
 });
