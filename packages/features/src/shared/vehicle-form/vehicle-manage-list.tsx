@@ -17,6 +17,7 @@ import type { Vehicle } from "@ramcar/shared";
 import { useI18n, useTransport, useRole } from "../../adapters";
 import { formatVehicleLabel } from "../vehicle-label";
 import { Swatch, resolveSwatch } from "../color-select";
+import { VehicleBrandLogo } from "../vehicle-brand-logos";
 
 interface VehicleManageListProps {
   residentId: string;
@@ -96,6 +97,7 @@ export function VehicleManageList({
                 className="flex items-center justify-between gap-2 rounded border p-2"
               >
                 <div className="flex items-center gap-2 min-w-0">
+                  <VehicleBrandLogo brand={v.brand} />
                   {swatch && <Swatch variant={swatch.variant} color={swatch.color} />}
                   <span className="truncate">{formatVehicleLabel(v)}</span>
                 </div>

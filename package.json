@@ -25,7 +25,8 @@
     "db:types": "dotenvx run --quiet -f .env.local -- supabase gen types typescript --local > packages/db-types/src/types.ts",
     "db:reset": "dotenvx run -f .env.local -- supabase db reset",
     "prepare": "husky",
-    "check:shared-features": "tsx scripts/check-shared-features.ts"
+    "check:shared-features": "tsx scripts/check-shared-features.ts",
+    "check:vehicle-brand-logos": "tsx scripts/check-vehicle-brand-logos.ts"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

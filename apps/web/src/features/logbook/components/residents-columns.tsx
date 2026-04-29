@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@ramcar/ui";
+import { VehicleBrandLogo } from "@ramcar/features/shared";
 import type { AccessEventListItem } from "@ramcar/shared";
 import type { LogbookColumn } from "../types";
 import { NotesCell } from "./notes-cell";
@@ -28,12 +29,18 @@ function DirectionBadge({
   );
 }
 
-function vehicleLabel(item: AccessEventListItem): string {
-  if (item.accessMode !== "vehicle" || !item.vehicle) return "";
+function VehicleCell({ item }: { item: AccessEventListItem }) {
+  if (item.accessMode !== "vehicle" || !item.vehicle) return null;
   const plate = item.vehicle.plate ?? "";
   const brand = item.vehicle.brand ?? "";
-  if (plate && brand) return `${plate} — ${brand}`;
-  return plate || brand || "";
+  const label = plate && brand ? `${plate} — ${brand}` : plate || brand || "";
+  if (!label) return null;
+  return (
+    <span className="flex items-center gap-2">
+      <VehicleBrandLogo brand={item.vehicle.brand ?? null} />
+      <span>{label}</span>
+    </span>
+  );
 }
 
 export function getResidentsColumns(
@@ -64,7 +71,7 @@ export function getResidentsColumns(
     {
       id: "vehicle",
       header: t("columns.vehicle"),
-      cell: (item) => vehicleLabel(item),
+      cell: (item) => <VehicleCell item={item} />,
     },
     {
       id: "registeredBy",

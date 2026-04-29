@@ -5,6 +5,7 @@ import path from "node:path";
 export default mergeConfig(
   baseConfig,
   defineConfig({
+    assetsInclude: ["**/*.svg"],
     resolve: {
       dedupe: ["react", "react-dom"],
       alias: {
