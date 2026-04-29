@@ -31,7 +31,6 @@ export function useLogbookExport(): UseLogbookExportReturn {
         locale,
         ...(filters.dateFrom && { dateFrom: filters.dateFrom }),
         ...(filters.dateTo && { dateTo: filters.dateTo }),
-        ...(filters.tenantId && { tenantId: filters.tenantId }),
         ...(filters.residentId && { residentId: filters.residentId }),
         ...(filters.search && { search: filters.search }),
       };

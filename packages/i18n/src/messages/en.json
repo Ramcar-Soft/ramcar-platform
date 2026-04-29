@@ -614,10 +614,6 @@
         "cancel": "Cancel",
         "invalidRange": "End date must be on or after start date"
       },
-      "tenantSelect": {
-        "placeholder": "Select tenant",
-        "allOption": "All tenants"
-      },
       "resident": {
         "placeholder": "Filter by resident"
       }

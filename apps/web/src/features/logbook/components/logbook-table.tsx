@@ -25,7 +25,6 @@ interface LogbookTableProps {
   error?: Error | null;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: 10 | 25 | 50 | 100) => void;
-  showTenantColumn?: boolean;
   refetch?: () => void;
 }
 
@@ -37,21 +36,18 @@ export function LogbookTable({
   error,
   onPageChange,
   onPageSizeChange,
-  showTenantColumn = false,
   refetch,
 }: LogbookTableProps) {
   const t = useTranslations("logbook");
 
-  const effectiveColumns: LogbookColumn[] = showTenantColumn
-    ? [
-        {
-          id: "tenant",
-          header: t("columns.tenant"),
-          cell: (item) => item.tenantName ?? "—",
-        },
-        ...columns,
-      ]
-    : columns;
+  const allColumns: LogbookColumn[] = [
+    {
+      id: "tenant",
+      header: t("columns.tenant"),
+      cell: (item) => item.tenantName ?? "—",
+    },
+    ...columns,
+  ];
 
   if (error) {
     return <EmptyState variant="error" onRetry={refetch} />;
@@ -63,7 +59,7 @@ export function LogbookTable({
         <Table>
           <TableHeader>
             <TableRow>
-              {effectiveColumns.map((col) => (
+              {allColumns.map((col) => (
                 <TableHead key={col.id}>{col.header}</TableHead>
               ))}
             </TableRow>
@@ -71,7 +67,7 @@ export function LogbookTable({
           <TableBody>
             {Array.from({ length: 5 }).map((_, rowIndex) => (
               <TableRow key={rowIndex}>
-                {effectiveColumns.map((col) => (
+                {allColumns.map((col) => (
                   <TableCell key={col.id}>
                     <Skeleton className="h-4 w-full" />
                   </TableCell>
@@ -98,7 +94,7 @@ export function LogbookTable({
         <Table>
           <TableHeader>
             <TableRow>
-              {effectiveColumns.map((col) => (
+              {allColumns.map((col) => (
                 <TableHead key={col.id}>{col.header}</TableHead>
               ))}
             </TableRow>
@@ -106,7 +102,7 @@ export function LogbookTable({
           <TableBody>
             {data.map((item) => (
               <TableRow key={item.id}>
-                {effectiveColumns.map((col) => (
+                {allColumns.map((col) => (
                   <TableCell key={col.id}>{col.cell(item)}</TableCell>
                 ))}
               </TableRow>

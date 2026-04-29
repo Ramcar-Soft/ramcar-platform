@@ -7,7 +7,6 @@ import { ResidentSelect } from "@ramcar/features/shared/resident-select";
 import { ShortcutsHint } from "@ramcar/features";
 import { DateRangeFilter } from "./date-range-filter";
 import { ExportMenu } from "./export-menu";
-import { TenantSelect } from "./tenant-select";
 import type { LogbookFilters } from "../types";
 
 interface LogbookToolbarProps {
@@ -15,8 +14,6 @@ interface LogbookToolbarProps {
   onFilterChange: (update: Partial<LogbookFilters>) => void;
   onSearchChange: (value: string) => void;
   onResidentChange: (residentId: string | undefined) => void;
-  onTenantChange: (tenantId: string | undefined) => void;
-  actorRole?: string;
   personType: string;
   totalRows?: number;
   onExportAll: () => void;
@@ -29,8 +26,6 @@ export const LogbookToolbar = forwardRef<HTMLInputElement, LogbookToolbarProps>(
       onFilterChange,
       onSearchChange,
       onResidentChange,
-      onTenantChange,
-      actorRole,
       personType,
       totalRows,
       onExportAll,
@@ -46,24 +41,16 @@ export const LogbookToolbar = forwardRef<HTMLInputElement, LogbookToolbarProps>(
       }
     }
 
-    // The resident filter is meaningless in SuperAdmin "all tenants" mode
-    // (residents are tenant-scoped, so the picker would be misleading).
-    const showResidentSelect =
-      actorRole !== "super_admin" || Boolean(filters.tenantId);
-
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <TenantSelect value={filters.tenantId} onChange={onTenantChange} />
         <DateRangeFilter filters={filters} onApply={onFilterChange} />
-        {showResidentSelect && (
-          <div className="w-full sm:w-48">
-            <ResidentSelect
-              value={filters.residentId ?? ""}
-              onChange={(id) => onResidentChange(id || undefined)}
-              placeholder={t("toolbar.resident.placeholder")}
-            />
-          </div>
-        )}
+        <div className="w-full sm:w-48">
+          <ResidentSelect
+            value={filters.residentId ?? ""}
+            onChange={(id) => onResidentChange(id || undefined)}
+            placeholder={t("toolbar.resident.placeholder")}
+          />
+        </div>
         <div className="relative w-full sm:w-auto">
           <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
