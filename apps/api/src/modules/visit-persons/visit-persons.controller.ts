@@ -14,6 +14,8 @@ import { RolesGuard } from "../../common/guards/roles.guard";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { CurrentTenant } from "../../common/decorators/current-tenant.decorator";
+import { CurrentUserRole } from "../../common/decorators/current-user-role.decorator";
+import type { Role } from "@ramcar/shared";
 import { UsersService } from "../users/users.service";
 import { VisitPersonsService } from "./visit-persons.service";
 import { createVisitPersonSchema } from "./dto/create-visit-person.dto";
@@ -52,10 +54,11 @@ export class VisitPersonsController {
     @Body() body: unknown,
     @CurrentUser() user: { id: string },
     @CurrentTenant() scope: TenantScope,
+    @CurrentUserRole() role: Role,
   ) {
     const dto = createVisitPersonSchema.parse(body);
     const profileId = await this.usersService.getProfileIdByAuthUserId(user.id);
-    return this.visitPersonsService.create(dto, scope, profileId);
+    return this.visitPersonsService.create(dto, scope, profileId, role);
   }
 
   @Patch(":id")
@@ -63,8 +66,9 @@ export class VisitPersonsController {
     @Param("id") id: string,
     @Body() body: unknown,
     @CurrentTenant() scope: TenantScope,
+    @CurrentUserRole() role: Role,
   ) {
     const dto = updateVisitPersonSchema.parse(body);
-    return this.visitPersonsService.update(id, dto, scope);
+    return this.visitPersonsService.update(id, dto, scope, role);
   }
 }
