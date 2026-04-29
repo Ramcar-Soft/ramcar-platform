@@ -277,6 +277,17 @@
       "updated": "Access event updated successfully",
       "errorCreating": "Error logging access event. Please try again.",
       "errorUpdating": "Error updating access event."
+    },
+    "feedback": {
+      "successTitle": "Access recorded",
+      "successDescription": "{personName} · {direction} · {accessMode}",
+      "successAriaAnnouncement": "Access event saved for {personName}, {direction}, {accessMode}.",
+      "errorTitle": "Couldn't record access",
+      "errorDescription": "{reason}",
+      "errorFallbackReason": "Please try again. If the problem continues, contact an administrator.",
+      "errorAriaAnnouncement": "Failed to record access event: {reason}",
+      "retry": "Retry",
+      "dismiss": "Dismiss"
     }
   },
   "vehicles": {

@@ -20,12 +20,11 @@ import { useUpdateVisitPerson } from "../hooks/use-update-visit-person";
 import { useVisitPersonVehicles } from "../hooks/use-visit-person-vehicles";
 import { useVisitPersonImages } from "../hooks/use-visit-person-images";
 import { useUploadVisitPersonImage } from "../hooks/use-upload-visit-person-image";
-import { useKeyboardNavigation } from "@ramcar/features";
+import { useKeyboardNavigation, useAccessEventFeedback, AccessEventFeedbackOverlay } from "@ramcar/features";
 import { ProvidersTable } from "./providers-table";
 import { ProviderSidebar } from "./provider-sidebar";
 
 export function ProvidersPageClient() {
-  const t = useTranslations("accessEvents");
   const tProviders = useTranslations("providers");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -66,6 +65,7 @@ export function ProvidersPageClient() {
   const createVisitPerson = useCreateVisitPerson();
   const updateVisitPerson = useUpdateVisitPerson();
   const uploadImage = useUploadVisitPersonImage();
+  const feedback = useAccessEventFeedback();
 
   const handleSelectPerson = useCallback((person: VisitPerson) => {
     setSelectedPerson(person);
@@ -161,20 +161,26 @@ export function ProvidersPageClient() {
       notes: string;
     }) => {
       if (!selectedPerson) return;
-
-      await createAccessEvent.mutateAsync({
-        personType: "service_provider",
-        visitPersonId: selectedPerson.id,
-        direction: formData.direction,
-        accessMode: formData.accessMode,
-        vehicleId: formData.vehicleId,
-        notes: formData.notes || undefined,
-        source: "web",
-      });
-      toast.success(t("messages.created"));
+      feedback.show(
+        () =>
+          createAccessEvent.mutateAsync({
+            personType: "service_provider",
+            visitPersonId: selectedPerson.id,
+            direction: formData.direction,
+            accessMode: formData.accessMode,
+            vehicleId: formData.vehicleId,
+            notes: formData.notes || undefined,
+            source: "web",
+          }),
+        {
+          personName: selectedPerson.fullName,
+          direction: formData.direction,
+          accessMode: formData.accessMode,
+        },
+      );
       handleCloseSidebar();
     },
-    [selectedPerson, createAccessEvent, t, handleCloseSidebar],
+    [selectedPerson, createAccessEvent, feedback, handleCloseSidebar],
   );
 
   const handleSaveEdit = useCallback(
@@ -231,6 +237,8 @@ export function ProvidersPageClient() {
         onCreatePerson={handleCreatePerson}
         onSaveEdit={handleSaveEdit}
       />
+
+      <AccessEventFeedbackOverlay controller={feedback} />
     </div>
   );
 }

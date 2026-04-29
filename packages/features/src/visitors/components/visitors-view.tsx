@@ -21,6 +21,8 @@ import { useKeyboardNavigation } from "../../shared/hooks/use-keyboard-navigatio
 import { VisitorsTable } from "./visitors-table";
 import { VisitPersonSidebar } from "./visit-person-sidebar";
 import { useI18n } from "../../adapters";
+import { useAccessEventFeedback } from "../../access-event-feedback/hooks/use-access-event-feedback";
+import { AccessEventFeedbackOverlay } from "../../access-event-feedback/components/access-event-feedback-overlay";
 
 interface VisitPersonFormDraft {
   fullName: string;
@@ -95,6 +97,7 @@ export function VisitorsView({
   const createVisitPerson = useCreateVisitPerson();
   const updateVisitPerson = useUpdateVisitPerson();
   const uploadImage = useUploadVisitPersonImage();
+  const feedback = useAccessEventFeedback();
 
   const handleSelectPerson = useCallback((person: VisitPerson) => {
     setSelectedPerson(person);
@@ -182,19 +185,26 @@ export function VisitorsView({
       notes: string;
     }) => {
       if (!selectedPerson) return;
-      await createAccessEvent.mutateAsync({
-        personType: "visitor",
-        visitPersonId: selectedPerson.id,
-        direction: formData.direction,
-        accessMode: formData.accessMode,
-        vehicleId: formData.vehicleId,
-        notes: formData.notes || undefined,
-        source: "web",
-      });
-      toast.success(t("accessEvents.messages.created"));
+      feedback.show(
+        () =>
+          createAccessEvent.mutateAsync({
+            personType: "visitor",
+            visitPersonId: selectedPerson.id,
+            direction: formData.direction,
+            accessMode: formData.accessMode,
+            vehicleId: formData.vehicleId,
+            notes: formData.notes || undefined,
+            source: "web",
+          }),
+        {
+          personName: selectedPerson.fullName,
+          direction: formData.direction,
+          accessMode: formData.accessMode,
+        },
+      );
       handleCloseSidebar();
     },
-    [selectedPerson, createAccessEvent, t, handleCloseSidebar],
+    [selectedPerson, createAccessEvent, feedback, handleCloseSidebar],
   );
 
   const handleSaveEdit = useCallback(
@@ -263,6 +273,8 @@ export function VisitorsView({
         initialDraft={initialDraft}
         onDraftChange={onDraftChange}
       />
+
+      <AccessEventFeedbackOverlay controller={feedback} />
     </div>
   );
 }

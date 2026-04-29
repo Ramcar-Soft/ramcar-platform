@@ -277,6 +277,17 @@
       "updated": "Evento de acceso actualizado exitosamente",
       "errorCreating": "Error al registrar evento de acceso. Por favor, intenta de nuevo.",
       "errorUpdating": "Error al actualizar evento de acceso."
+    },
+    "feedback": {
+      "successTitle": "Acceso registrado",
+      "successDescription": "{personName} · {direction} · {accessMode}",
+      "successAriaAnnouncement": "Evento de acceso guardado para {personName}, {direction}, {accessMode}.",
+      "errorTitle": "No se pudo registrar el acceso",
+      "errorDescription": "{reason}",
+      "errorFallbackReason": "Inténtalo de nuevo. Si el problema persiste, contacta a un administrador.",
+      "errorAriaAnnouncement": "Error al registrar el evento de acceso: {reason}",
+      "retry": "Reintentar",
+      "dismiss": "Cerrar"
     }
   },
   "vehicles": {

@@ -1,20 +1,17 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import type { ExtendedUserProfile, ResidentFiltersInput } from "../types";
 import type { Direction, AccessMode } from "@ramcar/shared";
 import { useResidents } from "../hooks/use-residents";
 import { useRecentAccessEvents } from "../hooks/use-recent-access-events";
 import { useCreateAccessEvent } from "../hooks/use-create-access-event";
 import { useResidentVehicles } from "../hooks/use-resident-vehicles";
-import { useKeyboardNavigation } from "@ramcar/features";
+import { useKeyboardNavigation, useAccessEventFeedback, AccessEventFeedbackOverlay } from "@ramcar/features";
 import { ResidentsTable } from "./residents-table";
 import { AccessEventSidebar } from "./access-event-sidebar";
 
 export function ResidentsPageClient() {
-  const t = useTranslations("accessEvents");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedResident, setSelectedResident] = useState<ExtendedUserProfile | null>(null);
@@ -48,6 +45,7 @@ export function ResidentsPageClient() {
   );
 
   const createAccessEvent = useCreateAccessEvent();
+  const feedback = useAccessEventFeedback();
 
   useKeyboardNavigation<ExtendedUserProfile>({
     searchInputRef,
@@ -92,20 +90,26 @@ export function ResidentsPageClient() {
       notes: string;
     }) => {
       if (!selectedResident) return;
-
-      await createAccessEvent.mutateAsync({
-        personType: "resident",
-        userId: selectedResident.id,
-        direction: formData.direction,
-        accessMode: formData.accessMode,
-        vehicleId: formData.vehicleId,
-        notes: formData.notes || undefined,
-        source: "web",
-      });
-      toast.success(t("messages.created"));
+      feedback.show(
+        () =>
+          createAccessEvent.mutateAsync({
+            personType: "resident",
+            userId: selectedResident.id,
+            direction: formData.direction,
+            accessMode: formData.accessMode,
+            vehicleId: formData.vehicleId,
+            notes: formData.notes || undefined,
+            source: "web",
+          }),
+        {
+          personName: selectedResident.fullName,
+          direction: formData.direction,
+          accessMode: formData.accessMode,
+        },
+      );
       handleCloseSidebar();
     },
-    [selectedResident, createAccessEvent, t, handleCloseSidebar],
+    [selectedResident, createAccessEvent, feedback, handleCloseSidebar],
   );
 
   return (
@@ -132,6 +136,8 @@ export function ResidentsPageClient() {
         onClose={handleCloseSidebar}
         onSave={handleSave}
       />
+
+      <AccessEventFeedbackOverlay controller={feedback} />
     </div>
   );
 }
