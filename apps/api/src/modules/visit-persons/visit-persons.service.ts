@@ -47,19 +47,35 @@ export class VisitPersonsService {
     const { data, count } = await this.repository.list(filters, scope);
     const persons = data.map((row) => this.mapRow(row));
 
+    if (persons.length === 0) {
+      return {
+        data: [],
+        meta: {
+          page: filters.page,
+          pageSize: filters.pageSize,
+          total: count,
+          totalPages: Math.ceil(count / filters.pageSize),
+        },
+      };
+    }
+
     const residentIds = persons
       .map((p) => p.residentId)
       .filter((id): id is string => !!id);
+    const personIds = persons.map((p) => p.id);
 
-    const residentInfoMap = await this.fetchResidentDisplayInfo(residentIds);
+    const [residentInfoMap, platesMap] = await Promise.all([
+      this.fetchResidentDisplayInfo(residentIds),
+      this.fetchVehiclePlates(personIds, scope),
+    ]);
 
     const enriched = persons.map((p) => {
-      if (!p.residentId) return p;
-      const info = residentInfoMap.get(p.residentId);
+      const residentInfo = p.residentId ? residentInfoMap.get(p.residentId) : undefined;
       return {
         ...p,
-        residentName: info?.fullName,
-        residentAddress: info?.address ?? null,
+        residentName: residentInfo?.fullName,
+        residentAddress: residentInfo?.address ?? null,
+        vehiclePlates: platesMap.get(p.id) ?? [],
       };
     });
 
@@ -135,6 +151,41 @@ export class VisitPersonsService {
         fullName: row.full_name as string,
         address: (row.address as string | null) ?? null,
       });
+    }
+    return map;
+  }
+
+  private async fetchVehiclePlates(
+    visitPersonIds: string[],
+    scope: TenantScope,
+  ): Promise<Map<string, string[]>> {
+    if (visitPersonIds.length === 0) return new Map();
+
+    const uniqueIds = [...new Set(visitPersonIds)];
+    let query = this.supabase
+      .getClient()
+      .from("vehicles")
+      .select("visit_person_id, plate");
+
+    if (scope.scope !== "all") {
+      query = query.eq("tenant_id", scope.tenantId) as typeof query;
+    }
+
+    const { data, error } = await query
+      .in("visit_person_id", uniqueIds)
+      .is("deleted_at", null)
+      .not("plate", "is", null)
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    const map = new Map<string, string[]>();
+    for (const row of data ?? []) {
+      const id = row.visit_person_id as string;
+      const plate = row.plate as string;
+      const existing = map.get(id);
+      if (existing) existing.push(plate);
+      else map.set(id, [plate]);
     }
     return map;
   }
