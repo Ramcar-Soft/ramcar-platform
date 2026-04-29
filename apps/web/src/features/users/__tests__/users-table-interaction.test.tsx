@@ -30,6 +30,7 @@ vi.mock("@ramcar/features", async (importOriginal) => {
       activeTenantName: "Test Tenant",
       setActiveTenant: vi.fn(),
     }),
+    canEditUserTenantField: (role: string) => role === "SuperAdmin",
   };
 });
 
@@ -94,8 +95,24 @@ const userHolder: { current: { userId: string; role: string; tenantId: string } 
 
 vi.mock("@ramcar/store", () => ({
   useAppStore: (selector: (s: unknown) => unknown) =>
-    selector({ user: userHolder.current }),
+    selector({ user: userHolder.current, activeTenantId: "t1", tenantIds: ["t1"] }),
 }));
+
+vi.mock("@ramcar/features/adapters", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@ramcar/features/adapters")>();
+  return {
+    ...actual,
+    useRole: () => {
+      const roleMap: Record<string, string> = {
+        super_admin: "SuperAdmin",
+        admin: "Admin",
+        guard: "Guard",
+        resident: "Resident",
+      };
+      return { role: roleMap[userHolder.current?.role ?? "resident"] ?? "Resident", tenantId: "t1", userId: "u1" };
+    },
+  };
+});
 
 function setRole(role: "super_admin" | "admin" | "guard" | "resident") {
   userHolder.current = { userId: "u1", role, tenantId: "t1" };

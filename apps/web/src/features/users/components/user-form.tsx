@@ -15,6 +15,8 @@ import {
 import { useTranslations } from "next-intl";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import { useAppStore } from "@ramcar/store";
+import { useRole } from "@ramcar/features/adapters";
+import { canEditUserTenantField } from "@ramcar/features";
 import {
   getAssignableRoles,
   normalizePhone,
@@ -25,7 +27,6 @@ import {
 } from "@ramcar/shared";
 import type { Role } from "@ramcar/shared";
 import type { ExtendedUserProfile, PhoneType, UserGroup } from "../types";
-import { TenantMultiSelect } from "./tenant-multi-select";
 
 interface UserFormProps {
   mode: "create" | "edit";
@@ -42,8 +43,6 @@ export interface UserFormData {
   email: string;
   role: string;
   tenantId: string;
-  tenantIds: string[];
-  primaryTenantId: string;
   address: string;
   username: string;
   phone: string;
@@ -69,35 +68,31 @@ export function UserForm({
   const tForms = useTranslations("forms");
   const tError = useTranslations();
   const currentUser = useAppStore((s) => s.user);
+  const activeTenantId = useAppStore((s) => s.activeTenantId);
   const actorRole = (currentUser?.role ?? "resident") as Role;
-  const actorTenantIds = useAppStore((s) => s.tenantIds);
+  const { role: featureRole } = useRole();
+  const tenantFieldLocked = !canEditUserTenantField(featureRole);
   const allAssignableRoles = getAssignableRoles(actorRole);
   const assignableRoles = allAssignableRoles.filter(
     (r) => r !== "admin" || actorRole === "super_admin",
   );
 
   const isEdit = mode === "edit";
-
-  const initialTenantIds = initialData?.tenantIds ?? [];
   const initialRole = initialData?.role ?? "";
-  const initialPrimary =
-    initialTenantIds.length > 0
-      ? (initialData?.tenantId && initialTenantIds.includes(initialData.tenantId)
-          ? initialData.tenantId
-          : initialTenantIds[0])
-      : initialData?.tenantId ?? "";
+
+  // For edit mode with legacy multi-tenant data, pick one tenant (FR-019).
+  const initialTenantId =
+    initialData?.tenantId ??
+    initialData?.tenantIds?.[0] ??
+    (tenantFieldLocked ? (activeTenantId ?? currentUser?.tenantId ?? "") : "");
 
   const [formData, setFormData] = useState<UserFormData>(() => ({
     fullName: initialData?.fullName ?? "",
     email: initialData?.email ?? "",
     role: initialRole,
-    tenantId: initialData?.tenantId ?? currentUser?.tenantId ?? "",
-    tenantIds:
-      initialRole === "admin" || initialRole === "guard"
-        ? initialTenantIds
-        : [],
-    primaryTenantId:
-      initialRole === "admin" || initialRole === "guard" ? initialPrimary : "",
+    tenantId: tenantFieldLocked
+      ? (activeTenantId ?? currentUser?.tenantId ?? "")
+      : initialTenantId,
     address: initialData?.address ?? "",
     username: initialData?.username ?? "",
     phone: initialData?.phone ?? "",
@@ -177,16 +172,8 @@ export function UserForm({
     if (!formData.role) errs.role = "Required";
 
     const role = formData.role;
-    if (role === "resident") {
-      if (!formData.tenantId) errs.tenantId = "Required";
-    } else if (role === "admin" || role === "guard") {
-      if (formData.tenantIds.length === 0) {
-        errs.tenantIds = t("validation.atLeastOneTenant");
-      } else if (!formData.primaryTenantId) {
-        errs.primaryTenantId = t("validation.primaryMustBeSelected");
-      } else if (!formData.tenantIds.includes(formData.primaryTenantId)) {
-        errs.primaryTenantId = t("validation.primaryMustBeSelected");
-      }
+    if (role === "resident" || role === "admin" || role === "guard") {
+      if (!formData.tenantId) errs.tenantId = t("validation.tenantRequired");
     }
 
     if (role === "resident" && !formData.address.trim()) {
@@ -236,18 +223,15 @@ export function UserForm({
 
     const role = formData.role;
     if (role === "admin" || role === "guard") {
-      submitData.tenant_ids = formData.tenantIds;
-      submitData.primary_tenant_id = formData.primaryTenantId;
+      // API contract from spec 020: send tenant_ids array + primary_tenant_id (FR-022).
+      submitData.tenant_ids = [formData.tenantId];
+      submitData.primary_tenant_id = formData.tenantId;
       delete submitData.tenantId;
-      delete submitData.tenantIds;
-      delete submitData.primaryTenantId;
     } else if (role === "resident") {
-      delete submitData.tenantIds;
-      delete submitData.primaryTenantId;
+      // Resident endpoint takes singular tenant_id — keep as-is.
     } else {
+      // super_admin: wildcard '*' is server-derived; do not send tenant.
       delete submitData.tenantId;
-      delete submitData.tenantIds;
-      delete submitData.primaryTenantId;
     }
 
     try {
@@ -260,7 +244,6 @@ export function UserForm({
 
   const isSelf = mode === "edit" && initialData?.userId === currentUser?.userId;
   const roleLocked = isSelf && actorRole === "admin";
-  const isSuperAdmin = actorRole === "super_admin";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
@@ -324,28 +307,10 @@ export function UserForm({
 
         <div className="space-y-2">
           <Label>
-            {formData.role === "admin" || formData.role === "guard"
-              ? t("form.tenantsMultiLabel")
-              : t("form.tenant")}{" "}
-            {formData.role === "super_admin" ? "" : "*"}
+            {t("form.tenant")}
+            {formData.role === "super_admin" ? "" : " *"}
           </Label>
-          {formData.role === "admin" || formData.role === "guard" ? (
-            <TenantMultiSelect
-              value={formData.tenantIds}
-              primary={formData.primaryTenantId}
-              onChange={(nextIds, nextPrimary) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  tenantIds: nextIds,
-                  primaryTenantId: nextPrimary,
-                }))
-              }
-              options={tenants}
-              allowedIds={isSuperAdmin ? undefined : actorTenantIds}
-              disabled={isPending}
-              error={errors.tenantIds ?? errors.primaryTenantId}
-            />
-          ) : formData.role === "super_admin" ? (
+          {formData.role === "super_admin" ? (
             <p className="text-sm text-muted-foreground">
               {t("form.tenant")}: ★
             </p>
@@ -354,6 +319,7 @@ export function UserForm({
               <Select
                 value={formData.tenantId}
                 onValueChange={(v) => updateField("tenantId", v)}
+                disabled={tenantFieldLocked || isPending}
               >
                 <SelectTrigger aria-invalid={!!errors.tenantId}>
                   <SelectValue placeholder={t("form.selectTenant")} />
@@ -366,6 +332,11 @@ export function UserForm({
                   ))}
                 </SelectContent>
               </Select>
+              {tenantFieldLocked && (
+                <p className="text-xs text-muted-foreground">
+                  {t("form.tenantLockedHint")}
+                </p>
+              )}
               {errors.tenantId && (
                 <p className="text-sm text-destructive">{errors.tenantId}</p>
               )}

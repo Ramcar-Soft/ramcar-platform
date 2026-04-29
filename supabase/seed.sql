@@ -194,6 +194,100 @@ values (
 -- block in 20260423000000_tenants_catalog_multitenant.sql).
 -- =============================================================================
 
+-- Admin with zero tenants (spec 024 E2E fixture — tests the first-tenant Sheet flow)
+insert into auth.users (
+  instance_id, id, aud, role,
+  email, encrypted_password,
+  email_confirmed_at, created_at, updated_at,
+  raw_app_meta_data, raw_user_meta_data,
+  confirmation_token, recovery_token, email_change_token_new,
+  email_change,
+  is_sso_user
+) values (
+  '00000000-0000-0000-0000-000000000000',
+  'b0000000-0000-0000-0000-000000000010',
+  'authenticated', 'authenticated',
+  'admin_with_zero_tenants@test.com',
+  crypt('Test123!', gen_salt('bf')),
+  now(), now(), now(),
+  jsonb_build_object('provider', 'email', 'providers', array['email'], 'tenant_ids', array[]::text[], 'role', 'admin'),
+  jsonb_build_object('full_name', 'Admin Zero Tenants'),
+  '', '', '',
+  '',
+  false
+);
+
+insert into auth.identities (
+  id, user_id, provider_id, identity_data, provider,
+  last_sign_in_at, created_at, updated_at
+) values (
+  gen_random_uuid(),
+  'b0000000-0000-0000-0000-000000000010',
+  'admin_with_zero_tenants@test.com',
+  jsonb_build_object('sub', 'b0000000-0000-0000-0000-000000000010', 'email', 'admin_with_zero_tenants@test.com', 'email_verified', true, 'phone_verified', false),
+  'email',
+  now(), now(), now()
+);
+
+-- profiles.tenant_id is NOT NULL (legacy column). The JWT hook reads tenant_ids
+-- from public.user_tenants for admin role; with no user_tenants rows below, this
+-- user effectively has tenant_ids = [] in the access token. profiles.tenant_id
+-- here is a harmless placeholder pointing at the demo tenant.
+insert into public.profiles (user_id, tenant_id, full_name, role, email, status)
+values (
+  'b0000000-0000-0000-0000-000000000010',
+  'a0000000-0000-0000-0000-000000000001',
+  'Admin Zero Tenants', 'admin', 'admin_with_zero_tenants@test.com', 'active'
+);
+
+-- Admin with one tenant (spec 024 E2E fixture — tests ContactSupportDialog gating)
+insert into auth.users (
+  instance_id, id, aud, role,
+  email, encrypted_password,
+  email_confirmed_at, created_at, updated_at,
+  raw_app_meta_data, raw_user_meta_data,
+  confirmation_token, recovery_token, email_change_token_new,
+  email_change,
+  is_sso_user
+) values (
+  '00000000-0000-0000-0000-000000000000',
+  'b0000000-0000-0000-0000-000000000011',
+  'authenticated', 'authenticated',
+  'admin_with_one_tenant@test.com',
+  crypt('Test123!', gen_salt('bf')),
+  now(), now(), now(),
+  jsonb_build_object('provider', 'email', 'providers', array['email'], 'tenant_ids', array['a0000000-0000-0000-0000-000000000001'], 'role', 'admin'),
+  jsonb_build_object('full_name', 'Admin One Tenant'),
+  '', '', '',
+  '',
+  false
+);
+
+insert into auth.identities (
+  id, user_id, provider_id, identity_data, provider,
+  last_sign_in_at, created_at, updated_at
+) values (
+  gen_random_uuid(),
+  'b0000000-0000-0000-0000-000000000011',
+  'admin_with_one_tenant@test.com',
+  jsonb_build_object('sub', 'b0000000-0000-0000-0000-000000000011', 'email', 'admin_with_one_tenant@test.com', 'email_verified', true, 'phone_verified', false),
+  'email',
+  now(), now(), now()
+);
+
+insert into public.profiles (user_id, tenant_id, full_name, role, email, status)
+values (
+  'b0000000-0000-0000-0000-000000000011',
+  'a0000000-0000-0000-0000-000000000001',
+  'Admin One Tenant', 'admin', 'admin_with_one_tenant@test.com', 'active'
+);
+
+-- =============================================================================
+-- User ↔ Tenant assignments
+-- =============================================================================
+
 insert into public.user_tenants (user_id, tenant_id, assigned_by) values
   ('b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001'),
-  ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002');
+  ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002'),
+  ('b0000000-0000-0000-0000-000000000011', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000011');
+-- Note: admin_with_zero_tenants (b0000000-0000-0000-0000-000000000010) intentionally has no user_tenants row.

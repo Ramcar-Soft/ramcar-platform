@@ -20,34 +20,59 @@ import { useTenantList } from "../hooks/use-tenant-list";
 import { useTenantSwitch } from "../hooks/use-tenant-switch";
 import { TenantSelectorTrigger } from "./tenant-selector-trigger";
 import { ConfirmSwitchDialog } from "./confirm-switch-dialog";
+import { canShowTenantSelector } from "../policy/can-show-tenant-selector";
 
 interface TenantSelectorProps {
   supabaseUrl?: string;
 }
 
 export function TenantSelector({ supabaseUrl = "" }: TenantSelectorProps) {
-  const { tenantIds, activeTenantId, activeTenantName, setActiveTenant } = useAuthStore();
+  const { activeTenantId, activeTenantName, setActiveTenant } = useAuthStore();
   const { t } = useI18n();
-  const { role } = useRole();
+  const { role, tenantId: profilesTenantId } = useRole();
   const { data: tenants = [] } = useTenantList();
   const [open, setOpen] = useState(false);
   const tenantSwitch = useTenantSwitch();
 
   // Sync activeTenantName from the fetched tenant list when it's empty or stale.
-  // This covers the first-load case where hydrateActiveTenant picked an id but
-  // had no name in localStorage yet.
+  // For non-SuperAdmin roles: also enforce the deterministic "current tenant" rule
+  // (FR-003): prefer activeTenantId if valid, then profiles.tenant_id, then
+  // the lexicographically-first tenant by name (FR-003 / research R6).
   useEffect(() => {
-    if (!activeTenantId || tenants.length === 0) return;
+    if (tenants.length === 0) return;
+
+    if (!canShowTenantSelector(role)) {
+      // Non-SuperAdmin: pick one current tenant deterministically.
+      let candidateId: string | undefined;
+
+      if (activeTenantId && tenants.some((t) => t.id === activeTenantId)) {
+        candidateId = activeTenantId;
+      } else if (profilesTenantId && tenants.some((t) => t.id === profilesTenantId)) {
+        candidateId = profilesTenantId;
+      } else {
+        candidateId = [...tenants].sort((a, b) => a.name.localeCompare(b.name))[0]?.id;
+      }
+
+      if (!candidateId) return;
+      const candidateName = tenants.find((t) => t.id === candidateId)?.name ?? "";
+      if (candidateId !== activeTenantId || candidateName !== activeTenantName) {
+        setActiveTenant(candidateId, candidateName);
+      }
+      return;
+    }
+
+    // SuperAdmin: only sync name when it's stale.
+    if (!activeTenantId) return;
     const match = tenants.find((tenant) => tenant.id === activeTenantId);
     if (match && match.name !== activeTenantName) {
       setActiveTenant(activeTenantId, match.name);
     }
-  }, [activeTenantId, activeTenantName, tenants, setActiveTenant]);
+  }, [activeTenantId, activeTenantName, tenants, setActiveTenant, role, profilesTenantId]);
 
   const activeTenant = tenants.find((t) => t.id === activeTenantId) ?? null;
 
-  // Single-tenant: render a static display (no dropdown) per FR-004
-  if (tenantIds.length <= 1) {
+  // Non-SuperAdmin: render a static display (no dropdown). FR-001/FR-002.
+  if (!canShowTenantSelector(role)) {
     return (
       <span className="flex items-center gap-2 px-2 text-sm font-medium">
         {activeTenant ? (

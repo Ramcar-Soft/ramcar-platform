@@ -20,7 +20,15 @@ vi.mock("@/shared/hooks/use-form-persistence", () => ({
 
 vi.mock("@ramcar/store", () => ({
   useAppStore: (selector: (s: unknown) => unknown) =>
-    selector({ user: { userId: "uX", role: "super_admin", tenantId: "t1" } }),
+    selector({ user: { userId: "uX", role: "super_admin", tenantId: "t1" }, activeTenantId: "t1", tenantIds: ["t1"] }),
+}));
+
+vi.mock("@ramcar/features/adapters", () => ({
+  useRole: () => ({ role: "SuperAdmin", tenantId: "t1", userId: "uX" }),
+}));
+
+vi.mock("@ramcar/features", () => ({
+  canEditUserTenantField: () => true,
 }));
 
 import { UserForm } from "../components/user-form";

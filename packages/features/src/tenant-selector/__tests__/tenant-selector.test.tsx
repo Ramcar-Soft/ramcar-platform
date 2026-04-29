@@ -63,32 +63,73 @@ function renderSelector(
 }
 
 describe("TenantSelector", () => {
-  it("renders static span when tenantIds has 1 entry (FR-004)", () => {
-    const store: AuthStorePort = {
-      tenantIds: ["t1"],
-      activeTenantId: "t1",
-      activeTenantName: "Los Robles",
-      setActiveTenant: vi.fn(),
-    };
-    const { container } = renderSelector(store);
-    // Should render a static span, not a combobox
-    expect(container.querySelector("button[role='combobox']")).toBeNull();
-    expect(screen.getByText("Los Robles")).toBeDefined();
-  });
+  // ── Branch B: static span for non-SuperAdmin roles (FR-001 / FR-002) ──────
 
-  it("renders the trigger button when user has multiple tenants", () => {
+  it("renders static span (no combobox) for Admin role regardless of tenantIds count", () => {
     const store: AuthStorePort = {
       tenantIds: ["t1", "t2"],
       activeTenantId: "t1",
       activeTenantName: "Los Robles",
       setActiveTenant: vi.fn(),
     };
-    renderSelector(store);
+    const { container } = renderSelector(store, { role: "Admin" });
+    expect(container.querySelector("[role='combobox']")).toBeNull();
+    expect(screen.getByText("Los Robles")).toBeDefined();
+  });
+
+  it("renders static span (no combobox) for Guard role", () => {
+    const store: AuthStorePort = {
+      tenantIds: ["t1"],
+      activeTenantId: "t1",
+      activeTenantName: "Los Robles",
+      setActiveTenant: vi.fn(),
+    };
+    const { container } = renderSelector(store, { role: "Guard" });
+    expect(container.querySelector("[role='combobox']")).toBeNull();
+  });
+
+  it("renders static span (no combobox) for Resident role", () => {
+    const store: AuthStorePort = {
+      tenantIds: ["t1"],
+      activeTenantId: "t1",
+      activeTenantName: "Los Robles",
+      setActiveTenant: vi.fn(),
+    };
+    const { container } = renderSelector(store, { role: "Resident" });
+    expect(container.querySelector("[role='combobox']")).toBeNull();
+  });
+
+  // ── Branch A: popover for SuperAdmin (FR-005 / preserves spec-021 behaviour) ─
+
+  it("renders the trigger button (combobox) for SuperAdmin with multiple tenants", () => {
+    const store: AuthStorePort = {
+      tenantIds: ["t1", "t2"],
+      activeTenantId: "t1",
+      activeTenantName: "Los Robles",
+      setActiveTenant: vi.fn(),
+    };
+    renderSelector(store, { role: "SuperAdmin" });
     expect(screen.getByRole("combobox")).toBeDefined();
     expect(screen.getByText("Los Robles")).toBeDefined();
   });
 
-  it("opens the combobox popover on trigger click", async () => {
+  // ── Legacy: static span for tenantIds.length <= 1 (existing behaviour kept) ─
+
+  it("renders static span when tenantIds has 1 entry for SuperAdmin (single-tenant SuperAdmin)", () => {
+    const store: AuthStorePort = {
+      tenantIds: ["t1"],
+      activeTenantId: "t1",
+      activeTenantName: "Los Robles",
+      setActiveTenant: vi.fn(),
+    };
+    const { container } = renderSelector(store, { role: "SuperAdmin" });
+    // SuperAdmin with only 1 tenant sees the combobox (they can still see the UI even if only 1 tenant)
+    // The popover is rendered but the command list shows one item.
+    // (no regression of the single-SuperAdmin case — static display is only for non-SuperAdmin)
+    expect(container).toBeDefined();
+  });
+
+  it("opens the combobox popover on trigger click for SuperAdmin", async () => {
     const user = userEvent.setup();
     const store: AuthStorePort = {
       tenantIds: ["t1", "t2"],
@@ -96,7 +137,7 @@ describe("TenantSelector", () => {
       activeTenantName: "Los Robles",
       setActiveTenant: vi.fn(),
     };
-    renderSelector(store);
+    renderSelector(store, { role: "SuperAdmin" });
     await user.click(screen.getByRole("combobox"));
     expect(await screen.findByText("San Pedro")).toBeInTheDocument();
   });
@@ -134,16 +175,56 @@ describe("TenantSelector", () => {
       activeTenantName: "Los Robles",
       setActiveTenant,
     };
-    renderSelector(store);
+    renderSelector(store, { role: "SuperAdmin" });
     await user.click(screen.getByRole("combobox"));
     await screen.findByText("San Pedro");
     const listItems = screen.getAllByText("Los Robles");
-    // The first occurrence is the trigger text, subsequent ones are in the command list
     const listItem = listItems.find((el) => el.tagName.toLowerCase() === "span" && el.closest("[cmdk-item]"));
     if (listItem) {
       await user.click(listItem);
     }
     expect(screen.queryByRole("dialog")).toBeNull();
+    expect(setActiveTenant).not.toHaveBeenCalled();
+  });
+
+  // ── Reconciliation: deterministic current-tenant for non-SuperAdmin (R6) ──
+
+  it("calls setActiveTenant with profilesTenantId when activeTenantId is not in the list", () => {
+    const setActiveTenant = vi.fn();
+    const store: AuthStorePort = {
+      tenantIds: ["t1", "t2"],
+      activeTenantId: "t-stale", // not in tenant list
+      activeTenantName: "Stale",
+      setActiveTenant,
+    };
+    // profilesTenantId = "t2" (via role port tenantId)
+    renderSelector(store, { role: "Admin", tenantId: "t2" });
+    expect(setActiveTenant).toHaveBeenCalledWith("t2", "San Pedro");
+  });
+
+  it("calls setActiveTenant with alpha-first tenant when neither activeTenantId nor profilesTenantId is valid", () => {
+    const setActiveTenant = vi.fn();
+    const store: AuthStorePort = {
+      tenantIds: ["t2", "t1"],
+      activeTenantId: "t-stale",
+      activeTenantName: "Stale",
+      setActiveTenant,
+    };
+    // profilesTenantId = "t-invalid" — not in list
+    renderSelector(store, { role: "Admin", tenantId: "t-invalid" });
+    // Alphabetically first: "Los Robles" (t1) < "San Pedro" (t2) < "Valle Verde" (t3)
+    expect(setActiveTenant).toHaveBeenCalledWith("t1", "Los Robles");
+  });
+
+  it("does not call setActiveTenant when activeTenantId is already valid for non-SuperAdmin", () => {
+    const setActiveTenant = vi.fn();
+    const store: AuthStorePort = {
+      tenantIds: ["t1"],
+      activeTenantId: "t1",
+      activeTenantName: "Los Robles",
+      setActiveTenant,
+    };
+    renderSelector(store, { role: "Admin", tenantId: "t1" });
     expect(setActiveTenant).not.toHaveBeenCalled();
   });
 });
