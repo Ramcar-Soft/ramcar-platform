@@ -8,7 +8,7 @@ import {
 } from "@ramcar/ui";
 import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { ImageType } from "@ramcar/shared";
-import { useI18n } from "../../adapters/i18n";
+import { useI18n, useRole } from "../../adapters";
 import { ResidentSelect } from "../../shared/resident-select";
 import { VisitPersonStatusSelect } from "../../shared/visit-person-status-select";
 import type { VisitPersonStatus } from "../types";
@@ -49,12 +49,13 @@ export function VisitPersonForm({
   onDraftChange,
 }: VisitPersonFormProps) {
   const { t } = useI18n();
+  const { role } = useRole();
 
   const [fullName, setFullName] = useState(initialDraft?.fullName ?? "");
   const [phone, setPhone] = useState(initialDraft?.phone ?? "");
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [status, setStatus] = useState<VisitPersonStatus>(
-    initialDraft?.status ?? "allowed",
+    initialDraft?.status ?? "flagged",
   );
   const [residentId, setResidentId] = useState(initialDraft?.residentId ?? "");
   const [notes, setNotes] = useState(initialDraft?.notes ?? "");
@@ -166,7 +167,11 @@ export function VisitPersonForm({
 
       <div className="space-y-2">
         <Label>{t("visitPersons.form.status")}</Label>
-        <VisitPersonStatusSelect value={status} onValueChange={setStatus} />
+        <VisitPersonStatusSelect
+          value={status}
+          onValueChange={setStatus}
+          disabled={role === "Guard"}
+        />
       </div>
 
       <div className="space-y-2">

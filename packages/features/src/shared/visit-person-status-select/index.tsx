@@ -46,7 +46,7 @@ export function VisitPersonStatusSelect({
       onValueChange={(v) => onValueChange(v as VisitPersonStatus)}
       disabled={disabled}
     >
-      <SelectTrigger id={id}>
+      <SelectTrigger id={id} data-testid="visit-person-status-select">
         <span className="flex items-center gap-2">
           <StatusDot status={value} />
           <SelectValue />
