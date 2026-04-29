@@ -55,7 +55,7 @@ export function VisitPersonForm({
   const [phone, setPhone] = useState(initialDraft?.phone ?? "");
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [status, setStatus] = useState<VisitPersonStatus>(
-    initialDraft?.status ?? "flagged",
+    role === "Guard" ? "flagged" : (initialDraft?.status ?? "flagged"),
   );
   const [residentId, setResidentId] = useState(initialDraft?.residentId ?? "");
   const [notes, setNotes] = useState(initialDraft?.notes ?? "");

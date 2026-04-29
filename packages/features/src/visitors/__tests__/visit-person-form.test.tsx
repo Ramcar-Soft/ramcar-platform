@@ -140,4 +140,34 @@ describe("VisitPersonForm", () => {
     expect(onSave).toHaveBeenCalledTimes(1);
     expect(onSave.mock.calls[0][0].status).toBe("flagged");
   });
+
+  it("forces 'flagged' for guards even when initialDraft.status is 'allowed'", () => {
+    const onSave = vi.fn();
+    const initialDraft = {
+      fullName: "",
+      phone: "",
+      status: "allowed" as const,
+      residentId: "",
+      notes: "",
+    };
+    renderWithHarness(
+      <VisitPersonForm
+        {...defaultProps}
+        onSave={onSave}
+        initialDraft={initialDraft}
+      />,
+      { role: { role: "Guard" } },
+    );
+
+    const inputs = screen.getAllByPlaceholderText("visitPersons.form.fullName");
+    fireEvent.change(inputs[0], { target: { value: "Test Guard Visitor" } });
+
+    const saveButton = screen
+      .getAllByRole("button")
+      .find((b) => b.getAttribute("type") === "submit");
+    fireEvent.click(saveButton!);
+
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave.mock.calls[0][0].status).toBe("flagged");
+  });
 });

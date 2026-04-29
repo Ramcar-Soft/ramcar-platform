@@ -17,7 +17,7 @@ interface VisitorFormDraft {
 const DEFAULT_DRAFT: VisitorFormDraft = {
   fullName: "",
   phone: "",
-  status: "allowed",
+  status: "flagged",
   residentId: "",
   notes: "",
 };
@@ -30,7 +30,7 @@ function VisitorsPageClient() {
       setDraft({
         fullName: (restored.fullName as string) ?? "",
         phone: (restored.phone as string) ?? "",
-        status: (restored.status as VisitPersonStatus) ?? "allowed",
+        status: (restored.status as VisitPersonStatus) ?? "flagged",
         residentId: (restored.residentId as string) ?? "",
         notes: (restored.notes as string) ?? "",
       });
