@@ -1,6 +1,8 @@
 export { TenantSelector } from "./components/tenant-selector";
 export { TenantSelectorTrigger } from "./components/tenant-selector-trigger";
 export { ConfirmSwitchDialog } from "./components/confirm-switch-dialog";
+export { ContactSupportDialog } from "./components/contact-support-dialog";
+export { canShowTenantSelector, canCreateAnotherTenant, canEditUserTenantField } from "./policy";
 export { useTenantList } from "./hooks/use-tenant-list";
 export { useActiveTenant } from "./hooks/use-active-tenant";
 export { useTenantSwitch } from "./hooks/use-tenant-switch";

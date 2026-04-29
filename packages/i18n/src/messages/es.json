@@ -133,12 +133,6 @@
       "observations": "Observaciones",
       "selectRole": "Seleccionar rol",
       "selectTenant": "Seleccionar condominio",
-      "tenantsMultiLabel": "Condominios asignados",
-      "tenantsSearchPlaceholder": "Buscar condominios…",
-      "tenantsEmpty": "No se encontraron condominios",
-      "tenantPrimaryLabel": "Condominio principal",
-      "tenantSetPrimary": "Marcar como principal",
-      "tenantRemove": "Quitar",
       "selectPhoneType": "Seleccionar tipo de teléfono",
       "password": "Contraseña",
       "confirmPassword": "Confirmar Contraseña",
@@ -147,7 +141,8 @@
       "saving": "Guardando...",
       "cancel": "Cancelar",
       "create": "Crear Usuario",
-      "creating": "Creando..."
+      "creating": "Creando...",
+      "tenantLockedHint": "Los nuevos usuarios se añaden a tu fraccionamiento. Contacta a soporte si necesitas asignar otra."
     },
     "phoneTypes": {
       "house": "Casa",
@@ -202,12 +197,10 @@
       "editTitle": "Editar Usuario"
     },
     "validation": {
-      "atLeastOneTenant": "Selecciona al menos un condominio",
-      "primaryMustBeSelected": "El condominio principal debe ser uno de los condominios asignados",
-      "tooManyTenants": "Un usuario no puede asignarse a más de 50 condominios",
       "usernameInvalid": "Formato de usuario inválido",
       "usernameTooShort": "El usuario debe tener al menos 3 caracteres",
-      "usernameTooLong": "El usuario debe tener a lo sumo 30 caracteres"
+      "usernameTooLong": "El usuario debe tener a lo sumo 30 caracteres",
+      "tenantRequired": "El inquilino es requerido"
     },
     "empty": "No se encontraron usuarios",
     "errorLoading": "Error al cargar usuarios. Por favor, intenta de nuevo."
@@ -731,7 +724,7 @@
       "imageUpdateSuccess": "Imagen de fraccionamiento actualizada",
       "imageRemoveSuccess": "Imagen de fraccionamiento eliminada",
       "imageUploadFailed": "Error al subir la imagen",
-      "adminCreateInfo": "Esta comunidad aparecerá en tu selector tras el próximo inicio de sesión"
+      "adminCreateInfo": "Este fraccionamiento aparecerá en tu selector tras el próximo inicio de sesión"
     },
     "sidebar": {
       "createTitle": "Crear Fraccionamiento",
@@ -768,6 +761,12 @@
       "searchPlaceholder": "Buscar fraccionamientos…",
       "noResults": "No se encontraron fraccionamientos",
       "label": "Seleccionar fraccionamiento"
+    },
+    "contactSupport": {
+      "title": "Contacta a soporte para añadir otro fraccionamiento",
+      "body": "Tu cuenta está configurada para gestionar un fraccionamiento. Contacta a soporte y te ayudaremos a añadir otra.",
+      "supportInstruction": "Escribe a info@ramcarsoft.com o abre una solicitud desde el menú de Ayuda.",
+      "close": "Aceptar"
     }
   },
   "tenantSelector": {

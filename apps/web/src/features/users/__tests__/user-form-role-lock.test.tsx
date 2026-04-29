@@ -23,9 +23,19 @@ let mockCurrentUser: { userId: string; role: string; tenantId: string } | null =
   role: "admin",
   tenantId: "t1",
 };
+let mockActiveTenantId = "t1";
 vi.mock("@ramcar/store", () => ({
   useAppStore: (selector: (s: unknown) => unknown) =>
-    selector({ user: mockCurrentUser }),
+    selector({ user: mockCurrentUser, activeTenantId: mockActiveTenantId, tenantIds: ["t1"] }),
+}));
+
+let mockFeatureRole = "Admin";
+vi.mock("@ramcar/features/adapters", () => ({
+  useRole: () => ({ role: mockFeatureRole, tenantId: "t1", userId: "u1" }),
+}));
+
+vi.mock("@ramcar/features", () => ({
+  canEditUserTenantField: (role: string) => role === "SuperAdmin",
 }));
 
 import { UserForm } from "../components/user-form";
@@ -46,6 +56,7 @@ function makeUser(overrides: Partial<ExtendedUserProfile> = {}): ExtendedUserPro
 describe("UserForm role lock", () => {
   it("admin editing self: role Select is disabled and hint text is shown", () => {
     mockCurrentUser = { userId: "u1", role: "admin", tenantId: "t1" };
+    mockFeatureRole = "Admin";
     render(
       <UserForm
         mode="edit"
@@ -64,6 +75,7 @@ describe("UserForm role lock", () => {
 
   it("admin editing another user: role Select is enabled", () => {
     mockCurrentUser = { userId: "u1", role: "admin", tenantId: "t1" };
+    mockFeatureRole = "Admin";
     render(
       <UserForm
         mode="edit"
@@ -82,6 +94,7 @@ describe("UserForm role lock", () => {
 
   it("super_admin editing self: role Select is enabled", () => {
     mockCurrentUser = { userId: "u1", role: "super_admin", tenantId: "t1" };
+    mockFeatureRole = "SuperAdmin";
     render(
       <UserForm
         mode="edit"
@@ -97,8 +110,32 @@ describe("UserForm role lock", () => {
     expect(roleTrigger).not.toHaveAttribute("data-disabled");
   });
 
+  it("Admin creator: tenant Select is disabled and pre-filled (FR-016)", () => {
+    mockCurrentUser = { userId: "u1", role: "admin", tenantId: "t1" };
+    mockFeatureRole = "Admin";
+    mockActiveTenantId = "t1";
+    render(
+      <UserForm
+        mode="create"
+        tenants={[{ id: "t1", name: "Residencial T1" }]}
+        userGroups={[]}
+        isPending={false}
+        onSubmit={async () => {}}
+        onCancel={() => {}}
+      />,
+    );
+    // Tenant select must be rendered disabled
+    const comboboxes = screen.getAllByRole("combobox");
+    // The tenant select is the second combobox (after role)
+    const tenantSelect = comboboxes[1];
+    expect(tenantSelect).toHaveAttribute("data-disabled");
+    // Hint text is shown
+    expect(screen.getByText("form.tenantLockedHint")).toBeInTheDocument();
+  });
+
   it("admin self-submit does not include role in onSubmit payload", async () => {
     mockCurrentUser = { userId: "u1", role: "admin", tenantId: "t1" };
+    mockFeatureRole = "Admin";
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     const { container } = render(
       <UserForm

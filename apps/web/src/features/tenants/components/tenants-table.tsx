@@ -14,7 +14,8 @@ import {
 } from "@ramcar/ui";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
-import { useKeyboardNavigation, ShortcutsHint } from "@ramcar/features";
+import { useKeyboardNavigation, ShortcutsHint, canCreateAnotherTenant, ContactSupportDialog } from "@ramcar/features";
+import { useRole } from "@ramcar/features/adapters";
 import { useTenants } from "../hooks/use-tenants";
 import { useTenantsTableColumns } from "./tenants-table-columns";
 import { TenantSidebar } from "./tenant-sidebar";
@@ -23,6 +24,7 @@ import type { Tenant } from "../types";
 
 export function TenantsTable() {
   const t = useTranslations("tenants");
+  const { role } = useRole();
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"active" | "inactive" | "all">("active");
@@ -31,6 +33,7 @@ export function TenantsTable() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarMode, setSidebarMode] = useState<"create" | "edit">("create");
   const [selectedTenantId, setSelectedTenantId] = useState<string | undefined>(undefined);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const highlightedRowRef = useRef<HTMLTableRowElement | null>(null);
@@ -45,10 +48,15 @@ export function TenantsTable() {
   }, []);
 
   const handleCreate = useCallback(() => {
-    setSelectedTenantId(undefined);
-    setSidebarMode("create");
-    setSidebarOpen(true);
-  }, []);
+    const tenantsCount = tenants.length;
+    if (canCreateAnotherTenant(role, tenantsCount)) {
+      setSelectedTenantId(undefined);
+      setSidebarMode("create");
+      setSidebarOpen(true);
+    } else {
+      setContactDialogOpen(true);
+    }
+  }, [role, tenants.length]);
 
   const columns = useTenantsTableColumns(handleEdit);
 
@@ -159,6 +167,10 @@ export function TenantsTable() {
         mode={sidebarMode}
         tenantId={selectedTenantId}
         onClose={() => setSidebarOpen(false)}
+      />
+      <ContactSupportDialog
+        open={contactDialogOpen}
+        onClose={() => setContactDialogOpen(false)}
       />
     </div>
   );

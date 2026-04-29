@@ -25,7 +25,16 @@ vi.mock("@ramcar/store", () => ({
     selector({
       user: { userId: "u1", role: "super_admin", tenantId: "t1" },
       tenantIds: ["t1"],
+      activeTenantId: "t1",
     }),
+}));
+
+vi.mock("@ramcar/features/adapters", () => ({
+  useRole: () => ({ role: "SuperAdmin", tenantId: "t1", userId: "u1" }),
+}));
+
+vi.mock("@ramcar/features", () => ({
+  canEditUserTenantField: () => true,
 }));
 
 import { UserForm } from "../components/user-form";
@@ -154,5 +163,51 @@ describe("UserForm — format validation", () => {
     const payload = onSubmit.mock.calls[0][0] as Record<string, unknown>;
     expect(payload.username).toBe("janedoe");
     expect(payload.username).not.toBe(payload.phone);
+  });
+
+  it("admin/guard payload sends tenant_ids as length-1 array + primary_tenant_id (FR-022)", async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const guardProfile = makeUser({ role: "guard", tenantId: "t1" });
+    const { container } = render(
+      <UserForm
+        mode="edit"
+        initialData={guardProfile}
+        tenants={[{ id: "t1", name: "T" }]}
+        userGroups={[]}
+        isPending={false}
+        onSubmit={onSubmit}
+        onCancel={() => {}}
+      />,
+    );
+    const form = container.querySelector("form")!;
+    form.requestSubmit();
+    await new Promise((r) => setTimeout(r, 0));
+    const payload = onSubmit.mock.calls[0][0] as Record<string, unknown>;
+    expect(Array.isArray(payload.tenant_ids)).toBe(true);
+    expect((payload.tenant_ids as string[]).length).toBe(1);
+    expect(payload.primary_tenant_id).toBe((payload.tenant_ids as string[])[0]);
+    expect(payload.tenantId).toBeUndefined();
+  });
+
+  it("missing tenant fails validation for guard role", async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const guardProfile = makeUser({ role: "guard", tenantId: "" });
+    const { container } = render(
+      <UserForm
+        mode="edit"
+        initialData={guardProfile}
+        tenants={[]}
+        userGroups={[]}
+        isPending={false}
+        onSubmit={onSubmit}
+        onCancel={() => {}}
+      />,
+    );
+    const form = container.querySelector("form")!;
+    form.requestSubmit();
+    await new Promise((r) => setTimeout(r, 0));
+    // Validation should fail; onSubmit not called
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText(/users\.validation\.tenantRequired/i)).toBeInTheDocument();
   });
 });

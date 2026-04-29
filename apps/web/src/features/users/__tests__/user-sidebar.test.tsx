@@ -183,7 +183,7 @@ describe("UserSidebar — create mode", () => {
     );
 
     act(() => {
-      capturedOnSubmit?.({ fullName: "New", email: "new@x.com", role: "guard", tenantId: "t1", tenantIds: ["t1"], primaryTenantId: "t1", address: "a", username: "new", phone: "1", userGroupIds: [] });
+      capturedOnSubmit?.({ fullName: "New", email: "new@x.com", role: "guard", tenantId: "t1", address: "a", username: "new", phone: "1", userGroupIds: [] });
     });
 
     expect(mockCreateMutate).toHaveBeenCalledTimes(1);
@@ -257,7 +257,7 @@ describe("UserSidebar — edit mode", () => {
     );
 
     act(() => {
-      capturedOnSubmit?.({ fullName: "Alice Updated", email: "alice@x.com", role: "admin", tenantId: "t1", tenantIds: ["t1"], primaryTenantId: "t1", address: "a", username: "alice", phone: "1", userGroupIds: [] });
+      capturedOnSubmit?.({ fullName: "Alice Updated", email: "alice@x.com", role: "admin", tenantId: "t1", address: "a", username: "alice", phone: "1", userGroupIds: [] });
     });
 
     expect(mockUpdateMutate).toHaveBeenCalledTimes(1);
