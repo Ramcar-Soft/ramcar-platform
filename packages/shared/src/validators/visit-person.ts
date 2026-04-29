@@ -9,7 +9,7 @@ const sortOrderEnum = z.enum(["asc", "desc"]);
 export const createVisitPersonSchema = z.object({
   type: visitPersonTypeEnum,
   fullName: z.string().min(1).max(255),
-  status: visitPersonStatusEnum.default("allowed"),
+  status: visitPersonStatusEnum.default("flagged"),
   phone: phoneOptionalSchema.optional(),
   company: z.string().max(255).optional().or(z.literal("")),
   residentId: z.string().uuid().optional(),
