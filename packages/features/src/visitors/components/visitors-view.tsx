@@ -207,8 +207,13 @@ export function VisitorsView({
             toast.success(t("visitPersons.messages.updated"));
             handleCloseSidebar();
           },
-          onError: () => {
-            toast.error(t("visitPersons.messages.errorUpdating"));
+          onError: (err: unknown) => {
+            const status = (err as { status?: number })?.status;
+            if (status === 403) {
+              toast.error(t("visitPersons.messages.forbidden"));
+            } else {
+              toast.error(t("visitPersons.messages.errorUpdating"));
+            }
           },
         },
       );
