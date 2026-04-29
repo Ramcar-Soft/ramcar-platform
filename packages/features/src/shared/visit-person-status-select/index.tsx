@@ -29,17 +29,23 @@ interface VisitPersonStatusSelectProps {
   value: VisitPersonStatus;
   onValueChange: (value: VisitPersonStatus) => void;
   id?: string;
+  disabled?: boolean;
 }
 
 export function VisitPersonStatusSelect({
   value,
   onValueChange,
   id,
+  disabled,
 }: VisitPersonStatusSelectProps) {
   const { t } = useI18n();
 
   return (
-    <Select value={value} onValueChange={(v) => onValueChange(v as VisitPersonStatus)}>
+    <Select
+      value={value}
+      onValueChange={(v) => onValueChange(v as VisitPersonStatus)}
+      disabled={disabled}
+    >
       <SelectTrigger id={id}>
         <span className="flex items-center gap-2">
           <StatusDot status={value} />
