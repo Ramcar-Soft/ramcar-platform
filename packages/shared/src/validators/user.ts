@@ -27,7 +27,7 @@ const adminGuardTenantObj = z.object({
 
 const baseCreateUserObj = z.object({
   fullName: z.string().min(1, "Full name is required").max(255),
-  email: emailSchema,
+  email: emailSchema.optional().or(z.literal("")),
   address: z.string().max(500).optional().or(z.literal("")),
   username: usernameOptionalSchema.optional(),
   phone: phoneOptionalSchema.optional(),

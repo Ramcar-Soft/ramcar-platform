@@ -308,6 +308,33 @@ describe("UsersService", () => {
       ).rejects.toThrow(ConflictException);
     });
 
+    it("skips email-uniqueness check when email is empty", async () => {
+      const dtoWithoutEmail = { ...guardDto, email: "" };
+
+      await service.create(
+        dtoWithoutEmail,
+        makeAuthUser("admin"),
+        makeScope("admin"),
+      );
+
+      expect(mockRepository.checkEmailExists).not.toHaveBeenCalled();
+      expect(mockRepository.create).toHaveBeenCalledWith(dtoWithoutEmail);
+    });
+
+    it("skips email-uniqueness check when email is missing", async () => {
+      const dtoWithoutEmail: Record<string, unknown> = { ...guardDto };
+      delete dtoWithoutEmail.email;
+
+      await service.create(
+        dtoWithoutEmail as Parameters<typeof service.create>[0],
+        makeAuthUser("admin"),
+        makeScope("admin"),
+      );
+
+      expect(mockRepository.checkEmailExists).not.toHaveBeenCalled();
+      expect(mockRepository.create).toHaveBeenCalled();
+    });
+
     it("rejects duplicate username", async () => {
       mockRepository.checkUsernameExists.mockResolvedValue(true);
 

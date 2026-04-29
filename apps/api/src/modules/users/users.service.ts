@@ -146,9 +146,11 @@ export class UsersService {
       }
     }
 
-    const emailExists = await this.repository.checkEmailExists(dto.email);
-    if (emailExists) {
-      throw new ConflictException("A user with this email already exists");
+    if (dto.email) {
+      const emailExists = await this.repository.checkEmailExists(dto.email);
+      if (emailExists) {
+        throw new ConflictException("A user with this email already exists");
+      }
     }
 
     if (dto.username) {
@@ -399,7 +401,7 @@ export class UsersService {
       tenantName: tenantData?.name ?? "",
       tenantIds: resolvedTenantIds,
       fullName: row.full_name as string,
-      email: row.email as string,
+      email: (row.email as string | null) ?? null,
       role: targetRole,
       address: (row.address as string) ?? null,
       username: (row.username as string) ?? null,

@@ -1,9 +1,10 @@
+import { randomUUID } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import { SupabaseService } from "../../infrastructure/supabase/supabase.service";
 import type { UserFiltersDto } from "./dto/user-filters.dto";
 import type { CreateUserDto } from "./dto/create-user.dto";
 import type { UpdateUserDto } from "./dto/update-user.dto";
-import type { UserStatus } from "@ramcar/shared";
+import { NO_EMAIL_SUFFIX, type UserStatus } from "@ramcar/shared";
 import { applyTenantScope, type TenantScope } from "../../common/utils/tenant-scope";
 
 @Injectable()
@@ -100,9 +101,17 @@ export class UsersRepository {
       : Math.random().toString(36).slice(2) +
         Math.random().toString(36).slice(2);
 
+    const hasRealEmail = Boolean(dto.email && dto.email.length > 0);
+    // Supabase Auth requires email or phone; when neither is provided we mint a
+    // synthetic placeholder so auth.users stays valid. The profiles row stores
+    // NULL — extractUserProfile() strips this suffix on the way back out.
+    const authEmail = hasRealEmail
+      ? dto.email!
+      : `${randomUUID()}${NO_EMAIL_SUFFIX}`;
+
     const { data: authUser, error: authError } =
       await client.auth.admin.createUser({
-        email: dto.email,
+        email: authEmail,
         password,
         email_confirm: true,
         app_metadata: {
@@ -123,7 +132,7 @@ export class UsersRepository {
         user_id: authUser.user.id,
         tenant_id: effectiveTenantId,
         full_name: dto.fullName,
-        email: dto.email,
+        email: hasRealEmail ? dto.email! : null,
         role: dto.role,
         address: dto.address || null,
         username: dto.username || null,
@@ -142,10 +151,10 @@ export class UsersRepository {
     }
 
     let recoveryLink: string | null = null;
-    if (!hasPassword) {
+    if (!hasPassword && hasRealEmail) {
       const { data: linkData } = await client.auth.admin.generateLink({
         type: "recovery",
-        email: dto.email,
+        email: dto.email!,
       });
       recoveryLink = linkData?.properties?.action_link ?? null;
     }

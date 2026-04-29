@@ -30,7 +30,7 @@ export function getUserColumns({ t, onEdit, onToggleStatus }: GetColumnsOptions)
       key: "email",
       header: t("columns.email"),
       sortable: true,
-      render: (user) => user.email,
+      render: (user) => user.email ?? "",
     },
     {
       key: "role",

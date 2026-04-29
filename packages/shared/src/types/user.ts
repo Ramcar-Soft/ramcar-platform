@@ -16,7 +16,7 @@ export interface ExtendedUserProfile {
   tenantName: string;
   tenantIds: string[];
   fullName: string;
-  email: string;
+  email: string | null;
   role: Role;
   address: string | null;
   username: string | null;

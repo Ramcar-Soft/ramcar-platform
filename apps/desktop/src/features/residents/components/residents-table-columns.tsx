@@ -17,7 +17,7 @@ export function getResidentColumns(t: (key: string) => string): ColumnDef[] {
     {
       key: "email",
       header: t("residents.columns.email"),
-      render: (r) => r.email,
+      render: (r) => r.email ?? "",
     },
     {
       key: "phone",

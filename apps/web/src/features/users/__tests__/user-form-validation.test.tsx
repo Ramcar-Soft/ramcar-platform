@@ -189,6 +189,33 @@ describe("UserForm — format validation", () => {
     expect(payload.tenantId).toBeUndefined();
   });
 
+  it("submits with email: undefined when the email field is left blank", async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const profileWithoutEmail = makeUser({
+      role: "super_admin",
+      email: null,
+      username: "",
+      phone: "",
+    });
+    const { container } = render(
+      <UserForm
+        mode="edit"
+        initialData={profileWithoutEmail}
+        tenants={[{ id: "t1", name: "T" }]}
+        userGroups={[]}
+        isPending={false}
+        onSubmit={onSubmit}
+        onCancel={() => {}}
+      />,
+    );
+    const form = container.querySelector("form")!;
+    form.requestSubmit();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    const payload = onSubmit.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.email).toBeUndefined();
+  });
+
   it("missing tenant fails validation for guard role", async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     const guardProfile = makeUser({ role: "guard", tenantId: "" });

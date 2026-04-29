@@ -24,7 +24,7 @@ export {
   type UserFiltersInput,
   type ToggleStatusInput,
 } from "./validators/user";
-export { extractUserProfile } from "./utils/extract-user-profile";
+export { extractUserProfile, NO_EMAIL_SUFFIX } from "./utils/extract-user-profile";
 export type {
   VehicleType,
   Vehicle,

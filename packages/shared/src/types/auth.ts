@@ -4,7 +4,7 @@ export interface UserProfile {
   id: string;
   userId: string;
   tenantId: string;
-  email: string;
+  email: string | null;
   fullName: string;
   role: Role;
 }
