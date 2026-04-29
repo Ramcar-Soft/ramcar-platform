@@ -639,6 +639,7 @@
       "vehicle": "Vehículo",
       "status": "Estado",
       "registeredBy": "Registrado por",
+      "notes": "Notas",
       "date": "Fecha",
       "unit": "Unidad",
       "mode": "Modo"
