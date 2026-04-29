@@ -43,3 +43,5 @@ export type {
   VehicleYearInputProps,
   VehicleBrand,
 } from "./vehicle-brand-model";
+
+export { PlatesCell } from "./plates-cell";
