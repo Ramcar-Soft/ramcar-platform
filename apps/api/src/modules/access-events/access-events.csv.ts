@@ -87,6 +87,7 @@ export function itemToRow(
           ] ?? ""
         : "",
       item.registeredBy.fullName,
+      item.notes ?? "",
       formatDate(item.createdAt),
     ];
   } else if (subpage === "providers") {
@@ -102,6 +103,7 @@ export function itemToRow(
           ] ?? ""
         : "",
       item.registeredBy.fullName,
+      item.notes ?? "",
       formatDate(item.createdAt),
     ];
   } else {
@@ -115,6 +117,7 @@ export function itemToRow(
       mode,
       vehicle,
       item.registeredBy.fullName,
+      item.notes ?? "",
       formatDate(item.createdAt),
     ];
   }

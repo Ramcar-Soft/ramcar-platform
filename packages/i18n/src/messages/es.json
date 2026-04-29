@@ -484,6 +484,8 @@
       "fullName": "Nombre Completo",
       "status": "Estatus",
       "residentName": "Residente",
+      "residentAddress": "Dirección",
+      "plates": "Placas",
       "company": "Empresa",
       "phone": "Teléfono",
       "edit": "Editar"
@@ -548,6 +550,8 @@
       "company": "Empresa",
       "phone": "Teléfono",
       "status": "Estado",
+      "residentAddress": "Dirección",
+      "plates": "Placas",
       "edit": "Editar"
     },
     "sidebar": {
@@ -635,6 +639,7 @@
       "vehicle": "Vehículo",
       "status": "Estado",
       "registeredBy": "Registrado por",
+      "notes": "Notas",
       "date": "Fecha",
       "unit": "Unidad",
       "mode": "Modo"

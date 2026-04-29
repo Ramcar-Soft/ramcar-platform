@@ -15,6 +15,7 @@
     "./shared/color-select": "./src/shared/color-select/index.ts",
     "./shared/vehicle-brand-model": "./src/shared/vehicle-brand-model/index.ts",
     "./shared/vehicle-label": "./src/shared/vehicle-label/index.ts",
+    "./shared": "./src/shared/index.ts",
     "./tenant-selector": "./src/tenant-selector/index.ts"
   },
   "scripts": {

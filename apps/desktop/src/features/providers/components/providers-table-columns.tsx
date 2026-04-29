@@ -1,5 +1,6 @@
 import { Badge, Button } from "@ramcar/ui";
 import { Pencil } from "lucide-react";
+import { PlatesCell } from "@ramcar/features/shared";
 import type { VisitPerson, VisitPersonStatus } from "../types";
 
 const statusVariantMap: Record<VisitPersonStatus, "default" | "warning" | "destructive"> = {
@@ -29,6 +30,16 @@ export function getProviderColumns(
     { key: "company", header: t("providers.columns.company"), render: (p) => p.company ?? "—" },
     { key: "phone", header: t("providers.columns.phone"), render: (p) => p.phone ?? "—" },
     { key: "status", header: t("providers.columns.status"), render: (p) => <Badge variant={statusVariantMap[p.status]}>{t(`visitPersons.status.${p.status}`)}</Badge> },
+    {
+      key: "residentAddress",
+      header: t("providers.columns.residentAddress"),
+      render: (p) => <span className="text-sm">{p.residentAddress ?? "—"}</span>,
+    },
+    {
+      key: "plates",
+      header: t("providers.columns.plates"),
+      render: (p) => <PlatesCell plates={p.vehiclePlates} />,
+    },
   ];
 
   if (options.onEditPerson) {

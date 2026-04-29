@@ -76,21 +76,21 @@ describe("getHeaderRow", () => {
   it("returns the English visitors header", () => {
     const row = getHeaderRow("visitor", "en", false);
     expect(row).toBe(
-      "Code,Name,Direction,Resident visited,Vehicle,Status,Registered by,Date\r\n",
+      "Code,Name,Direction,Resident visited,Vehicle,Status,Registered by,Notes,Date\r\n",
     );
   });
 
   it("returns the Spanish providers header", () => {
     const row = getHeaderRow("service_provider", "es", false);
     expect(row).toBe(
-      "Código,Nombre,Empresa,Dirección,Vehículo,Estado,Registrado por,Fecha\r\n",
+      "Código,Nombre,Empresa,Dirección,Vehículo,Estado,Registrado por,Notas,Fecha\r\n",
     );
   });
 
   it("returns the English residents header", () => {
     const row = getHeaderRow("resident", "en", false);
     expect(row).toBe(
-      "Name,Unit,Direction,Mode,Vehicle,Registered by,Date\r\n",
+      "Name,Unit,Direction,Mode,Vehicle,Registered by,Notes,Date\r\n",
     );
   });
 
@@ -139,7 +139,7 @@ function makeVisitorItem(
 }
 
 describe("itemToRow — visitors", () => {
-  it("produces the 8-column visitor row in English", () => {
+  it("produces the 9-column visitor row in English", () => {
     const row = itemToRow(makeVisitorItem(), "visitor", "en", false);
     expect(row).toContain("V-0001");
     expect(row).toContain("Jane Doe");
@@ -203,10 +203,23 @@ describe("itemToRow — visitors", () => {
     );
     expect(row).toContain("'=HYPERLINK(x)");
   });
+
+  it("includes notes when present", () => {
+    const row = itemToRow(makeVisitorItem({ notes: "Gate left open" }), "visitor", "en", false);
+    const parts = row.replace(/\r\n$/, "").split(",");
+    // new column order: code,name,dir,resident,vehicle,status,registeredBy,notes,date
+    expect(parts[7]).toBe("Gate left open");
+  });
+
+  it("emits empty string for null notes", () => {
+    const row = itemToRow(makeVisitorItem({ notes: null }), "visitor", "en", false);
+    const parts = row.replace(/\r\n$/, "").split(",");
+    expect(parts[7]).toBe("");
+  });
 });
 
 describe("itemToRow — providers", () => {
-  it("produces 8-column provider row with company before direction", () => {
+  it("produces 9-column provider row with company before direction", () => {
     const row = itemToRow(
       makeVisitorItem({
         personType: "service_provider",
@@ -220,10 +233,22 @@ describe("itemToRow — providers", () => {
       false,
     );
     const parts = row.replace(/\r\n$/, "").split(",");
-    // Columns: code, name, company, direction, vehicle, status, registeredBy, date
+    // Columns: code, name, company, direction, vehicle, status, registeredBy, notes, date
     expect(parts[0]).toBe("V-0001");
     expect(parts[2]).toBe("Widgets Co");
     expect(parts[3]).toBe("Entry");
+  });
+
+  it("includes notes for provider row", () => {
+    const row = itemToRow(
+      makeVisitorItem({ personType: "service_provider", notes: "Side entrance" }),
+      "service_provider",
+      "en",
+      false,
+    );
+    const parts = row.replace(/\r\n$/, "").split(",");
+    // code,name,company,direction,vehicle,status,registeredBy,notes,date
+    expect(parts[7]).toBe("Side entrance");
   });
 });
 
@@ -245,15 +270,38 @@ describe("itemToRow — residents", () => {
     };
   }
 
-  it("produces the 7-column resident row with Unit after Name", () => {
+  it("produces the 8-column resident row with Unit after Name", () => {
     const row = itemToRow(makeResidentItem(), "resident", "en", false);
     const parts = row.replace(/\r\n$/, "").split(",");
-    // Columns: name, unit, direction, mode, vehicle, registeredBy, date
+    // Columns: name, unit, direction, mode, vehicle, registeredBy, notes, date
     expect(parts[0]).toBe("Alice");
     expect(parts[1]).toBe("A-101");
     expect(parts[2]).toBe("Exit");
     expect(parts[3]).toBe("Pedestrian");
     expect(parts[4]).toBe("");
+  });
+
+  it("includes notes for resident row", () => {
+    function makeResidentItemWithNotes(): AccessEventListItem {
+      return {
+        id: "e3",
+        tenantId: "t1",
+        tenantName: "Acme",
+        personType: "resident",
+        direction: "entry",
+        accessMode: "pedestrian",
+        notes: "Resident returning late",
+        createdAt: "2026-04-22T12:00:00.000Z",
+        visitPerson: null,
+        resident: { id: "r1", fullName: "Bob", unit: "B-202" },
+        vehicle: null,
+        registeredBy: { id: "g1", fullName: "Guard Bob" },
+      };
+    }
+    const row = itemToRow(makeResidentItemWithNotes(), "resident", "en", false);
+    const parts = row.replace(/\r\n$/, "").split(",");
+    // name,unit,direction,mode,vehicle,registeredBy,notes,date
+    expect(parts[6]).toBe("Resident returning late");
   });
 });
 

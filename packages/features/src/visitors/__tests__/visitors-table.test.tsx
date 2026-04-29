@@ -13,7 +13,10 @@ const mockPerson: VisitPerson = {
   status: "allowed",
   phone: null,
   company: null,
-  residentId: null,
+  residentId: "res-1",
+  residentName: "Roberto Residente",
+  residentAddress: "Calle Falsa 123",
+  vehiclePlates: ["ABC-123", "DEF-456"],
   notes: null,
   registeredBy: "user-1",
   createdAt: new Date().toISOString(),
@@ -70,5 +73,19 @@ describe("VisitorsTable", () => {
     renderWithHarness(<VisitorsTable {...defaultProps} isLoading />);
     const skeletons = document.querySelectorAll(".animate-pulse, [class*='skeleton']");
     expect(skeletons.length).toBeGreaterThan(0);
+  });
+
+  it("renders the resident address column", () => {
+    renderWithHarness(<VisitorsTable {...defaultProps} />);
+    const addresses = screen.queryAllByText("Calle Falsa 123");
+    expect(addresses.length).toBeGreaterThan(0);
+  });
+
+  it("renders the plates column with the first plate and a +1 badge", () => {
+    renderWithHarness(<VisitorsTable {...defaultProps} />);
+    const plates = screen.queryAllByText("ABC-123");
+    expect(plates.length).toBeGreaterThan(0);
+    const badges = screen.queryAllByText("+1");
+    expect(badges.length).toBeGreaterThan(0);
   });
 });

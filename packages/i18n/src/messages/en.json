@@ -484,6 +484,8 @@
       "fullName": "Full Name",
       "status": "Status",
       "residentName": "Resident",
+      "residentAddress": "Address",
+      "plates": "Plates",
       "company": "Company",
       "phone": "Phone",
       "edit": "Edit"
@@ -548,6 +550,8 @@
       "company": "Company",
       "phone": "Phone",
       "status": "Status",
+      "residentAddress": "Address",
+      "plates": "Plates",
       "edit": "Edit"
     },
     "sidebar": {
@@ -635,6 +639,7 @@
       "vehicle": "Vehicle",
       "status": "Status",
       "registeredBy": "Registered by",
+      "notes": "Notes",
       "date": "Date",
       "unit": "Unit",
       "mode": "Mode"

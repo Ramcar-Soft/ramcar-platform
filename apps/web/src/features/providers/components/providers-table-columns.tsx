@@ -2,6 +2,7 @@
 
 import { Badge, Button } from "@ramcar/ui";
 import { Pencil } from "lucide-react";
+import { PlatesCell } from "@ramcar/features/shared";
 import type { VisitPerson, VisitPersonStatus } from "../types";
 
 const statusVariantMap: Record<VisitPersonStatus, "default" | "destructive" | "warning"> = {
@@ -53,6 +54,18 @@ export function getProviderColumns(
       render: (p) => (
         <Badge variant={statusVariantMap[p.status]}>{tStatus(p.status)}</Badge>
       ),
+    },
+    {
+      key: "resident_address",
+      header: t("columns.residentAddress"),
+      render: (p) => (
+        <span className="text-sm">{p.residentAddress ?? "—"}</span>
+      ),
+    },
+    {
+      key: "plates",
+      header: t("columns.plates"),
+      render: (p) => <PlatesCell plates={p.vehiclePlates} />,
     },
   ];
 

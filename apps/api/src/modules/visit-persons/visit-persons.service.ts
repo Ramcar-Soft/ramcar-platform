@@ -28,13 +28,13 @@ export class VisitPersonsService {
     const safeDto: CreateVisitPersonDto =
       role === "admin" || role === "super_admin" ? dto : { ...dto, status: "flagged" };
     const row = await this.repository.create(safeDto, tenantId, registeredBy);
-    return this.enrichWithResidentName(this.mapRow(row));
+    return this.enrichWithResidentDisplay(this.mapRow(row));
   }
 
   async findById(id: string, scope: TenantScope): Promise<VisitPerson> {
     const row = await this.repository.findById(id, scope);
     if (!row) throw new NotFoundException("Visit person not found");
-    return this.enrichWithResidentName(this.mapRow(row));
+    return this.enrichWithResidentDisplay(this.mapRow(row));
   }
 
   async list(
@@ -47,18 +47,37 @@ export class VisitPersonsService {
     const { data, count } = await this.repository.list(filters, scope);
     const persons = data.map((row) => this.mapRow(row));
 
+    if (persons.length === 0) {
+      return {
+        data: [],
+        meta: {
+          page: filters.page,
+          pageSize: filters.pageSize,
+          total: count,
+          totalPages: Math.ceil(count / filters.pageSize),
+        },
+      };
+    }
+
     const residentIds = persons
       .map((p) => p.residentId)
       .filter((id): id is string => !!id);
+    const personIds = persons.map((p) => p.id);
 
-    const residentNameMap = await this.fetchResidentNames(residentIds);
+    const [residentInfoMap, platesMap] = await Promise.all([
+      this.fetchResidentDisplayInfo(residentIds),
+      this.fetchVehiclePlates(personIds, scope),
+    ]);
 
-    const enriched = persons.map((p) => ({
-      ...p,
-      residentName: p.residentId
-        ? residentNameMap.get(p.residentId) ?? undefined
-        : undefined,
-    }));
+    const enriched = persons.map((p) => {
+      const residentInfo = p.residentId ? residentInfoMap.get(p.residentId) : undefined;
+      return {
+        ...p,
+        residentName: residentInfo?.fullName,
+        residentAddress: residentInfo?.address ?? null,
+        vehiclePlates: platesMap.get(p.id) ?? [],
+      };
+    });
 
     return {
       data: enriched,
@@ -82,7 +101,7 @@ export class VisitPersonsService {
     }
     const row = await this.repository.update(id, dto, scope);
     if (!row) throw new NotFoundException("Visit person not found");
-    return this.enrichWithResidentName(this.mapRow(row));
+    return this.enrichWithResidentDisplay(this.mapRow(row));
   }
 
   private mapRow(row: Record<string, unknown>): VisitPerson {
@@ -103,30 +122,70 @@ export class VisitPersonsService {
     };
   }
 
-  private async enrichWithResidentName(person: VisitPerson): Promise<VisitPerson> {
+  private async enrichWithResidentDisplay(person: VisitPerson): Promise<VisitPerson> {
     if (!person.residentId) return person;
-    const names = await this.fetchResidentNames([person.residentId]);
+    const info = await this.fetchResidentDisplayInfo([person.residentId]);
+    const entry = info.get(person.residentId);
     return {
       ...person,
-      residentName: names.get(person.residentId) ?? undefined,
+      residentName: entry?.fullName,
+      residentAddress: entry?.address ?? null,
     };
   }
 
-  private async fetchResidentNames(
+  private async fetchResidentDisplayInfo(
     residentIds: string[],
-  ): Promise<Map<string, string>> {
+  ): Promise<Map<string, { fullName: string; address: string | null }>> {
     if (residentIds.length === 0) return new Map();
 
     const uniqueIds = [...new Set(residentIds)];
     const { data } = await this.supabase
       .getClient()
       .from("profiles")
-      .select("id, full_name")
+      .select("id, full_name, address")
       .in("id", uniqueIds);
 
-    const map = new Map<string, string>();
+    const map = new Map<string, { fullName: string; address: string | null }>();
     for (const row of data ?? []) {
-      map.set(row.id as string, row.full_name as string);
+      map.set(row.id as string, {
+        fullName: row.full_name as string,
+        address: (row.address as string | null) ?? null,
+      });
+    }
+    return map;
+  }
+
+  private async fetchVehiclePlates(
+    visitPersonIds: string[],
+    scope: TenantScope,
+  ): Promise<Map<string, string[]>> {
+    if (visitPersonIds.length === 0) return new Map();
+
+    const uniqueIds = [...new Set(visitPersonIds)];
+    let query = this.supabase
+      .getClient()
+      .from("vehicles")
+      .select("visit_person_id, plate");
+
+    if (scope.scope !== "all") {
+      query = query.eq("tenant_id", scope.tenantId) as typeof query;
+    }
+
+    const { data, error } = await query
+      .in("visit_person_id", uniqueIds)
+      .is("deleted_at", null)
+      .not("plate", "is", null)
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    const map = new Map<string, string[]>();
+    for (const row of data ?? []) {
+      const id = row.visit_person_id as string;
+      const plate = row.plate as string;
+      const existing = map.get(id);
+      if (existing) existing.push(plate);
+      else map.set(id, [plate]);
     }
     return map;
   }

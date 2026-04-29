@@ -2,6 +2,7 @@ import { Button } from "@ramcar/ui";
 import { Pencil } from "lucide-react";
 import type { VisitPerson } from "../types";
 import { VisitPersonStatusBadge } from "./visit-person-status-badge";
+import { PlatesCell } from "../../shared/plates-cell";
 
 interface ColumnDef {
   key: string;
@@ -38,6 +39,18 @@ export function getVisitorColumns(
       key: "resident_name",
       header: t("visitPersons.columns.residentName"),
       render: (p) => p.residentName ?? "—",
+    },
+    {
+      key: "resident_address",
+      header: t("visitPersons.columns.residentAddress"),
+      render: (p) => (
+        <span className="text-sm">{p.residentAddress ?? "—"}</span>
+      ),
+    },
+    {
+      key: "plates",
+      header: t("visitPersons.columns.plates"),
+      render: (p) => <PlatesCell plates={p.vehiclePlates} />,
     },
   ];
 

@@ -69,13 +69,13 @@ export interface AccessEventListResponse {
 export const LOGBOOK_CSV_LABELS = {
   en: {
     visitors: {
-      columns: ["Code", "Name", "Direction", "Resident visited", "Vehicle", "Status", "Registered by", "Date"],
+      columns: ["Code", "Name", "Direction", "Resident visited", "Vehicle", "Status", "Registered by", "Notes", "Date"],
     },
     providers: {
-      columns: ["Code", "Name", "Company", "Direction", "Vehicle", "Status", "Registered by", "Date"],
+      columns: ["Code", "Name", "Company", "Direction", "Vehicle", "Status", "Registered by", "Notes", "Date"],
     },
     residents: {
-      columns: ["Name", "Unit", "Direction", "Mode", "Vehicle", "Registered by", "Date"],
+      columns: ["Name", "Unit", "Direction", "Mode", "Vehicle", "Registered by", "Notes", "Date"],
     },
     direction: { entry: "Entry", exit: "Exit" },
     accessMode: { vehicle: "Vehicle", pedestrian: "Pedestrian" },
@@ -83,13 +83,13 @@ export const LOGBOOK_CSV_LABELS = {
   },
   es: {
     visitors: {
-      columns: ["Código", "Nombre", "Dirección", "Residente visitado", "Vehículo", "Estado", "Registrado por", "Fecha"],
+      columns: ["Código", "Nombre", "Dirección", "Residente visitado", "Vehículo", "Estado", "Registrado por", "Notas", "Fecha"],
     },
     providers: {
-      columns: ["Código", "Nombre", "Empresa", "Dirección", "Vehículo", "Estado", "Registrado por", "Fecha"],
+      columns: ["Código", "Nombre", "Empresa", "Dirección", "Vehículo", "Estado", "Registrado por", "Notas", "Fecha"],
     },
     residents: {
-      columns: ["Nombre", "Unidad", "Dirección", "Modo", "Vehículo", "Registrado por", "Fecha"],
+      columns: ["Nombre", "Unidad", "Dirección", "Modo", "Vehículo", "Registrado por", "Notas", "Fecha"],
     },
     direction: { entry: "Entrada", exit: "Salida" },
     accessMode: { vehicle: "Vehículo", pedestrian: "Peatón" },
