@@ -21,6 +21,12 @@
       "package": "@ramcar/features/shared/vehicle-brand-model",
       "addedAt": "2026-04-21",
       "notes": "Spec 016. VehicleBrandSelect, VehicleModelSelect, VehicleYearInput — Mexico-market dataset, zero runtime I/O."
+    },
+    {
+      "name": "vehicle-brand-logos",
+      "package": "@ramcar/features/shared/vehicle-brand-logos",
+      "addedAt": "2026-04-28",
+      "notes": "Spec 022. <VehicleBrandLogo /> + getBrandLogoUrl + frozen registry over 20 bundled SVGs. Zero runtime I/O."
     }
   ]
 }

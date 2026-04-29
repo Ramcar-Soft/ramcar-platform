@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { VehicleBrandLogo } from "../vehicle-brand-logos";
 import {
   Button,
   Command,
@@ -76,10 +77,13 @@ export function VehicleBrandSelect({
           role="combobox"
           className="w-full justify-start gap-2 font-normal"
         >
-          <span className={isPlaceholder ? "text-muted-foreground truncate" : "truncate"}>
-            {displayLabel}
+          <span className="flex items-center gap-2 min-w-0">
+            <VehicleBrandLogo size="sm" brand={value} />
+            <span className={isPlaceholder ? "text-muted-foreground truncate" : "truncate"}>
+              {displayLabel}
+            </span>
           </span>
-          <ChevronDown className="ml-auto h-4 w-4 opacity-50" aria-hidden="true" />
+          <ChevronDown className="ml-auto h-4 w-4 opacity-50 flex-none" aria-hidden="true" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-[--radix-popover-trigger-width] p-0">
@@ -122,7 +126,10 @@ export function VehicleBrandSelect({
                   value={brand}
                   onSelect={() => commit(brand)}
                 >
-                  <span className="truncate">{brand}</span>
+                  <span className="flex items-center gap-2">
+                    <VehicleBrandLogo size="sm" brand={brand} />
+                    <span className="truncate">{brand}</span>
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -93,3 +93,53 @@ describe("VehicleBrandSelect — B5/B6: free-text fallback (US2)", () => {
     expect(screen.getByRole("combobox")).toHaveTextContent("UnknownBrand");
   });
 });
+
+describe("VehicleBrandSelect — logo integration (T022)", () => {
+  it("trigger renders an img when a known brand is committed", () => {
+    const { container } = renderWithHarness(
+      <VehicleBrandSelect value="Nissan" onChange={() => {}} />,
+    );
+    const trigger = container.querySelector('[role="combobox"]');
+    expect(trigger).toBeInTheDocument();
+    expect(trigger!.querySelector("img")).toBeInTheDocument();
+  });
+
+  it("trigger renders placeholder tile (no img) when no brand is committed", () => {
+    const { container } = renderWithHarness(
+      <VehicleBrandSelect value={null} onChange={() => {}} />,
+    );
+    const trigger = container.querySelector('[role="combobox"]');
+    expect(trigger!.querySelector("img")).toBeNull();
+  });
+
+  it("trigger renders placeholder tile (no img) for a legacy free-text brand", () => {
+    const { container } = renderWithHarness(
+      <VehicleBrandSelect value="Gumpert" onChange={() => {}} />,
+    );
+    const trigger = container.querySelector('[role="combobox"]');
+    expect(trigger!.querySelector("img")).toBeNull();
+  });
+
+  it("US3: fallback row (__add_custom__) renders no img", async () => {
+    const user = userEvent.setup();
+    renderWithHarness(
+      <VehicleBrandSelect value={null} onChange={() => {}} />,
+    );
+    await user.click(screen.getByRole("combobox"));
+    await user.type(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), "Gumpert");
+    const fallback = await screen.findByTestId("brand-fallback-row");
+    expect(fallback.querySelector("img")).toBeNull();
+  });
+
+  it("known brand suggestion rows each render an img", async () => {
+    const user = userEvent.setup();
+    renderWithHarness(
+      <VehicleBrandSelect value={null} onChange={() => {}} />,
+    );
+    await user.click(screen.getByRole("combobox"));
+    await user.type(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), "nis");
+    const nissanItem = await screen.findByText("Nissan");
+    const row = nissanItem.closest("[data-value='Nissan']") ?? nissanItem.parentElement;
+    expect(row!.querySelector("img")).toBeInTheDocument();
+  });
+});

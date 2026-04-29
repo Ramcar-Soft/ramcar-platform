@@ -45,3 +45,6 @@ export type {
 } from "./vehicle-brand-model";
 
 export { PlatesCell } from "./plates-cell";
+
+export { VehicleBrandLogo, getBrandLogoUrl } from "./vehicle-brand-logos";
+export type { VehicleBrandLogoProps, VehicleBrandLogoSize } from "./vehicle-brand-logos";

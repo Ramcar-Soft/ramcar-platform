@@ -13,6 +13,7 @@ import {
 import { useI18n } from "../../adapters/i18n";
 import { formatVehicleLabel } from "../../shared/vehicle-label";
 import { Swatch, resolveSwatch } from "../../shared/color-select";
+import { VehicleBrandLogo } from "../../shared/vehicle-brand-logos";
 import type { Direction, AccessMode, Vehicle } from "../types";
 
 interface AccessEventFormData {
@@ -41,11 +42,17 @@ interface VisitPersonAccessEventFormProps {
 
 function VehicleOptionContent({ v, t }: { v: Vehicle; t: (key: string) => string }) {
   if (v.color == null) {
-    return <span>{formatVehicleLabel(v)}</span>;
+    return (
+      <span className="flex items-center gap-2">
+        <VehicleBrandLogo brand={v.brand} />
+        <span>{formatVehicleLabel(v)}</span>
+      </span>
+    );
   }
   const resolved = resolveSwatch(v.color, t);
   return (
     <span className="flex items-center gap-2">
+      <VehicleBrandLogo brand={v.brand} />
       <span>{formatVehicleLabel(v)}</span>
       <Swatch variant={resolved.variant} color={resolved.color} />
       <span>{resolved.label}</span>

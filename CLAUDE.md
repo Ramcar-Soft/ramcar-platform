@@ -270,5 +270,8 @@ All catalog create and edit flows MUST use a right-side `Sheet` (`@ramcar/ui`) �
 - TypeScript 5.x (strict mode across the monorepo), Node.js 22 LTS + Next.js 16 (App Router), NestJS v11, TanStack Query v5, Supabase JS v2, @ramcar/ui (TenantAvatar), @ramcar/store (authSlice: tenantIds/activeTenantId/activeTenantName), @ramcar/shared (tenant Zod schemas), @ramcar/features (tenant-selector shared module) (020-tenants-catalog)
 - PostgreSQL via Supabase: `public.tenants` extended (address, status, config, image_path); `public.user_tenants` NEW join table; RLS rewrites on 7 tables; custom access token hook; `tenant-images` public-read Storage bucket. (020-tenants-catalog)
 
+- TypeScript 5.x (strict mode across the monorepo), Node.js 22 LTS + `@ramcar/features` (new `shared/vehicle-brand-logos/` slice — slugify, frozen `BRAND_LOGO_REGISTRY`, `getBrandLogoUrl`, `<VehicleBrandLogo />`), `@ramcar/features/shared/vehicle-brand-model` (existing — reuses `normalizeForSearch`), `@ramcar/ui` (existing primitives only, no new shadcn additions). 20 bundled SVG assets from `filippofilip95/car-logos-dataset` (MIT). New CI script `scripts/check-vehicle-brand-logos.ts` enforces closed-registry both directions, asset sanity, 500 KB budget, attribution. (022-vehicle-brand-logos)
+- N/A — presentation-only change. No DB schema change, no new API endpoint, no new DTO, no new desktop SQLite column. Bundled static SVG assets (~60–120 KB ungzipped, 500 KB hard cap) live under `packages/features/src/shared/vehicle-brand-logos/assets/`. (022-vehicle-brand-logos)
+
 ## Recent Changes
 - 001-auth-login: Added TypeScript (strict mode across all workspaces) + Next.js 16 (App Router), Electron 30 + Vite + React, NestJS v11, Supabase JS v2, @supabase/ssr
