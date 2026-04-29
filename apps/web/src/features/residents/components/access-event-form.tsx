@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { toast } from "sonner";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import {
   Button,
@@ -131,7 +130,7 @@ export function AccessEventForm({
       });
       clearDraft();
     } catch {
-      toast.error(t("messages.errorCreating"));
+      // Error is surfaced by the parent page-client's AccessEventFeedbackOverlay
     }
   };
 

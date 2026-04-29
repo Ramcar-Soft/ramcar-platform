@@ -27,6 +27,12 @@
       "package": "@ramcar/features/shared/vehicle-brand-logos",
       "addedAt": "2026-04-28",
       "notes": "Spec 022. <VehicleBrandLogo /> + getBrandLogoUrl + frozen registry over 20 bundled SVGs. Zero runtime I/O."
+    },
+    {
+      "name": "access-event-feedback",
+      "package": "@ramcar/features/access-event-feedback",
+      "addedAt": "2026-04-29",
+      "notes": "Spec 023. Centered, animated success/error overlay for access-event creation. Replaces corner Sonner toast at all 7 access-event-create call sites. No next/*, no \"use client\", no window.electron — uses i18n adapter and Radix Dialog primitives from @ramcar/ui."
     }
   ]
 }

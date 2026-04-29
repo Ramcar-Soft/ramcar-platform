@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { toast } from "sonner";
 import {
   Button,
   Label,
@@ -120,7 +119,7 @@ export function VisitPersonAccessEventForm({
         notes,
       });
     } catch {
-      toast.error(t("accessEvents.messages.errorCreating"));
+      // Error is surfaced by the parent page-client's AccessEventFeedbackOverlay
     }
   };
 
