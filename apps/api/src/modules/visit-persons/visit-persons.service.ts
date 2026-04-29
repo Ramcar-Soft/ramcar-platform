@@ -22,11 +22,11 @@ export class VisitPersonsService {
     dto: CreateVisitPersonDto,
     scope: TenantScope,
     registeredBy: string,
-    role: Role,
+    role: Role | undefined,
   ): Promise<VisitPerson> {
     const tenantId = scopeToTenantId(scope);
     const safeDto: CreateVisitPersonDto =
-      role === "guard" ? { ...dto, status: "flagged" } : dto;
+      role === "admin" || role === "super_admin" ? dto : { ...dto, status: "flagged" };
     const row = await this.repository.create(safeDto, tenantId, registeredBy);
     return this.enrichWithResidentName(this.mapRow(row));
   }
@@ -75,9 +75,9 @@ export class VisitPersonsService {
     id: string,
     dto: UpdateVisitPersonDto,
     scope: TenantScope,
-    role: Role,
+    role: Role | undefined,
   ): Promise<VisitPerson> {
-    if (role === "guard" && dto.status !== undefined) {
+    if (role !== "admin" && role !== "super_admin" && dto.status !== undefined) {
       throw new ForbiddenException("Guards cannot change visit-person status");
     }
     const row = await this.repository.update(id, dto, scope);

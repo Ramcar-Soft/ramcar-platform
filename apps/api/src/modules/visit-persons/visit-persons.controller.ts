@@ -54,7 +54,7 @@ export class VisitPersonsController {
     @Body() body: unknown,
     @CurrentUser() user: { id: string },
     @CurrentTenant() scope: TenantScope,
-    @CurrentUserRole() role: Role,
+    @CurrentUserRole() role: Role | undefined,
   ) {
     const dto = createVisitPersonSchema.parse(body);
     const profileId = await this.usersService.getProfileIdByAuthUserId(user.id);
@@ -66,7 +66,7 @@ export class VisitPersonsController {
     @Param("id") id: string,
     @Body() body: unknown,
     @CurrentTenant() scope: TenantScope,
-    @CurrentUserRole() role: Role,
+    @CurrentUserRole() role: Role | undefined,
   ) {
     const dto = updateVisitPersonSchema.parse(body);
     return this.visitPersonsService.update(id, dto, scope, role);
