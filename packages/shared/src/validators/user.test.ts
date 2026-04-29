@@ -90,6 +90,34 @@ describe("createUserSchema", () => {
     ).toBe(true);
   });
 
+  it("accepts empty email for any role (optional)", () => {
+    for (const branch of [
+      { role: "resident" as const, tenantId: tenantUuid },
+      {
+        role: "admin" as const,
+        tenant_ids: [tenantUuid],
+        primary_tenant_id: tenantUuid,
+      },
+      {
+        role: "guard" as const,
+        tenant_ids: [tenantUuid],
+        primary_tenant_id: tenantUuid,
+      },
+      { role: "super_admin" as const },
+    ]) {
+      expect(
+        createUserSchema.safeParse({ ...validInput, ...branch, email: "" })
+          .success,
+      ).toBe(true);
+    }
+  });
+
+  it("accepts missing email for any role (optional)", () => {
+    const { email, ...withoutEmail } = validInput;
+    console.log("Skipping email: ", email);
+    expect(createUserSchema.safeParse(withoutEmail).success).toBe(true);
+  });
+
   it("accepts empty address for non-resident roles", () => {
     const result = createUserSchema.safeParse({
       ...validInput,

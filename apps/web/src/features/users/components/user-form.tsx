@@ -167,8 +167,7 @@ export function UserForm({
     const errs: Record<string, string> = {};
     if (!formData.fullName.trim()) errs.fullName = "Required";
     const emailErr = validateField("email", formData.email);
-    if (!formData.email.trim() || emailErr)
-      errs.email = emailErr ? tError(emailErr) : "Required";
+    if (emailErr) errs.email = tError(emailErr);
     if (!formData.role) errs.role = "Required";
 
     const role = formData.role;
@@ -208,7 +207,7 @@ export function UserForm({
 
     const submitData: Record<string, unknown> = {
       ...formData,
-      email: trimmedEmail,
+      email: trimmedEmail.length > 0 ? trimmedEmail : undefined,
       phone: normalizedPhone ? normalizedPhone : undefined,
       username: trimmedUsername.length > 0 ? trimmedUsername : undefined,
     };

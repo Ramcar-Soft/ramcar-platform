@@ -23,7 +23,7 @@ export function HomePage({ onLogout }: HomePageProps) {
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-sm text-muted-foreground">Email</p>
-            <p className="font-medium">{user.email}</p>
+            <p className="font-medium">{user.email ?? "—"}</p>
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-sm text-muted-foreground">Role</p>
