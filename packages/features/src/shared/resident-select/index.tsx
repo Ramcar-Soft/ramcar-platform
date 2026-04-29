@@ -13,8 +13,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@ramcar/ui";
-import type { PaginatedResponse, ExtendedUserProfile } from "@ramcar/shared";
+import type { PaginatedResponse, ExtendedUserProfile, PhoneType } from "@ramcar/shared";
 import { useI18n, useTransport, useRole } from "../../adapters";
+
+function formatPhoneWithType(
+  phone: string | null,
+  phoneType: PhoneType | null,
+  t: (key: string) => string,
+): string | null {
+  if (!phone) return null;
+  if (!phoneType) return phone;
+  return `${t(`users.phoneTypes.${phoneType}`)} · ${phone}`;
+}
 
 export interface ResidentSelectProps {
   value: string;
@@ -148,22 +158,36 @@ export function ResidentSelect({
               <>
                 <CommandEmpty>{t("residents.select.empty")}</CommandEmpty>
                 <CommandGroup>
-                  {residents.map((resident) => (
-                    <CommandItem
-                      key={resident.id}
-                      value={resident.id}
-                      onSelect={() => commit(resident.id)}
-                    >
-                      <div className="flex flex-col">
-                        <span className="truncate">{resident.fullName}</span>
-                        {resident.address && (
-                          <span className="text-muted-foreground text-xs truncate">
-                            {resident.address}
-                          </span>
-                        )}
-                      </div>
-                    </CommandItem>
-                  ))}
+                  {residents.map((resident) => {
+                    const phoneLabel = formatPhoneWithType(
+                      resident.phone,
+                      resident.phoneType,
+                      t,
+                    );
+                    return (
+                      <CommandItem
+                        key={resident.id}
+                        value={resident.id}
+                        onSelect={() => commit(resident.id)}
+                      >
+                        <div className="flex flex-col w-full min-w-0 gap-0.5">
+                          <div className="flex items-center justify-between gap-2 min-w-0">
+                            <span className="truncate">{resident.fullName}</span>
+                            {phoneLabel && (
+                              <span className="text-muted-foreground text-xs shrink-0 tabular-nums">
+                                {phoneLabel}
+                              </span>
+                            )}
+                          </div>
+                          {resident.address && (
+                            <span className="text-muted-foreground text-xs truncate">
+                              {resident.address}
+                            </span>
+                          )}
+                        </div>
+                      </CommandItem>
+                    );
+                  })}
                 </CommandGroup>
               </>
             )}

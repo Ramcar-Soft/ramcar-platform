@@ -372,3 +372,76 @@ describe("ResidentSelect — US4: loading state", () => {
     });
   });
 });
+
+// ─── Phone display in row (spec 2026-04-28) ──────────────────────────────────
+
+describe("ResidentSelect — phone display", () => {
+  it("renders 'phoneType key · number' on the row when both are present", async () => {
+    const user = userEvent.setup();
+    const ana = makeResident({ phone: "555-1234", phoneType: "cellphone" });
+    const getFn = vi.fn(async (url: string) => {
+      if (url === "/residents") {
+        return {
+          data: [ana],
+          meta: { page: 1, pageSize: 50, total: 1, totalPages: 1 },
+        };
+      }
+      throw new Error(`unexpected: ${url}`);
+    });
+    renderWithHarness(<ResidentSelect value="" onChange={() => {}} />, {
+      transport: transport(getFn),
+    });
+    await user.click(screen.getByRole("combobox"));
+    expect(
+      await screen.findByText("users.phoneTypes.cellphone · 555-1234"),
+    ).toBeInTheDocument();
+  });
+
+  it("renders just the number (no '·' separator) when phoneType is null", async () => {
+    const user = userEvent.setup();
+    const ana = makeResident({ phone: "555-1234", phoneType: null });
+    const getFn = vi.fn(async (url: string) => {
+      if (url === "/residents") {
+        return {
+          data: [ana],
+          meta: { page: 1, pageSize: 50, total: 1, totalPages: 1 },
+        };
+      }
+      throw new Error(`unexpected: ${url}`);
+    });
+    renderWithHarness(<ResidentSelect value="" onChange={() => {}} />, {
+      transport: transport(getFn),
+    });
+    await user.click(screen.getByRole("combobox"));
+    const phoneNode = await screen.findByText("555-1234");
+    expect(phoneNode).toBeInTheDocument();
+    expect(phoneNode.textContent ?? "").not.toContain("·");
+    expect(screen.queryByText(/users\.phoneTypes\./)).not.toBeInTheDocument();
+  });
+
+  it("renders no phone span when phone is null", async () => {
+    const user = userEvent.setup();
+    const ana = makeResident({
+      fullName: "Ana García",
+      phone: null,
+      phoneType: null,
+    });
+    const getFn = vi.fn(async (url: string) => {
+      if (url === "/residents") {
+        return {
+          data: [ana],
+          meta: { page: 1, pageSize: 50, total: 1, totalPages: 1 },
+        };
+      }
+      throw new Error(`unexpected: ${url}`);
+    });
+    renderWithHarness(<ResidentSelect value="" onChange={() => {}} />, {
+      transport: transport(getFn),
+    });
+    await user.click(screen.getByRole("combobox"));
+    await screen.findByText("Ana García");
+    expect(screen.queryByText(/·/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/users\.phoneTypes\./)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\d{3}-\d{4}/)).not.toBeInTheDocument();
+  });
+});
