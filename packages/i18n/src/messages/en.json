@@ -534,6 +534,7 @@
       "eventCreated": "Access event logged successfully",
       "errorCreating": "Error registering visitor",
       "errorUpdating": "Error updating record",
+      "forbidden": "You don't have permission to change visitor status",
       "imageUploadFailed": "{count} image(s) failed to upload. You can retry from the edit view."
     }
   },
