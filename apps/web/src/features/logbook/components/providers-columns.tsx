@@ -4,6 +4,7 @@ import { Badge } from "@ramcar/ui";
 import type { AccessEventListItem } from "@ramcar/shared";
 import type { LogbookColumn } from "../types";
 import { StatusBadge } from "./status-badge";
+import { NotesCell } from "./notes-cell";
 
 type Translator = (key: string) => string;
 
@@ -80,6 +81,11 @@ export function getProvidersColumns(
       id: "registeredBy",
       header: t("columns.registeredBy"),
       cell: (item) => item.registeredBy.fullName || "—",
+    },
+    {
+      id: "notes",
+      header: t("columns.notes"),
+      cell: (item) => <NotesCell notes={item.notes} />,
     },
     {
       id: "date",
