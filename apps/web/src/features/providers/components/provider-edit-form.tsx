@@ -16,6 +16,7 @@ import {
 import { useTranslations } from "next-intl";
 import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { UpdateVisitPersonInput } from "@ramcar/shared";
+import { useRole } from "@ramcar/features/adapters";
 import { ResidentSelect } from "@ramcar/features/shared/resident-select";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
@@ -70,6 +71,7 @@ export function ProviderEditForm({
   const tEdit = useTranslations("visitPersons.edit");
   const tCommon = useTranslations("common");
   const tForms = useTranslations("forms");
+  const { role } = useRole();
 
   const initial = useMemo(() => initialFromPerson(person), [person]);
   const [state, setState] = useState<EditFormState>(initial);
@@ -187,6 +189,7 @@ export function ProviderEditForm({
           <VisitPersonStatusSelect
             value={state.status}
             onValueChange={(v) => setState((s) => ({ ...s, status: v }))}
+            disabled={role === "Guard"}
           />
         </div>
 

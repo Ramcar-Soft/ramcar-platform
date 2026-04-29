@@ -8,6 +8,10 @@ vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
+vi.mock("@ramcar/features/adapters", () => ({
+  useRole: () => ({ role: "Admin", tenantId: "", userId: "" }),
+}));
+
 vi.mock("@ramcar/features/shared/visit-person-status-select", () => ({
   VisitPersonStatusSelect: () => null,
 }));

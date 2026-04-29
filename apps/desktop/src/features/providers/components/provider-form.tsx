@@ -3,6 +3,7 @@ import { Button, Input, Label, Separator, Textarea } from "@ramcar/ui";
 import { useTranslation } from "react-i18next";
 import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { ImageType } from "@ramcar/shared";
+import { useRole } from "@ramcar/features/adapters";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
 import { ImageSection, type StagedImage } from "@ramcar/features/visitors";
 import type { VisitPersonStatus } from "../types";
@@ -31,11 +32,12 @@ export function ProviderForm({
   isUploadingStagedImages,
 }: ProviderFormProps) {
   const { t } = useTranslation();
+  const { role } = useRole();
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
-  const [status, setStatus] = useState<VisitPersonStatus>("allowed");
+  const [status, setStatus] = useState<VisitPersonStatus>("flagged");
   const [notes, setNotes] = useState("");
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
@@ -137,7 +139,11 @@ export function ProviderForm({
       </div>
       <div className="space-y-2">
         <Label>{t("visitPersons.form.status")}</Label>
-        <VisitPersonStatusSelect value={status} onValueChange={setStatus} />
+        <VisitPersonStatusSelect
+          value={status}
+          onValueChange={setStatus}
+          disabled={role === "Guard"}
+        />
       </div>
       <div className="space-y-2">
         <Label>{t("visitPersons.form.notes")}</Label>
