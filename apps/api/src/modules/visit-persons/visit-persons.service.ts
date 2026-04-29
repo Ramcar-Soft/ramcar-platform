@@ -28,13 +28,13 @@ export class VisitPersonsService {
     const safeDto: CreateVisitPersonDto =
       role === "admin" || role === "super_admin" ? dto : { ...dto, status: "flagged" };
     const row = await this.repository.create(safeDto, tenantId, registeredBy);
-    return this.enrichWithResidentName(this.mapRow(row));
+    return this.enrichWithResidentDisplay(this.mapRow(row));
   }
 
   async findById(id: string, scope: TenantScope): Promise<VisitPerson> {
     const row = await this.repository.findById(id, scope);
     if (!row) throw new NotFoundException("Visit person not found");
-    return this.enrichWithResidentName(this.mapRow(row));
+    return this.enrichWithResidentDisplay(this.mapRow(row));
   }
 
   async list(
@@ -51,14 +51,17 @@ export class VisitPersonsService {
       .map((p) => p.residentId)
       .filter((id): id is string => !!id);
 
-    const residentNameMap = await this.fetchResidentNames(residentIds);
+    const residentInfoMap = await this.fetchResidentDisplayInfo(residentIds);
 
-    const enriched = persons.map((p) => ({
-      ...p,
-      residentName: p.residentId
-        ? residentNameMap.get(p.residentId) ?? undefined
-        : undefined,
-    }));
+    const enriched = persons.map((p) => {
+      if (!p.residentId) return p;
+      const info = residentInfoMap.get(p.residentId);
+      return {
+        ...p,
+        residentName: info?.fullName,
+        residentAddress: info?.address ?? null,
+      };
+    });
 
     return {
       data: enriched,
@@ -82,7 +85,7 @@ export class VisitPersonsService {
     }
     const row = await this.repository.update(id, dto, scope);
     if (!row) throw new NotFoundException("Visit person not found");
-    return this.enrichWithResidentName(this.mapRow(row));
+    return this.enrichWithResidentDisplay(this.mapRow(row));
   }
 
   private mapRow(row: Record<string, unknown>): VisitPerson {
@@ -103,30 +106,35 @@ export class VisitPersonsService {
     };
   }
 
-  private async enrichWithResidentName(person: VisitPerson): Promise<VisitPerson> {
+  private async enrichWithResidentDisplay(person: VisitPerson): Promise<VisitPerson> {
     if (!person.residentId) return person;
-    const names = await this.fetchResidentNames([person.residentId]);
+    const info = await this.fetchResidentDisplayInfo([person.residentId]);
+    const entry = info.get(person.residentId);
     return {
       ...person,
-      residentName: names.get(person.residentId) ?? undefined,
+      residentName: entry?.fullName,
+      residentAddress: entry?.address ?? null,
     };
   }
 
-  private async fetchResidentNames(
+  private async fetchResidentDisplayInfo(
     residentIds: string[],
-  ): Promise<Map<string, string>> {
+  ): Promise<Map<string, { fullName: string; address: string | null }>> {
     if (residentIds.length === 0) return new Map();
 
     const uniqueIds = [...new Set(residentIds)];
     const { data } = await this.supabase
       .getClient()
       .from("profiles")
-      .select("id, full_name")
+      .select("id, full_name, address")
       .in("id", uniqueIds);
 
-    const map = new Map<string, string>();
+    const map = new Map<string, { fullName: string; address: string | null }>();
     for (const row of data ?? []) {
-      map.set(row.id as string, row.full_name as string);
+      map.set(row.id as string, {
+        fullName: row.full_name as string,
+        address: (row.address as string | null) ?? null,
+      });
     }
     return map;
   }
