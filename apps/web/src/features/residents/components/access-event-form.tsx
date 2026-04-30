@@ -103,6 +103,12 @@ export function AccessEventForm({
     }
   }, [wasRestored, tCommon, discardDraft]);
 
+  useEffect(() => {
+    if (vehicleId && vehicles && !vehicles.some((v) => v.id === vehicleId)) {
+      setVehicleId("");
+    }
+  }, [vehicles, vehicleId]);
+
   // Auto-select only when exactly one vehicle exists
   useEffect(() => {
     if (accessMode === "vehicle" && vehicles?.length === 1 && !vehicleId) {
@@ -215,10 +221,10 @@ export function AccessEventForm({
                   type="button"
                   variant="link"
                   size="sm"
-                  className="p-0 h-auto"
+                  className="p-0 h-auto ml-4"
                   onClick={onManageVehicles}
                 >
-                  + {t("vehicleSelect.manageVehicles")}
+                  {t("vehicleSelect.manageVehicles")}
                 </Button>
               )}
             </>

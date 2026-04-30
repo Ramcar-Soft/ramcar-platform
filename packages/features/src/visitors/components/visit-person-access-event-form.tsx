@@ -28,6 +28,7 @@ interface VisitPersonAccessEventFormProps {
   onSave: (data: AccessEventFormData) => Promise<void>;
   onCancel: () => void;
   onAddVehicle?: () => void;
+  onManageVehicles?: () => void;
   isSaving: boolean;
   initialVehicleId?: string | null;
   initialDraft?: {
@@ -65,6 +66,7 @@ export function VisitPersonAccessEventForm({
   onSave,
   onCancel,
   onAddVehicle,
+  onManageVehicles,
   isSaving,
   initialVehicleId,
   initialDraft,
@@ -94,6 +96,12 @@ export function VisitPersonAccessEventForm({
   useEffect(() => {
     onDraftChangeRef.current?.(composedData);
   }, [composedData]);
+
+  useEffect(() => {
+    if (vehicleId && vehicles && !vehicles.some((v) => v.id === vehicleId)) {
+      setVehicleId("");
+    }
+  }, [vehicles, vehicleId]);
 
   useEffect(() => {
     if (accessMode === "vehicle" && vehicles?.length === 1 && !vehicleId) {
@@ -171,6 +179,11 @@ export function VisitPersonAccessEventForm({
               {onAddVehicle && (
                 <Button type="button" variant="link" size="sm" className="p-0 h-auto" onClick={onAddVehicle}>
                   + {t("accessEvents.vehicleSelect.addVehicle")}
+                </Button>
+              )}
+              {onManageVehicles && (
+                <Button type="button" variant="link" size="sm" className="p-0 h-auto ml-4" onClick={onManageVehicles}>
+                  {t("accessEvents.vehicleSelect.manageVehicles")}
                 </Button>
               )}
             </>

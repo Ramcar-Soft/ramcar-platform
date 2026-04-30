@@ -3,6 +3,7 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, act, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RoleProvider } from "@ramcar/features/adapters";
 import type { ExtendedUserProfile } from "../types";
 import type { UserFormData } from "../components/user-form";
 
@@ -32,6 +33,12 @@ vi.mock("@ramcar/features/shared/vehicle-form", () => ({
     submitAll: vi.fn().mockResolvedValue({ saved: [], failed: [] }),
   }),
   InlineVehicleSection: () => null,
+  VehicleManageList: () => null,
+  VehicleForm: () => null,
+}));
+
+vi.mock("../hooks/use-user-vehicles", () => ({
+  useUserVehicles: () => ({ data: [], isLoading: false }),
 }));
 
 vi.mock("@ramcar/store", () => ({
@@ -141,7 +148,11 @@ function makeUser(overrides: Partial<ExtendedUserProfile> = {}): ExtendedUserPro
 
 function renderWithClient(ui: React.ReactElement) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+  return render(
+    <RoleProvider value={{ role: "Admin", tenantId: "t1", userId: "u1" }}>
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    </RoleProvider>
+  );
 }
 
 describe("UserSidebar — create mode", () => {

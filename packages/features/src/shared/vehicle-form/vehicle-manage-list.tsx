@@ -19,18 +19,24 @@ import { formatVehicleLabel } from "../vehicle-label";
 import { Swatch, resolveSwatch } from "../color-select";
 import { VehicleBrandLogo } from "../vehicle-brand-logos";
 
+export type VehicleOwner =
+  | { kind: "resident"; userId: string }
+  | { kind: "visitPerson"; visitPersonId: string };
+
 interface VehicleManageListProps {
-  residentId: string;
+  owner: VehicleOwner;
   vehicles: Vehicle[] | undefined;
   isLoading: boolean;
+  canDelete?: boolean;
   onEdit: (vehicle: Vehicle) => void;
   onClose: () => void;
 }
 
 export function VehicleManageList({
-  residentId,
+  owner,
   vehicles,
   isLoading,
+  canDelete = true,
   onEdit,
   onClose,
 }: VehicleManageListProps) {
@@ -41,7 +47,10 @@ export function VehicleManageList({
 
   const [pendingDelete, setPendingDelete] = useState<Vehicle | null>(null);
 
-  const cacheKey = ["vehicles", tenantId, "resident", residentId] as const;
+  const cacheKey =
+    owner.kind === "resident"
+      ? (["vehicles", tenantId, "resident", owner.userId] as const)
+      : (["vehicles", tenantId, "visit-person", owner.visitPersonId] as const);
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => transport.delete<void>(`/vehicles/${id}`),
@@ -111,15 +120,17 @@ export function VehicleManageList({
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t("vehicles.manage.deleteAction")}
-                    onClick={() => setPendingDelete(v)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {canDelete && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t("vehicles.manage.deleteAction")}
+                      onClick={() => setPendingDelete(v)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </li>
             );
@@ -130,7 +141,7 @@ export function VehicleManageList({
       )}
 
       <AlertDialog
-        open={pendingDelete !== null}
+        open={canDelete && pendingDelete !== null}
         onOpenChange={(open) => {
           if (!open) setPendingDelete(null);
         }}

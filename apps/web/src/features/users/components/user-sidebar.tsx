@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -8,15 +9,20 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
+  Separator,
 } from "@ramcar/ui";
+import { useRole } from "@ramcar/features/adapters";
+import { VehicleForm, VehicleManageList, useInlineVehicleSubmissions } from "@ramcar/features/shared/vehicle-form";
 import { UserForm, type UserFormData } from "./user-form";
 import { useGetUser } from "../hooks/use-get-user";
 import { useCreateUser } from "../hooks/use-create-user";
 import { useUpdateUser } from "../hooks/use-update-user";
+import { useUserVehicles } from "../hooks/use-user-vehicles";
 import { useTenants } from "@/features/tenants/hooks/use-tenants";
 import { useUserGroups } from "../hooks/use-user-groups";
-import type { CreateUserInput, UpdateUserInput } from "@ramcar/shared";
-import { useInlineVehicleSubmissions } from "@ramcar/features/shared/vehicle-form";
+import type { CreateUserInput, UpdateUserInput, Vehicle } from "@ramcar/shared";
+
+type EditSubView = "default" | "edit-vehicle";
 
 export type UserSidebarMode = "create" | "edit";
 
@@ -29,6 +35,15 @@ export interface UserSidebarProps {
 
 export function UserSidebar({ open, mode, userId, onClose }: UserSidebarProps) {
   const t = useTranslations("users");
+  const { role } = useRole();
+
+  const [subView, setSubView] = useState<EditSubView>("default");
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+
+  useEffect(() => {
+    setSubView("default");
+    setEditingVehicle(null);
+  }, [userId]);
 
   const { data: tenantsData, isLoading: tenantsLoading } = useTenants({
     page_size: 100,
@@ -53,6 +68,16 @@ export function UserSidebar({ open, mode, userId, onClose }: UserSidebarProps) {
     enabled: Boolean(open && mode === "edit" && userId),
   });
 
+  const canManageResidentVehicles =
+    mode === "edit" &&
+    (role === "Admin" || role === "SuperAdmin") &&
+    userData?.role === "resident";
+
+  const { data: residentVehicles, isLoading: vehiclesLoading } = useUserVehicles(
+    canManageResidentVehicles ? (userData?.id ?? null) : null,
+    Boolean(open && mode === "edit" && canManageResidentVehicles),
+  );
+
   const title = t(mode === "create" ? "sidebar.createTitle" : "sidebar.editTitle");
 
   function renderBody() {
@@ -71,18 +96,55 @@ export function UserSidebar({ open, mode, userId, onClose }: UserSidebarProps) {
           </div>
         );
       }
+
+      if (subView === "edit-vehicle" && editingVehicle) {
+        return (
+          <VehicleForm
+            mode="edit"
+            vehicle={editingVehicle}
+            userId={userData.id}
+            onSaved={() => {
+              setEditingVehicle(null);
+              setSubView("default");
+            }}
+            onCancel={() => {
+              setEditingVehicle(null);
+              setSubView("default");
+            }}
+          />
+        );
+      }
+
       return (
-        <UserForm
-          mode="edit"
-          initialData={userData}
-          tenants={tenants}
-          userGroups={userGroups}
-          isPending={updateMutation.isPending}
-          onSubmit={async (values: UserFormData) => {
-            updateMutation.mutate(values as UpdateUserInput, { onSuccess: onClose });
-          }}
-          onCancel={onClose}
-        />
+        <div className="space-y-6">
+          <UserForm
+            mode="edit"
+            initialData={userData}
+            tenants={tenants}
+            userGroups={userGroups}
+            isPending={updateMutation.isPending}
+            onSubmit={async (values: UserFormData) => {
+              updateMutation.mutate(values as UpdateUserInput, { onSuccess: onClose });
+            }}
+            onCancel={onClose}
+          />
+          {canManageResidentVehicles && (
+            <>
+              <Separator />
+              <VehicleManageList
+                owner={{ kind: "resident", userId: userData.id }}
+                vehicles={residentVehicles}
+                isLoading={vehiclesLoading}
+                canDelete={true}
+                onEdit={(v) => {
+                  setEditingVehicle(v);
+                  setSubView("edit-vehicle");
+                }}
+                onClose={() => {}}
+              />
+            </>
+          )}
+        </div>
       );
     }
 

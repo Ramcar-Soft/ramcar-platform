@@ -27,7 +27,7 @@ describe("VehicleManageList", () => {
   it("renders empty state when no vehicles", () => {
     renderWithHarness(
       <VehicleManageList
-        residentId="u1"
+        owner={{ kind: "resident", userId: "u1" }}
         vehicles={[]}
         isLoading={false}
         onEdit={vi.fn()}
@@ -40,7 +40,7 @@ describe("VehicleManageList", () => {
   it("renders one row per vehicle", () => {
     renderWithHarness(
       <VehicleManageList
-        residentId="u1"
+        owner={{ kind: "resident", userId: "u1" }}
         vehicles={[v1, v2]}
         isLoading={false}
         onEdit={vi.fn()}
@@ -55,7 +55,7 @@ describe("VehicleManageList", () => {
     const onEdit = vi.fn();
     renderWithHarness(
       <VehicleManageList
-        residentId="u1"
+        owner={{ kind: "resident", userId: "u1" }}
         vehicles={[v1, v2]}
         isLoading={false}
         onEdit={onEdit}
@@ -70,7 +70,7 @@ describe("VehicleManageList", () => {
     const del = vi.fn().mockResolvedValue(undefined);
     renderWithHarness(
       <VehicleManageList
-        residentId="u1"
+        owner={{ kind: "resident", userId: "u1" }}
         vehicles={[v1]}
         isLoading={false}
         onEdit={vi.fn()}
@@ -91,7 +91,7 @@ describe("VehicleManageList", () => {
     const onClose = vi.fn();
     renderWithHarness(
       <VehicleManageList
-        residentId="u1"
+        owner={{ kind: "resident", userId: "u1" }}
         vehicles={[v1]}
         isLoading={false}
         onEdit={vi.fn()}

@@ -11,11 +11,14 @@ import type {
   UpdateVisitPersonInput,
 } from "../types";
 import type { VisitPersonImage, ImageType } from "@ramcar/shared";
+import { useRole } from "@ramcar/features/adapters";
 import { RecentEventsList, VisitPersonAccessEventForm, ImageSection } from "@ramcar/features/visitors";
 import { ProviderForm } from "./provider-form";
 import { ProviderEditForm } from "./provider-edit-form";
-import { VehicleForm } from "@ramcar/features/shared/vehicle-form";
+import { VehicleForm, VehicleManageList } from "@ramcar/features/shared/vehicle-form";
 import type { InlineVehicleEntry, InlineVehicleEntryFields } from "@ramcar/features/shared/vehicle-form";
+
+type ViewState = "default" | "manage" | "edit-vehicle" | "create-vehicle";
 
 const statusVariantMap = {
   allowed: "default" as const,
@@ -68,10 +71,18 @@ export function ProviderSidebar({
   onUpdateInlineVehicle,
 }: ProviderSidebarProps) {
   const { t } = useTranslation();
-  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const { role } = useRole();
+  const canDelete = role === "Admin" || role === "SuperAdmin";
+
+  const [view, setView] = useState<ViewState>("default");
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
 
-  useEffect(() => { setJustCreatedVehicleId(null); }, [person?.id]);
+  useEffect(() => {
+    setJustCreatedVehicleId(null);
+    setEditingVehicle(null);
+    setView("default");
+  }, [person?.id]);
 
   useEffect(() => {
     if (justCreatedVehicleIdProp !== undefined) {
@@ -115,70 +126,133 @@ export function ProviderSidebar({
           </div>
         ) : mode === "edit" && person && onSaveEdit ? (
           <div className="mt-6 space-y-6">
-            <ProviderEditForm
-              person={person}
-              onSave={onSaveEdit}
-              onCancel={onClose}
-              isSaving={isSavingEdit ?? false}
-            />
-            {onUploadImage && (
+            {view === "edit-vehicle" && editingVehicle ? (
+              <VehicleForm
+                mode="edit"
+                vehicle={editingVehicle}
+                visitPersonId={person.id}
+                onSaved={() => {
+                  setEditingVehicle(null);
+                  setView("default");
+                }}
+                onCancel={() => {
+                  setEditingVehicle(null);
+                  setView("default");
+                }}
+              />
+            ) : (
               <>
+                <ProviderEditForm
+                  person={person}
+                  onSave={onSaveEdit}
+                  onCancel={onClose}
+                  isSaving={isSavingEdit ?? false}
+                />
+                {onUploadImage && (
+                  <>
+                    <Separator />
+                    <ImageSection
+                      visitPersonId={person.id}
+                      images={images}
+                      isLoading={isLoadingImages ?? false}
+                      onUpload={onUploadImage}
+                      isUploading={isUploadingImage ?? false}
+                    />
+                  </>
+                )}
                 <Separator />
-                <ImageSection
-                  visitPersonId={person.id}
-                  images={images}
-                  isLoading={isLoadingImages ?? false}
-                  onUpload={onUploadImage}
-                  isUploading={isUploadingImage ?? false}
+                <VehicleManageList
+                  owner={{ kind: "visitPerson", visitPersonId: person.id }}
+                  vehicles={vehicles}
+                  isLoading={Boolean(isLoadingVehicles)}
+                  canDelete={canDelete}
+                  onEdit={(v) => {
+                    setEditingVehicle(v);
+                    setView("edit-vehicle");
+                  }}
+                  onClose={() => {}}
                 />
               </>
             )}
           </div>
         ) : person && (
           <div className="mt-6 space-y-6">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant={statusVariantMap[person.status]}>{t(`visitPersons.status.${person.status}`)}</Badge>
-              {person.phone && <span className="text-sm text-muted-foreground">{person.phone}</span>}
-              {person.residentName && (
-                <span className="text-sm text-muted-foreground">
-                  {t("providers.sidebar.visitsResident")}: {person.residentName}
-                </span>
-              )}
-            </div>
-
-            <RecentEventsList events={recentEvents} isLoading={isLoadingRecentEvents} />
-            <Separator />
-
-            {showVehicleForm ? (
+            {view === "create-vehicle" && (
               <VehicleForm
                 visitPersonId={person.id}
                 onSaved={(vehicle) => {
                   setJustCreatedVehicleId(vehicle.id);
-                  setShowVehicleForm(false);
+                  setView("default");
                 }}
-                onCancel={() => setShowVehicleForm(false)}
-              />
-            ) : (
-              <VisitPersonAccessEventForm
-                vehicles={vehicles}
-                isLoadingVehicles={isLoadingVehicles}
-                onSave={onSave}
-                onCancel={onClose}
-                onAddVehicle={() => setShowVehicleForm(true)}
-                isSaving={isSaving}
-                initialVehicleId={justCreatedVehicleId}
+                onCancel={() => setView("default")}
               />
             )}
-            {!showVehicleForm && onUploadImage && (
+
+            {view === "manage" && (
+              <VehicleManageList
+                owner={{ kind: "visitPerson", visitPersonId: person.id }}
+                vehicles={vehicles}
+                isLoading={Boolean(isLoadingVehicles)}
+                canDelete={canDelete}
+                onEdit={(v) => {
+                  setEditingVehicle(v);
+                  setView("edit-vehicle");
+                }}
+                onClose={() => setView("default")}
+              />
+            )}
+
+            {view === "edit-vehicle" && editingVehicle && (
+              <VehicleForm
+                mode="edit"
+                vehicle={editingVehicle}
+                visitPersonId={person.id}
+                onSaved={() => {
+                  setEditingVehicle(null);
+                  setView("manage");
+                }}
+                onCancel={() => {
+                  setEditingVehicle(null);
+                  setView("manage");
+                }}
+              />
+            )}
+
+            {view === "default" && (
               <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant={statusVariantMap[person.status]}>{t(`visitPersons.status.${person.status}`)}</Badge>
+                  {person.phone && <span className="text-sm text-muted-foreground">{person.phone}</span>}
+                  {person.residentName && (
+                    <span className="text-sm text-muted-foreground">
+                      {t("providers.sidebar.visitsResident")}: {person.residentName}
+                    </span>
+                  )}
+                </div>
+                <RecentEventsList events={recentEvents} isLoading={isLoadingRecentEvents} />
                 <Separator />
-                <ImageSection
-                  visitPersonId={person.id}
-                  images={images}
-                  isLoading={isLoadingImages ?? false}
-                  onUpload={onUploadImage}
-                  isUploading={isUploadingImage ?? false}
+                <VisitPersonAccessEventForm
+                  vehicles={vehicles}
+                  isLoadingVehicles={isLoadingVehicles}
+                  onSave={onSave}
+                  onCancel={onClose}
+                  onAddVehicle={() => setView("create-vehicle")}
+                  onManageVehicles={vehicles && vehicles.length > 0 ? () => setView("manage") : undefined}
+                  isSaving={isSaving}
+                  initialVehicleId={justCreatedVehicleId}
                 />
+                {onUploadImage && (
+                  <>
+                    <Separator />
+                    <ImageSection
+                      visitPersonId={person.id}
+                      images={images}
+                      isLoading={isLoadingImages ?? false}
+                      onUpload={onUploadImage}
+                      isUploading={isUploadingImage ?? false}
+                    />
+                  </>
+                )}
               </>
             )}
           </div>

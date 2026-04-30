@@ -92,7 +92,7 @@ export function AccessEventSidebar({
 
             {view === "manage" && (
               <VehicleManageList
-                residentId={resident.id}
+                owner={{ kind: "resident", userId: resident.id }}
                 vehicles={vehicles}
                 isLoading={Boolean(isLoadingVehicles)}
                 onEdit={(v) => {
