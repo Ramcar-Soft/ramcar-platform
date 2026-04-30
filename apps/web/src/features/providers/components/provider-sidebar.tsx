@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
 import {
   Sheet,
   SheetContent,
@@ -25,6 +26,7 @@ import { RecentEventsList, VisitPersonAccessEventForm, ImageSection } from "@ram
 import { ProviderForm } from "./provider-form";
 import { ProviderEditForm } from "./provider-edit-form";
 import { VehicleForm } from "@ramcar/features/shared/vehicle-form";
+import type { InlineVehicleEntry, InlineVehicleEntryFields } from "@ramcar/features/shared/vehicle-form";
 
 const statusVariantMap = {
   allowed: "default" as const,
@@ -64,6 +66,11 @@ interface ProviderSidebarProps {
     stagedImages: Map<ImageType, File>;
   }) => Promise<void>;
   onSaveEdit?: (patch: UpdateVisitPersonInput) => void;
+  justCreatedVehicleIdProp?: string | null;
+  inlineVehicleEntries?: InlineVehicleEntry[];
+  onAddInlineVehicle?: () => void;
+  onRemoveInlineVehicle?: (clientId: string) => void;
+  onUpdateInlineVehicle?: (clientId: string, patch: Partial<InlineVehicleEntryFields>) => void;
 }
 
 export function ProviderSidebar({
@@ -85,6 +92,11 @@ export function ProviderSidebar({
   onSave,
   onCreatePerson,
   onSaveEdit,
+  justCreatedVehicleIdProp,
+  inlineVehicleEntries,
+  onAddInlineVehicle,
+  onRemoveInlineVehicle,
+  onUpdateInlineVehicle,
 }: ProviderSidebarProps) {
   const t = useTranslations("providers");
   const tStatus = useTranslations("visitPersons.status");
@@ -92,6 +104,12 @@ export function ProviderSidebar({
   const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
 
   useEffect(() => { setJustCreatedVehicleId(null); }, [person?.id]);
+
+  useEffect(() => {
+    if (justCreatedVehicleIdProp !== undefined) {
+      setJustCreatedVehicleId(justCreatedVehicleIdProp);
+    }
+  }, [justCreatedVehicleIdProp]);
 
   const handleCloseVehicleForm = () => setShowVehicleForm(false);
 
@@ -126,6 +144,10 @@ export function ProviderSidebar({
               onCancel={onClose}
               isSaving={isCreating}
               isUploadingStagedImages={isUploadingImage}
+              inlineVehicleEntries={inlineVehicleEntries}
+              onAddInlineVehicle={onAddInlineVehicle}
+              onRemoveInlineVehicle={onRemoveInlineVehicle}
+              onUpdateInlineVehicle={onUpdateInlineVehicle}
             />
           </div>
         ) : mode === "edit" && person && onSaveEdit ? (

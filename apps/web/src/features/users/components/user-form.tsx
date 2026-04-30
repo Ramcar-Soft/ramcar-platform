@@ -17,6 +17,8 @@ import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import { useAppStore } from "@ramcar/store";
 import { useRole } from "@ramcar/features/adapters";
 import { canEditUserTenantField } from "@ramcar/features";
+import { InlineVehicleSection } from "@ramcar/features/shared/vehicle-form";
+import type { InlineVehicleEntry, InlineVehicleEntryFields } from "@ramcar/features/shared/vehicle-form";
 import {
   getAssignableRoles,
   normalizePhone,
@@ -36,6 +38,11 @@ interface UserFormProps {
   isPending: boolean;
   onSubmit: (data: UserFormData) => Promise<void>;
   onCancel: () => void;
+  inlineVehicleEntries?: InlineVehicleEntry[];
+  onAddInlineVehicle?: () => void;
+  onRemoveInlineVehicle?: (clientId: string) => void;
+  onUpdateInlineVehicle?: (clientId: string, patch: Partial<InlineVehicleEntryFields>) => void;
+  initialInlineVehicles?: InlineVehicleEntryFields[];
 }
 
 export interface UserFormData {
@@ -63,6 +70,10 @@ export function UserForm({
   isPending,
   onSubmit,
   onCancel,
+  inlineVehicleEntries,
+  onAddInlineVehicle,
+  onRemoveInlineVehicle,
+  onUpdateInlineVehicle,
 }: UserFormProps) {
   const t = useTranslations("users");
   const tForms = useTranslations("forms");
@@ -503,6 +514,18 @@ export function UserForm({
           rows={3}
         />
       </div>
+
+      {mode === "create" && formData.role === "resident" && onAddInlineVehicle && (
+        <InlineVehicleSection
+          ownerKind="resident"
+          entries={inlineVehicleEntries ?? []}
+          onAddEntry={onAddInlineVehicle}
+          onRemoveEntry={onRemoveInlineVehicle ?? (() => {})}
+          onUpdateEntry={onUpdateInlineVehicle ?? (() => {})}
+          disabled={isPending}
+          sectionTitleKey="vehicles.inline.sectionTitleResident"
+        />
+      )}
 
       <div className="flex gap-3">
         <Button type="submit" disabled={isPending} className="flex-1">

@@ -15,6 +15,7 @@ import { RecentEventsList, VisitPersonAccessEventForm, ImageSection } from "@ram
 import { ProviderForm } from "./provider-form";
 import { ProviderEditForm } from "./provider-edit-form";
 import { VehicleForm } from "@ramcar/features/shared/vehicle-form";
+import type { InlineVehicleEntry, InlineVehicleEntryFields } from "@ramcar/features/shared/vehicle-form";
 
 const statusVariantMap = {
   allowed: "default" as const,
@@ -49,18 +50,34 @@ interface ProviderSidebarProps {
     stagedImages: Map<ImageType, File>;
   }) => Promise<void>;
   onSaveEdit?: (patch: UpdateVisitPersonInput) => void;
+  justCreatedVehicleIdProp?: string | null;
+  inlineVehicleEntries?: InlineVehicleEntry[];
+  onAddInlineVehicle?: () => void;
+  onRemoveInlineVehicle?: (clientId: string) => void;
+  onUpdateInlineVehicle?: (clientId: string, patch: Partial<InlineVehicleEntryFields>) => void;
 }
 
 export function ProviderSidebar({
   open, mode, person, recentEvents, isLoadingRecentEvents, vehicles, isLoadingVehicles,
   isSaving, isCreating, isSavingEdit, images, isLoadingImages, onUploadImage, isUploadingImage,
   onClose, onSave, onCreatePerson, onSaveEdit,
+  justCreatedVehicleIdProp,
+  inlineVehicleEntries,
+  onAddInlineVehicle,
+  onRemoveInlineVehicle,
+  onUpdateInlineVehicle,
 }: ProviderSidebarProps) {
   const { t } = useTranslation();
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
 
   useEffect(() => { setJustCreatedVehicleId(null); }, [person?.id]);
+
+  useEffect(() => {
+    if (justCreatedVehicleIdProp !== undefined) {
+      setJustCreatedVehicleId(justCreatedVehicleIdProp);
+    }
+  }, [justCreatedVehicleIdProp]);
 
   const titleKey =
     mode === "create"
@@ -90,6 +107,10 @@ export function ProviderSidebar({
               onCancel={onClose}
               isSaving={isCreating}
               isUploadingStagedImages={isUploadingImage}
+              inlineVehicleEntries={inlineVehicleEntries}
+              onAddInlineVehicle={onAddInlineVehicle}
+              onRemoveInlineVehicle={onRemoveInlineVehicle}
+              onUpdateInlineVehicle={onUpdateInlineVehicle}
             />
           </div>
         ) : mode === "edit" && person && onSaveEdit ? (

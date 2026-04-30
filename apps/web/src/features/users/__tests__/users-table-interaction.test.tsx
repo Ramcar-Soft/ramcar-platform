@@ -3,7 +3,7 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act, cleanup } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { I18nProvider } from "@ramcar/features/adapters";
+import { I18nProvider, TransportProvider, RoleProvider } from "@ramcar/features/adapters";
 import type { ExtendedUserProfile } from "../types";
 import type { PaginatedResponse } from "@ramcar/shared";
 
@@ -89,6 +89,21 @@ vi.mock("@/shared/hooks/use-form-persistence", () => ({
   useFormPersistence: () => ({ wasRestored: false, discardDraft: vi.fn(), clearDraft: vi.fn() }),
 }));
 
+vi.mock("@ramcar/features/shared/vehicle-form", () => ({
+  useInlineVehicleSubmissions: () => ({
+    entries: [],
+    isSubmittingAny: false,
+    allSaved: false,
+    addEntry: vi.fn(),
+    removeEntry: vi.fn(),
+    updateEntry: vi.fn(),
+    reset: vi.fn(),
+    submitAll: vi.fn().mockResolvedValue({ saved: [], failed: [] }),
+  }),
+  InlineVehicleSection: () => null,
+}));
+
+
 const userHolder: { current: { userId: string; role: string; tenantId: string } } = {
   current: { userId: "u1", role: "super_admin", tenantId: "t1" },
 };
@@ -120,11 +135,24 @@ function setRole(role: "super_admin" | "admin" | "guard" | "resident") {
 
 import { UsersTable } from "../components/users-table";
 
+const mockTransport = {
+  get: vi.fn(),
+  post: vi.fn().mockResolvedValue({}),
+  patch: vi.fn().mockResolvedValue({}),
+  put: vi.fn().mockResolvedValue({}),
+  delete: vi.fn().mockResolvedValue({}),
+  upload: vi.fn().mockResolvedValue({}),
+};
+
 function renderWithClient(ui: React.ReactElement) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <I18nProvider value={{ t: (k) => k, locale: "en" }}>{ui}</I18nProvider>
+      <TransportProvider value={mockTransport}>
+        <RoleProvider value={{ role: "SuperAdmin", tenantId: "t1", userId: "u1" }}>
+          <I18nProvider value={{ t: (k) => k, locale: "en" }}>{ui}</I18nProvider>
+        </RoleProvider>
+      </TransportProvider>
     </QueryClientProvider>,
   );
 }

@@ -13,6 +13,8 @@ import { ResidentSelect } from "../../shared/resident-select";
 import { VisitPersonStatusSelect } from "../../shared/visit-person-status-select";
 import type { VisitPersonStatus } from "../types";
 import { ImageSection, type StagedImage } from "./image-section";
+import { InlineVehicleSection } from "../../shared/vehicle-form/inline-vehicle-section";
+import type { InlineVehicleEntry, InlineVehicleEntryFields } from "../../shared/vehicle-form/inline-vehicle-types";
 
 interface VisitPersonFormData {
   fullName: string;
@@ -32,21 +34,31 @@ interface VisitPersonFormDraft {
 }
 
 interface VisitPersonFormProps {
+  mode?: "create" | "edit";
   onSave: (data: VisitPersonFormData) => void;
   onCancel: () => void;
   isSaving: boolean;
   isUploadingStagedImages?: boolean;
   initialDraft?: VisitPersonFormDraft;
   onDraftChange?: (draft: VisitPersonFormDraft) => void;
+  inlineVehicleEntries?: InlineVehicleEntry[];
+  onAddInlineVehicle?: () => void;
+  onRemoveInlineVehicle?: (clientId: string) => void;
+  onUpdateInlineVehicle?: (clientId: string, patch: Partial<InlineVehicleEntryFields>) => void;
 }
 
 export function VisitPersonForm({
+  mode = "create",
   onSave,
   onCancel,
   isSaving,
   isUploadingStagedImages,
   initialDraft,
   onDraftChange,
+  inlineVehicleEntries,
+  onAddInlineVehicle,
+  onRemoveInlineVehicle,
+  onUpdateInlineVehicle,
 }: VisitPersonFormProps) {
   const { t } = useI18n();
   const { role } = useRole();
@@ -197,6 +209,17 @@ export function VisitPersonForm({
         stagedImages={stagedImages}
         onStageImage={handleStageImage}
       />
+
+      {mode === "create" && onAddInlineVehicle && (
+        <InlineVehicleSection
+          ownerKind="visitPerson"
+          entries={inlineVehicleEntries ?? []}
+          onAddEntry={onAddInlineVehicle}
+          onRemoveEntry={onRemoveInlineVehicle ?? (() => {})}
+          onUpdateEntry={onUpdateInlineVehicle ?? (() => {})}
+          disabled={submitting}
+        />
+      )}
 
       <div className="flex gap-2 pt-2">
         <Button type="submit" disabled={submitting || !fullName.trim()} className="flex-1">

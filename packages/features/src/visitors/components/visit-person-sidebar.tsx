@@ -25,6 +25,7 @@ import { VisitPersonAccessEventForm } from "./visit-person-access-event-form";
 import { VisitPersonForm } from "./visit-person-form";
 import { VisitPersonEditForm } from "./visit-person-edit-form";
 import { ImageSection } from "./image-section";
+import type { InlineVehicleEntry, InlineVehicleEntryFields } from "../../shared/vehicle-form/inline-vehicle-types";
 
 interface VisitPersonSidebarProps {
   open: boolean;
@@ -70,6 +71,11 @@ interface VisitPersonSidebarProps {
     residentId: string;
     notes: string;
   }) => void;
+  justCreatedVehicleId?: string | null;
+  inlineVehicleEntries?: InlineVehicleEntry[];
+  onAddInlineVehicle?: () => void;
+  onRemoveInlineVehicle?: (clientId: string) => void;
+  onUpdateInlineVehicle?: (clientId: string, patch: Partial<InlineVehicleEntryFields>) => void;
 }
 
 export function VisitPersonSidebar({
@@ -93,12 +99,23 @@ export function VisitPersonSidebar({
   onSaveEdit,
   initialDraft,
   onDraftChange,
+  justCreatedVehicleId: justCreatedVehicleIdProp,
+  inlineVehicleEntries,
+  onAddInlineVehicle,
+  onRemoveInlineVehicle,
+  onUpdateInlineVehicle,
 }: VisitPersonSidebarProps) {
   const { t } = useI18n();
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
 
   useEffect(() => { setJustCreatedVehicleId(null); }, [person?.id]);
+
+  useEffect(() => {
+    if (justCreatedVehicleIdProp !== undefined) {
+      setJustCreatedVehicleId(justCreatedVehicleIdProp);
+    }
+  }, [justCreatedVehicleIdProp]);
 
   const handleCloseVehicleForm = () => setShowVehicleForm(false);
 
@@ -129,12 +146,17 @@ export function VisitPersonSidebar({
         {mode === "create" ? (
           <div className="mt-2">
             <VisitPersonForm
+              mode="create"
               onSave={onCreatePerson}
               onCancel={onClose}
               isSaving={isCreating}
               isUploadingStagedImages={isUploadingImage}
               initialDraft={initialDraft}
               onDraftChange={onDraftChange}
+              inlineVehicleEntries={inlineVehicleEntries}
+              onAddInlineVehicle={onAddInlineVehicle}
+              onRemoveInlineVehicle={onRemoveInlineVehicle}
+              onUpdateInlineVehicle={onUpdateInlineVehicle}
             />
           </div>
         ) : mode === "edit" && person && onSaveEdit ? (

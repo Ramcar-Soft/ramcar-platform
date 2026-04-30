@@ -14,6 +14,8 @@ import type { ImageType } from "@ramcar/shared";
 import { useRole } from "@ramcar/features/adapters";
 import { ResidentSelect } from "@ramcar/features/shared/resident-select";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
+import { InlineVehicleSection } from "@ramcar/features/shared/vehicle-form";
+import type { InlineVehicleEntry, InlineVehicleEntryFields } from "@ramcar/features/shared/vehicle-form";
 import { useFormPersistence } from "@/shared/hooks/use-form-persistence";
 import { ImageSection, type StagedImage } from "@ramcar/features/visitors";
 import type { VisitPersonStatus } from "../types";
@@ -33,6 +35,10 @@ interface ProviderFormProps {
   onCancel: () => void;
   isSaving: boolean;
   isUploadingStagedImages?: boolean;
+  inlineVehicleEntries?: InlineVehicleEntry[];
+  onAddInlineVehicle?: () => void;
+  onRemoveInlineVehicle?: (clientId: string) => void;
+  onUpdateInlineVehicle?: (clientId: string, patch: Partial<InlineVehicleEntryFields>) => void;
 }
 
 export function ProviderForm({
@@ -40,6 +46,10 @@ export function ProviderForm({
   onCancel,
   isSaving,
   isUploadingStagedImages,
+  inlineVehicleEntries,
+  onAddInlineVehicle,
+  onRemoveInlineVehicle,
+  onUpdateInlineVehicle,
 }: ProviderFormProps) {
   const t = useTranslations("visitPersons.form");
   const tCommon = useTranslations("common");
@@ -208,6 +218,17 @@ export function ProviderForm({
         stagedImages={stagedImages}
         onStageImage={handleStageImage}
       />
+
+      {onAddInlineVehicle && (
+        <InlineVehicleSection
+          ownerKind="visitPerson"
+          entries={inlineVehicleEntries ?? []}
+          onAddEntry={onAddInlineVehicle}
+          onRemoveEntry={onRemoveInlineVehicle ?? (() => {})}
+          onUpdateEntry={onUpdateInlineVehicle ?? (() => {})}
+          disabled={submitting}
+        />
+      )}
 
       <div className="flex gap-2 pt-2">
         <Button type="submit" disabled={submitting || !fullName.trim()} className="flex-1">

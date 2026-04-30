@@ -18,6 +18,7 @@ import { useVisitPersonVehicles } from "../hooks/use-visit-person-vehicles";
 import { useVisitPersonImages } from "../hooks/use-visit-person-images";
 import { useUploadVisitPersonImage } from "../hooks/use-upload-visit-person-image";
 import { useKeyboardNavigation } from "../../shared/hooks/use-keyboard-navigation";
+import { useInlineVehicleSubmissions } from "../../shared/vehicle-form/use-inline-vehicle-submissions";
 import { VisitorsTable } from "./visitors-table";
 import { VisitPersonSidebar } from "./visit-person-sidebar";
 import { useI18n } from "../../adapters";
@@ -98,6 +99,9 @@ export function VisitorsView({
   const updateVisitPerson = useUpdateVisitPerson();
   const uploadImage = useUploadVisitPersonImage();
   const feedback = useAccessEventFeedback();
+  const inlineVehicles = useInlineVehicleSubmissions();
+  const { entries: inlineVehicleEntries, isSubmittingAny: inlineIsSubmitting, addEntry: addInlineVehicle, removeEntry: removeInlineVehicle, updateEntry: updateInlineVehicle, reset: resetInlineVehicles, submitAll: submitAllVehicles } = inlineVehicles;
+  const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
 
   const handleSelectPerson = useCallback((person: VisitPerson) => {
     setSelectedPerson(person);
@@ -133,7 +137,9 @@ export function VisitorsView({
     setSidebarOpen(false);
     setSelectedPerson(null);
     setSidebarMode("view");
-  }, []);
+    setJustCreatedVehicleId(null);
+    resetInlineVehicles();
+  }, [resetInlineVehicles]);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
@@ -158,23 +164,37 @@ export function VisitorsView({
       toast.success(t("visitPersons.messages.created"));
 
       if (formData.stagedImages.size > 0) {
-        let failed = 0;
+        let imageFailed = 0;
         for (const [imageType, file] of formData.stagedImages) {
           try {
             await uploadImage.mutateAsync({ visitPersonId: person.id, file, imageType });
           } catch {
-            failed += 1;
+            imageFailed += 1;
           }
         }
-        if (failed > 0) {
-          toast.error(t("visitPersons.messages.imageUploadFailed", { count: failed }));
+        if (imageFailed > 0) {
+          toast.error(t("visitPersons.messages.imageUploadFailed", { count: imageFailed }));
         }
       }
 
-      setSelectedPerson(person);
-      setSidebarMode("view");
+      if (inlineVehicleEntries.length > 0) {
+        const { saved, failed } = await submitAllVehicles(person.id, "visitPerson");
+        if (failed.length === 0) {
+          if (saved.length === 1 && saved[0].vehicleId) {
+            setJustCreatedVehicleId(saved[0].vehicleId);
+          }
+          setSelectedPerson(person);
+          setSidebarMode("view");
+        } else {
+          // Keep sidebar open on partial failure; person is already saved
+          setSelectedPerson(person);
+        }
+      } else {
+        setSelectedPerson(person);
+        setSidebarMode("view");
+      }
     },
-    [createVisitPerson, uploadImage, t],
+    [createVisitPerson, uploadImage, t, inlineVehicleEntries, submitAllVehicles],
   );
 
   const handleSave = useCallback(
@@ -260,7 +280,7 @@ export function VisitorsView({
         vehicles={vehicles}
         isLoadingVehicles={isLoadingVehicles}
         isSaving={createAccessEvent.isPending}
-        isCreating={createVisitPerson.isPending}
+        isCreating={createVisitPerson.isPending || inlineIsSubmitting}
         isSavingEdit={updateVisitPerson.isPending}
         images={images}
         isLoadingImages={isLoadingImages}
@@ -272,6 +292,11 @@ export function VisitorsView({
         onSaveEdit={handleSaveEdit}
         initialDraft={initialDraft}
         onDraftChange={onDraftChange}
+        justCreatedVehicleId={justCreatedVehicleId}
+        inlineVehicleEntries={inlineVehicleEntries}
+        onAddInlineVehicle={addInlineVehicle}
+        onRemoveInlineVehicle={removeInlineVehicle}
+        onUpdateInlineVehicle={updateInlineVehicle}
       />
 
       <AccessEventFeedbackOverlay controller={feedback} />

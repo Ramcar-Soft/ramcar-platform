@@ -19,6 +19,7 @@ import { useVisitPersonVehicles } from "../hooks/use-visit-person-vehicles";
 import { useVisitPersonImages } from "../hooks/use-visit-person-images";
 import { useUploadVisitPersonImage } from "../hooks/use-upload-visit-person-image";
 import { useKeyboardNavigation, useAccessEventFeedback, AccessEventFeedbackOverlay } from "@ramcar/features";
+import { useInlineVehicleSubmissions } from "@ramcar/features/shared/vehicle-form";
 import { ProvidersTable } from "./providers-table";
 import { ProviderSidebar } from "./provider-sidebar";
 
@@ -64,6 +65,9 @@ export function ProvidersPageClient() {
   const updateVisitPerson = useUpdateVisitPerson();
   const uploadImage = useUploadVisitPersonImage();
   const feedback = useAccessEventFeedback();
+  const inlineVehicles = useInlineVehicleSubmissions();
+  const { entries: inlineVehicleEntries, isSubmittingAny: inlineIsSubmitting, addEntry: addInlineVehicle, removeEntry: removeInlineVehicle, updateEntry: updateInlineVehicle, reset: resetInlineVehicles, submitAll: submitAllVehicles } = inlineVehicles;
+  const [justCreatedVehicleId, setJustCreatedVehicleId] = useState<string | null>(null);
 
   const handleSelectPerson = useCallback((person: VisitPerson) => {
     setSelectedPerson(person);
@@ -99,7 +103,9 @@ export function ProvidersPageClient() {
     setSidebarOpen(false);
     setSelectedPerson(null);
     setSidebarMode("view");
-  }, []);
+    setJustCreatedVehicleId(null);
+    resetInlineVehicles();
+  }, [resetInlineVehicles]);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
@@ -128,7 +134,7 @@ export function ProvidersPageClient() {
       toast.success(t("providers.messages.created"));
 
       if (data.stagedImages.size > 0) {
-        let failed = 0;
+        let imageFailed = 0;
         for (const [imageType, file] of data.stagedImages) {
           try {
             await uploadImage.mutateAsync({
@@ -137,18 +143,31 @@ export function ProvidersPageClient() {
               imageType,
             });
           } catch {
-            failed += 1;
+            imageFailed += 1;
           }
         }
-        if (failed > 0) {
-          toast.error(t("providers.messages.imageUploadFailed", { count: failed }));
+        if (imageFailed > 0) {
+          toast.error(t("providers.messages.imageUploadFailed", { count: imageFailed }));
         }
       }
 
-      setSelectedPerson(person);
-      setSidebarMode("view");
+      if (inlineVehicleEntries.length > 0) {
+        const { saved, failed } = await submitAllVehicles(person.id, "visitPerson");
+        if (failed.length === 0) {
+          if (saved.length === 1 && saved[0].vehicleId) {
+            setJustCreatedVehicleId(saved[0].vehicleId);
+          }
+          setSelectedPerson(person);
+          setSidebarMode("view");
+        } else {
+          setSelectedPerson(person);
+        }
+      } else {
+        setSelectedPerson(person);
+        setSidebarMode("view");
+      }
     },
-    [createVisitPerson, uploadImage, t],
+    [createVisitPerson, uploadImage, t, inlineVehicleEntries, submitAllVehicles],
   );
 
   const handleSave = useCallback(
@@ -218,7 +237,7 @@ export function ProvidersPageClient() {
         vehicles={vehicles}
         isLoadingVehicles={isLoadingVehicles}
         isSaving={createAccessEvent.isPending}
-        isCreating={createVisitPerson.isPending}
+        isCreating={createVisitPerson.isPending || inlineIsSubmitting}
         isSavingEdit={updateVisitPerson.isPending}
         images={images}
         isLoadingImages={isLoadingImages}
@@ -228,6 +247,11 @@ export function ProvidersPageClient() {
         onSave={handleSave}
         onCreatePerson={handleCreatePerson}
         onSaveEdit={handleSaveEdit}
+        justCreatedVehicleIdProp={justCreatedVehicleId}
+        inlineVehicleEntries={inlineVehicleEntries}
+        onAddInlineVehicle={addInlineVehicle}
+        onRemoveInlineVehicle={removeInlineVehicle}
+        onUpdateInlineVehicle={updateInlineVehicle}
       />
 
       <AccessEventFeedbackOverlay controller={feedback} />

@@ -20,6 +20,20 @@ vi.mock("@/shared/hooks/use-form-persistence", () => ({
   }),
 }));
 
+vi.mock("@ramcar/features/shared/vehicle-form", () => ({
+  useInlineVehicleSubmissions: () => ({
+    entries: [],
+    isSubmittingAny: false,
+    allSaved: false,
+    addEntry: vi.fn(),
+    removeEntry: vi.fn(),
+    updateEntry: vi.fn(),
+    reset: vi.fn(),
+    submitAll: vi.fn().mockResolvedValue({ saved: [], failed: [] }),
+  }),
+  InlineVehicleSection: () => null,
+}));
+
 vi.mock("@ramcar/store", () => ({
   useAppStore: (selector: (s: unknown) => unknown) =>
     selector({ user: { userId: "u1", role: "admin", tenantId: "t1" } }),

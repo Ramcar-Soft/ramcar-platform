@@ -477,6 +477,16 @@
       "description": "¿Seguro que deseas eliminar \"{label}\"? Este vehículo dejará de aparecer en los selectores. Los registros de acceso pasados se conservan.",
       "confirm": "Eliminar",
       "cancel": "Cancelar"
+    },
+    "inline": {
+      "sectionTitle": "Vehículos",
+      "sectionTitleResident": "Vehículos del Residente",
+      "addEntry": "Agregar vehículo",
+      "removeEntry": "Eliminar",
+      "savingEntry": "Guardando...",
+      "savedEntry": "Guardado",
+      "retryEntry": "Reintentar",
+      "errorPlateInUse": "Esta placa ya está registrada"
     }
   },
   "visitPersons": {

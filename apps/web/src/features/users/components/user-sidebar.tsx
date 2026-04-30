@@ -16,6 +16,7 @@ import { useUpdateUser } from "../hooks/use-update-user";
 import { useTenants } from "@/features/tenants/hooks/use-tenants";
 import { useUserGroups } from "../hooks/use-user-groups";
 import type { CreateUserInput, UpdateUserInput } from "@ramcar/shared";
+import { useInlineVehicleSubmissions } from "@ramcar/features/shared/vehicle-form";
 
 export type UserSidebarMode = "create" | "edit";
 
@@ -41,6 +42,7 @@ export function UserSidebar({ open, mode, userId, onClose }: UserSidebarProps) {
 
   const createMutation = useCreateUser();
   const updateMutation = useUpdateUser(userId ?? "");
+  const inlineVehicles = useInlineVehicleSubmissions();
 
   const {
     data: userData,
@@ -90,17 +92,42 @@ export function UserSidebar({ open, mode, userId, onClose }: UserSidebarProps) {
         mode="create"
         tenants={tenants}
         userGroups={userGroups}
-        isPending={createMutation.isPending}
+        isPending={createMutation.isPending || inlineVehicles.isSubmittingAny}
         onSubmit={async (values: UserFormData) => {
-          createMutation.mutate(values as CreateUserInput, { onSuccess: onClose });
+          await new Promise<void>((resolve, reject) => {
+            createMutation.mutate(values as CreateUserInput, {
+              onSuccess: async (user) => {
+                if (inlineVehicles.entries.length > 0) {
+                  const { failed } = await inlineVehicles.submitAll(user.id, "resident");
+                  if (failed.length === 0) {
+                    inlineVehicles.reset();
+                    onClose();
+                  }
+                  // On failure: keep sidebar open, errors shown inline
+                } else {
+                  inlineVehicles.reset();
+                  onClose();
+                }
+                resolve();
+              },
+              onError: (err) => reject(err),
+            });
+          });
         }}
-        onCancel={onClose}
+        onCancel={() => {
+          inlineVehicles.reset();
+          onClose();
+        }}
+        inlineVehicleEntries={inlineVehicles.entries}
+        onAddInlineVehicle={inlineVehicles.addEntry}
+        onRemoveInlineVehicle={inlineVehicles.removeEntry}
+        onUpdateInlineVehicle={inlineVehicles.updateEntry}
       />
     );
   }
 
   return (
-    <Sheet open={open} onOpenChange={(next) => { if (!next) onClose(); }}>
+    <Sheet open={open} onOpenChange={(next) => { if (!next) { inlineVehicles.reset(); onClose(); } }}>
       <SheetContent
         side="right"
         className="w-[400px] sm:w-[800px] sm:max-w-[800px] overflow-y-auto px-4 pb-6"
