@@ -169,4 +169,25 @@ describe("VehiclesService.remove", () => {
       service.remove("vehicle-1", adminScope, "admin"),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it("forbids guards deleting visit-person-owned vehicles", async () => {
+    const repo = makeRepo({
+      findById: jest.fn().mockResolvedValue({ ...baseRow, visit_person_id: "vp-1" }),
+    });
+    const service = new VehiclesService(repo);
+    await expect(
+      service.remove("vehicle-1", adminScope, "guard"),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(repo.softDelete).not.toHaveBeenCalled();
+  });
+
+  it("admin can delete a visit-person-owned vehicle", async () => {
+    const repo = makeRepo({
+      findById: jest.fn().mockResolvedValue({ ...baseRow, visit_person_id: "vp-1" }),
+      softDelete: jest.fn().mockResolvedValue(1),
+    });
+    const service = new VehiclesService(repo);
+    await service.remove("vehicle-1", adminScope, "admin");
+    expect(repo.softDelete).toHaveBeenCalledWith("vehicle-1", TENANT_ID);
+  });
 });

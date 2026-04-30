@@ -5,6 +5,8 @@ import { normalizePhone, phoneOptionalSchema } from "@ramcar/shared";
 import type { ImageType } from "@ramcar/shared";
 import { useRole } from "@ramcar/features/adapters";
 import { VisitPersonStatusSelect } from "@ramcar/features/shared/visit-person-status-select";
+import { InlineVehicleSection } from "@ramcar/features/shared/vehicle-form";
+import type { InlineVehicleEntry, InlineVehicleEntryFields } from "@ramcar/features/shared/vehicle-form";
 import { ImageSection, type StagedImage } from "@ramcar/features/visitors";
 import type { VisitPersonStatus } from "../types";
 
@@ -23,6 +25,10 @@ interface ProviderFormProps {
   onCancel: () => void;
   isSaving: boolean;
   isUploadingStagedImages?: boolean;
+  inlineVehicleEntries?: InlineVehicleEntry[];
+  onAddInlineVehicle?: () => void;
+  onRemoveInlineVehicle?: (clientId: string) => void;
+  onUpdateInlineVehicle?: (clientId: string, patch: Partial<InlineVehicleEntryFields>) => void;
 }
 
 export function ProviderForm({
@@ -30,6 +36,10 @@ export function ProviderForm({
   onCancel,
   isSaving,
   isUploadingStagedImages,
+  inlineVehicleEntries,
+  onAddInlineVehicle,
+  onRemoveInlineVehicle,
+  onUpdateInlineVehicle,
 }: ProviderFormProps) {
   const { t } = useTranslation();
   const { role } = useRole();
@@ -159,6 +169,17 @@ export function ProviderForm({
         stagedImages={stagedImages}
         onStageImage={handleStageImage}
       />
+
+      {onAddInlineVehicle && (
+        <InlineVehicleSection
+          ownerKind="visitPerson"
+          entries={inlineVehicleEntries ?? []}
+          onAddEntry={onAddInlineVehicle}
+          onRemoveEntry={onRemoveInlineVehicle ?? (() => {})}
+          onUpdateEntry={onUpdateInlineVehicle ?? (() => {})}
+          disabled={submitting}
+        />
+      )}
 
       <div className="flex gap-2 pt-2">
         <Button type="submit" disabled={submitting || !fullName.trim()} className="flex-1">

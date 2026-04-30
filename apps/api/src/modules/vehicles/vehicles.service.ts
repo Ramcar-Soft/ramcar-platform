@@ -66,8 +66,8 @@ export class VehiclesService {
   ): Promise<void> {
     const existing = await this.repository.findById(id, scope);
     if (!existing) throw new NotFoundException();
-    if ((existing as { user_id: string | null }).user_id !== null && role === "guard") {
-      throw new ForbiddenException("Guards cannot manage resident vehicles");
+    if (role === "guard") {
+      throw new ForbiddenException("Guards cannot delete vehicles");
     }
     const tenantId = (existing as { tenant_id: string }).tenant_id;
     const affected = await this.repository.softDelete(id, tenantId);

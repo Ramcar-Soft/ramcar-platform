@@ -477,6 +477,16 @@
       "description": "Are you sure you want to delete \"{label}\"? This vehicle will no longer appear in selectors. Past access events will keep their record.",
       "confirm": "Delete",
       "cancel": "Cancel"
+    },
+    "inline": {
+      "sectionTitle": "Vehicles",
+      "sectionTitleResident": "Resident Vehicles",
+      "addEntry": "Add vehicle",
+      "removeEntry": "Remove",
+      "savingEntry": "Saving...",
+      "savedEntry": "Saved",
+      "retryEntry": "Retry",
+      "errorPlateInUse": "This plate is already registered"
     }
   },
   "visitPersons": {

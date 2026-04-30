@@ -11,13 +11,14 @@ import { useI18n } from "../../adapters";
 interface VehicleTypeSelectProps {
   value: VehicleType | "";
   onChange: (value: VehicleType) => void;
+  disabled?: boolean;
 }
 
-export function VehicleTypeSelect({ value, onChange }: VehicleTypeSelectProps) {
+export function VehicleTypeSelect({ value, onChange, disabled }: VehicleTypeSelectProps) {
   const { t } = useI18n();
 
   return (
-    <Select value={value} onValueChange={(v) => onChange(v as VehicleType)}>
+    <Select value={value} onValueChange={(v) => onChange(v as VehicleType)} disabled={disabled}>
       <SelectTrigger>
         <SelectValue placeholder={t("vehicles.vehicleType.placeholder")} />
       </SelectTrigger>

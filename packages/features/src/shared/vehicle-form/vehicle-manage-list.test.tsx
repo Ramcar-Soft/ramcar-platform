@@ -49,7 +49,7 @@ describe("VehicleManageList — US2 logo integration", () => {
   it("known-brand row renders an img (logo present)", () => {
     const { container } = renderWithHarness(
       <VehicleManageList
-        residentId="r-1"
+        owner={{ kind: "resident", userId: "r-1" }}
         vehicles={[knownBrandVehicle]}
         isLoading={false}
         onEdit={() => {}}
@@ -64,7 +64,7 @@ describe("VehicleManageList — US2 logo integration", () => {
   it("free-text / unknown brand row renders zero img elements", () => {
     const { container } = renderWithHarness(
       <VehicleManageList
-        residentId="r-1"
+        owner={{ kind: "resident", userId: "r-1" }}
         vehicles={[unknownBrandVehicle]}
         isLoading={false}
         onEdit={() => {}}
@@ -79,7 +79,7 @@ describe("VehicleManageList — US2 logo integration", () => {
   it("both rows have consistent structure (logo span present in both)", () => {
     const { container } = renderWithHarness(
       <VehicleManageList
-        residentId="r-1"
+        owner={{ kind: "resident", userId: "r-1" }}
         vehicles={[knownBrandVehicle, unknownBrandVehicle]}
         isLoading={false}
         onEdit={() => {}}
@@ -103,7 +103,7 @@ describe("VehicleManageList — US2 logo integration", () => {
   it("US3: whitespace/uppercase brand normalizes to known-brand logo", () => {
     const { container } = renderWithHarness(
       <VehicleManageList
-        residentId="r-1"
+        owner={{ kind: "resident", userId: "r-1" }}
         vehicles={[normalizedKnownBrandVehicle]}
         isLoading={false}
         onEdit={() => {}}
@@ -112,5 +112,55 @@ describe("VehicleManageList — US2 logo integration", () => {
     );
     const items = container.querySelectorAll("li");
     expect(items[0].querySelector("img")).toBeInTheDocument();
+  });
+});
+
+describe("VehicleManageList — owner kind and canDelete (spec 026)", () => {
+  it("renders with visitPerson owner kind", () => {
+    const visitPersonVehicle: Vehicle = {
+      ...knownBrandVehicle,
+      id: "vp-v-1",
+      userId: null,
+      visitPersonId: "vp-1",
+    };
+    const { container } = renderWithHarness(
+      <VehicleManageList
+        owner={{ kind: "visitPerson", visitPersonId: "vp-1" }}
+        vehicles={[visitPersonVehicle]}
+        isLoading={false}
+        onEdit={() => {}}
+        onClose={() => {}}
+      />
+    );
+    expect(container.querySelectorAll("li")).toHaveLength(1);
+  });
+
+  it("canDelete={false} hides the trash icon but keeps the pencil", () => {
+    const { getByLabelText, queryByLabelText } = renderWithHarness(
+      <VehicleManageList
+        owner={{ kind: "visitPerson", visitPersonId: "vp-1" }}
+        vehicles={[knownBrandVehicle]}
+        isLoading={false}
+        canDelete={false}
+        onEdit={() => {}}
+        onClose={() => {}}
+      />
+    );
+    expect(getByLabelText("vehicles.manage.editAction")).toBeInTheDocument();
+    expect(queryByLabelText("vehicles.manage.deleteAction")).toBeNull();
+  });
+
+  it("canDelete={false} with empty list still renders empty-state message", () => {
+    const { queryByLabelText } = renderWithHarness(
+      <VehicleManageList
+        owner={{ kind: "visitPerson", visitPersonId: "vp-1" }}
+        vehicles={[]}
+        isLoading={false}
+        canDelete={false}
+        onEdit={() => {}}
+        onClose={() => {}}
+      />
+    );
+    expect(queryByLabelText("vehicles.manage.deleteAction")).toBeNull();
   });
 });
